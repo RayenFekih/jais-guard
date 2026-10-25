@@ -23,6 +23,7 @@ dependencies = [
     "tqdm>=4.70.1",
     "transformers==5.20.2",
     "huggingface-hub>=2.3.0",
+    "vllm>=0.2.5",
 ]
 
 [dependency-groups]
