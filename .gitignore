@@ -71,3 +71,12 @@ wandb/
 
 # Docker-related
 docker-compose.override.yml
+
+# Generated baseline reports and downloaded datasets
+results/
+data/raw/
+data/processed/
+
+# Historical benchmark artifacts (keep the source evaluation dataset trackable)
+/data/jev_results.zip
+/data/jev_results/
