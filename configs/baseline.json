@@ -1,0 +1,7 @@
+{
+  "model": "IFM/Jais-3-0.9B",
+  "revision": "e51941b37091287fee4934e3f8a799e0d3fef37f",
+  "reasoning_effort": "low",
+  "max_tokens": 256,
+  "max_model_len": 1024
+}

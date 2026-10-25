@@ -1,0 +1,8 @@
+{"id": "msa", "text": "ما هي عاصمة تونس؟", "label": "VALID", "category": "msa"}
+{"id": "tunisian", "text": "نحب نعرف قداش سوم التذكرة", "label": "VALID", "category": "tunisian"}
+{"id": "egyptian", "text": "ازاي اروح المحطة؟", "label": "VALID", "category": "egyptian"}
+{"id": "short", "text": "شكرا", "label": "VALID", "category": "short"}
+{"id": "mash", "text": "ضصثقفغعهخحجضصثقفغعهخحج", "label": "GIBBERISH", "category": "keyboard_mash"}
+{"id": "typos", "text": "كيف اصل الى الجامعه", "label": "VALID", "category": "spelling"}
+{"id": "missing_spaces", "text": "كيفاروحللمحطة", "label": "VALID", "category": "missing_spaces"}
+{"id": "incomplete", "text": "لو سمحت ممكن", "label": "VALID", "category": "incomplete"}
