@@ -1,0 +1,73 @@
+# === Python ignores ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.db
+*.sqlite3
+
+# Virtual environment folders
+venv/
+env/
+.venv/
+.venv-*/
+.env/
+ENV/
+*.env
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/*
+!logs/.gitkeep
+
+# IDE settings
+.idea/
+.vscode/
+
+# Local agent and cloud configuration
+.agents/
+.codex/
+.aws/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secret / private keys
+*secret*.json
+*key*.json
+
+# Deployment / containers
+*.pid
+*.sock
+*.crt
+*.pem
+
+# Coverage / test artifacts
+*.coverage
+htmlcov/
+
+# Cache folders
+.cache/
+.ruff_cache/
+dist/
+build/
+.pytest_cache/
+*.egg-info/
+
+# Generated model weights and training output
+checkpoints/
+outputs/
+runs/
+wandb/
+*.safetensors
+*.pt
+*.pth
+*.ckpt
+
+# Docker-related
+docker-compose.override.yml
