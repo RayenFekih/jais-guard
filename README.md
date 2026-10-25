@@ -127,3 +127,16 @@ git push -u origin main
 ```
 
 Replace `OWNER/REPOSITORY` with your GitHub owner and repository name. Review the staged files before committing. Virtual environments, environment secrets, local agent/cloud configuration, logs, and generated model weights are excluded by `.gitignore`; `uv.lock` and `.env.example` are included.
+
+## JaisGuard baseline inference
+
+Initial `VALID` / `GIBBERISH` inference, using Transformers and PyTorch in `.venv`:
+
+```bash
+.venv/bin/python scripts/smoke_baseline.py
+```
+
+See [baseline setup and research conditions](docs/baseline.md) for the repository
+inspection, official reasoning controls, CPU checks, configuration, output format,
+and validation limits. This is Phase 1 diagnostic functionality; no training is
+implemented.
