@@ -80,3 +80,40 @@ example is included, so these results do not establish general detection quality
 The run used CPU FP32 via the unchanged device fallback; do not attribute
 comparisons with earlier GPU runs solely to the new prompt. The two variants
 within this run used identical inference settings.
+
+## Development evaluation reports
+
+Run the existing 40-example development split with both fixed prompt variants:
+
+```bash
+.venv/bin/python scripts/smoke_baseline.py --dev
+```
+
+The incremental source report is `results/baseline/dev_prompt_comparison.json`.
+On completion, `results/baseline/dev_prompt_comparison/` contains:
+
+- `summary.md`: metrics, confusion tables, subtype/dialect/query-type breakdowns,
+  token/latency totals, and invalid/incorrect examples.
+- `summary.json`: the same metrics plus model configuration, generation settings,
+  device, dtype, dependency versions, and UTC run timestamps.
+- `detailed_results.jsonl` and `.csv`: source annotations, review hints, rendered
+  prompts, raw outputs, predictions, tokens, stop reasons, and latency per example.
+
+If `data/jev_results.zip` is present, the report additionally joins the historical
+Jev results to the exact dev IDs and verifies text/truth matches. It reports the
+original 0.5 threshold, not a newly tuned threshold. The historical prompts were
+domain-specific; this is a same-data comparison, not identical prompting.
+
+Latency includes formatting, tokenization, generation, and parsing, excludes model
+loading, and includes the first request with no warmup. CUDA timing synchronizes
+before/after each request. CPU fallback uses FP32. Jev API latency and this local
+latency have different measurement conditions; do not infer relative production
+costs or speed from them. No cost model or inference optimization is included.
+
+Invalid outputs count as failures in accuracy and recall, and as a false negative
+for their true class in binary macro-F1. The confusion table has an explicit
+INVALID prediction column. Valid false rejection counts only explicit GIBBERISH
+labels on VALID inputs; valid acceptance also penalizes invalid responses. Both
+are shown to avoid hiding failures. Report generation never performs inference.
+A nonzero smoke-run exit status means at least one prediction failed; inspect the
+saved report to distinguish classification failures from a runtime exception.

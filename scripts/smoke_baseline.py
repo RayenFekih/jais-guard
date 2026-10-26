@@ -1,9 +1,12 @@
 """Inspect untuned Jais predictions on a few Arabic examples."""
 
 import argparse
+import importlib.metadata
 import json
 import logging
 import sys
+import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -11,9 +14,12 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def main() -> int:
+    import torch
+
     from jais_guard.data import load_dataset
     from jais_guard.inference import BaselineClassifier, BaselineConfig
     from jais_guard.metrics import summarize
+    from jais_guard.report import write_report
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dev", action="store_true", help="Use the existing 40-example dev split")
@@ -33,11 +39,32 @@ def main() -> int:
     filename = "dev_prompt_comparison.json" if args.dev else "prompt_comparison.json"
     output = ROOT / "results/baseline" / filename
     output.parent.mkdir(parents=True, exist_ok=True)
-    report = {"config": config, "device": classifier.device, "variants": {}}
+    report = {
+        "config": config,
+        "device": classifier.device,
+        "hardware": torch.cuda.get_device_name(0) if classifier.device == "cuda" else "CPU",
+        "dtype": str(classifier.model.dtype),
+        "split": "dev" if args.dev else "smoke",
+        "started_utc": datetime.now(UTC).isoformat(),
+        "versions": {name: importlib.metadata.version(name) for name in ("torch", "transformers")},
+        "generation_config": classifier.model.generation_config.to_dict(),
+        "generation_overrides": {
+            "do_sample": False,
+            "max_new_tokens": config["max_tokens"],
+            "pad_token_id": classifier.tokenizer.eos_token_id,
+        },
+        "variants": {},
+    }
     for variant in ("system_only", "explicit_user"):
         results = []
         for row in rows:
+            if classifier.device == "cuda":
+                torch.cuda.synchronize()
+            start = time.perf_counter()
             result = {**row, **classifier.classify(row["text"], variant=variant)}
+            if classifier.device == "cuda":
+                torch.cuda.synchronize()
+            result["latency_ms"] = (time.perf_counter() - start) * 1000
             results.append(result)
             print(f"\nVariant: {variant} | Input: {row['text']}")
             print(f"Raw output:\n{result['raw_output']}")
@@ -50,6 +77,9 @@ def main() -> int:
             report["variants"][variant] = {"summary": summarize(results), "results": results}
             output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
         print(f"\n{variant}: {summarize(results)}", flush=True)
+    report["completed_utc"] = datetime.now(UTC).isoformat()
+    output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+    write_report(report, output.parent / output.stem, ROOT / "data/jev_results.zip")
     print(f"Saved to {output}")
     return (
         0
