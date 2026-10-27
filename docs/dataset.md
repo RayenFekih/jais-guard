@@ -1,5 +1,10 @@
 # Existing Arabic gibberish evaluation data
 
+This document records the existing religious-domain benchmark and its historical
+labeling policy. For the new general-purpose collection, the current policy and
+blind-review workflow are in [annotation.md](annotation.md). Existing benchmark
+labels and prompts remain unchanged.
+
 Reuse `data/gibberish.jsonl`; do not regenerate, shuffle, or reassign its splits.
 The file contains 200 Arabic-script examples: 100 meaningful and 100 gibberish.
 All IDs and exact texts are unique; the loader also checks duplicates after

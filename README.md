@@ -140,3 +140,14 @@ See [baseline setup and research conditions](docs/baseline.md) for the repositor
 inspection, official reasoning controls, CPU checks, configuration, output format,
 and validation limits. This is Phase 1 diagnostic functionality; no training is
 implemented.
+
+## Local dataset annotation
+
+The 100-candidate, data-only pilot is ready for blind review:
+
+```bash
+.venv/bin/python -m streamlit run apps/annotate.py
+```
+
+Open http://localhost:8501. See [annotation workflow and source provenance](docs/annotation.md).
+Labels, notes, flags and progress persist locally in SQLite. No model is loaded.

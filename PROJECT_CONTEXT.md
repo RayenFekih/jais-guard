@@ -10,15 +10,17 @@ or exclude them explicitly from an in-scope experiment.
 
 ## Authoritative task definition
 
-Use the exact Arabic labeling policy in `docs/dataset.md` (Authoritative labeling
-policy), shared by the previous Jev evaluation, for baseline prompts, dataset
-review, and future fine-tuning. Its verbatim prompt constant is `DEFINITION` in
-`src/jais_guard/prompts.py`. Do not replace it with a broader or stricter notion
-of grammatical correctness, application relevance, or linguistic fluency.
-Meaningful Arabic inputs remain VALID despite spelling errors, missing spaces,
-incomplete sentences, or brevity. Preserve existing labels; flag questionable
-examples for manual review without automatically relabeling them. Retain
-selectable prompt variants and the exact output labels VALID and GIBBERISH.
+For the general-purpose data collection, VALID means reasonably recoverable meaning
+or communicative intent; GIBBERISH means no reasonably recoverable meaning without
+inventing missing meaning. Accept dialects, typos, incomplete requests, greetings,
+understandable metaphors, unusual coherent expressions and factual inaccuracies.
+Relevance, safety and answerability do not determine the label. Prefer VALID when
+a reasonable interpretation exists; flag uncertainty for review. There is no
+third annotation label. Flagged or unlabeled records cannot be exported.
+
+See `docs/annotation.md` for the current policy, source rights, and workflow. The
+historical Arabic definition and generation prompts remain unchanged as benchmark
+artifacts; they are not silently rewritten for the new collection.
 
 ## Development strategy
 
@@ -45,23 +47,26 @@ changing them. Account for the local GPU's 6 GB VRAM limit.
 The introductory study of tokenization, chat templates, prefill, decoding, and
 KV caching is complete.
 
-The current milestone is baseline Arabic gibberish classification using the
-original Jais-3-0.9B model, without fine-tuning. Use the labels `VALID` and
-`GIBBERISH`. Establish and inspect the untuned model's behavior before moving to
-training, architecture changes, or inference optimization. Keep invalid or
-unparsable outputs visible and count them as evaluation failures.
+The current milestone is data creation and local blind annotation, beginning with
+100 training candidates: 30 public-source VALID, 15 Codex VALID, 5 Python VALID,
+40 Codex GIBBERISH, and 10 Python GIBBERISH. Intended labels are not ground truth.
+Stop at the user's pilot review before scaling to 1,000 training, 200 validation,
+and eventually 400 isolated general-purpose test examples. The user is the sole
+human reviewer; disclose this limitation. Do not implement training, heads, LoRA,
+model evaluation, or local Jais generation in this data-only milestone.
 
-For the current prompt experiment, compare system-only classification instructions
-with an explicit classification request in the user message, using identical
-in-scope examples and unchanged model, reasoning, and decoding settings. Preserve
-raw outputs, parsed predictions, token counts, and per-example results. Report
-invalid outputs separately from incorrect classification labels.
+Use Codex directly for semantic gibberish, invented words, and hard meaningful
+counterexamples; save instructions, outputs, available metadata, and family IDs.
+Use admitted public sources for human inputs and deterministic Python recipes for
+noise and meaning-preserving perturbations. No paid API dependency is authorized.
+Prefer permissive sources; allow CC BY-SA 4.0 for linguistic diversity after checking
+upstream rights and publication compatibility. Preserve attribution/license metadata;
+NC/ND or unclear rights require explicit review, not automatic admission.
 
-Reuse `data/gibberish.jsonl` for Phase 1, preserving the existing 40-example dev
-and 160-example test splits and source annotations. Use dev for current prompt
-experiments; do not run test inference until explicitly requested. Review hints
-must not automatically change labels. See `docs/dataset.md` for the schema and
-the historical Jev benchmark's methodological limits.
+Preserve `data/gibberish.jsonl` and its 40 religious dev / 160 religious test records,
+labels and all historical results. Use this benchmark only for read-only contamination
+checks in the data workflow. New train/validation/test partitions and generation
+families remain separate. See `docs/annotation.md` for the application and exports.
 
 Keep model inference, prompting, and evaluation metrics separate so later
 experiments can reuse the evaluation framework. Preserve configurations, raw
