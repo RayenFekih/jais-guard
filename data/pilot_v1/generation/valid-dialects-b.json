@@ -1,0 +1,55 @@
+{
+  "batch_id": "codex-pilot-v1-valid-dialects-b",
+  "created_at": "2026-10-27T14:59:13.859838+00:00",
+  "instructions": "Author exactly five NEW Arabic-script candidate inputs for JaisGuard blind review. Core policy: VALID has reasonably recoverable meaning or communicative intent; GIBBERISH has no reasonably recoverable meaning without inventing it. Intended label: VALID. Construction family: valid-dialects-b. For VALID accept metaphors, unusual coherent expressions, dialects, factual inaccuracies and incomplete requests. For semantic gibberish combine legitimate words without a recoverable communicative intention; for invented-word candidates use Arabic-like pseudowords. Vary syntax, length and domain within the batch. Avoid repetitive templates. Do not reuse, paraphrase, or seed from any religious evaluation input. Return text, proposed dialect and domain only. Intended labels are not human ground truth.",
+  "available_model_metadata": {
+    "assistant": "Codex",
+    "provider": "OpenAI",
+    "model_id": null,
+    "session_id": null,
+    "sampling_parameters": null
+  },
+  "metadata_note": "Exact runtime model ID and sampling settings are not exposed; outputs are the artifact.",
+  "candidates": [
+    {
+      "input_text": "بدي أحكي مع المدير عن الدوام، بس كل مرة الكلام بيوقف بحلقي",
+      "dialect": "Levantine",
+      "domain": "work",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-b-construction-1"
+    },
+    {
+      "input_text": "ممكن طريقة أشرح فيها لابني ليش الغيمة ما بتوقع علينا؟",
+      "dialect": "Levantine",
+      "domain": "education",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-b-construction-2"
+    },
+    {
+      "input_text": "بالله نجم نبدل موعد الحافلة ولا التذكرة ما تتبدلش؟",
+      "dialect": "Tunisian",
+      "domain": "travel",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-b-construction-3"
+    },
+    {
+      "input_text": "راسي معبي حكايات ونحب نفرغ شوية على الورق، منين نبدأ؟",
+      "dialect": "Tunisian",
+      "domain": "daily_life",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-b-construction-4"
+    },
+    {
+      "input_text": "مساء الخير، بخصوص الاستمارة التي لا تحتوي على خانة العنوان",
+      "dialect": "MSA",
+      "domain": "administration",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-b-construction-5"
+    }
+  ]
+}

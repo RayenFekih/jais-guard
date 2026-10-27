@@ -1,0 +1,27 @@
+{
+  "tydi": {
+    "repository": "google-research-datasets/tydiqa",
+    "revision": "da78f23f9119363459acbaf46bf89426ff26c259",
+    "license": "Apache-2.0",
+    "attribution": "TyDi QA contributors / Google Research",
+    "rights_status": "verified for selected inputs",
+    "upstream_rights_evidence": "tydi_README.md"
+  },
+  "aya": {
+    "repository": "CohereLabs/aya_dataset",
+    "revision": "f9ea04583f02a8f86404ff6c58bf75fe637df8a2",
+    "license": "Apache-2.0",
+    "attribution": "Aya Open Science contributors / Cohere Labs",
+    "rights_status": "verified for selected inputs",
+    "upstream_rights_evidence": "aya_README.md"
+  },
+  "massive": {
+    "repository": "AmazonScience/massive",
+    "revision": "ff6bd8e4b27c3543e4f8fe2108f32bb95a6f8740",
+    "license": "CC-BY-4.0",
+    "attribution": "Amazon MASSIVE contributors",
+    "rights_status": "verified for selected inputs",
+    "upstream_rights_evidence": "massive_README.md"
+  },
+  "limitations": "TyDi is elicited Arabic; Aya original annotations are human authored, not production logs; MASSIVE is localized. Dialect hints need review. Conditional Naous and ArBanking77 sources are not included. Public redistribution requires compatibility review."
+}

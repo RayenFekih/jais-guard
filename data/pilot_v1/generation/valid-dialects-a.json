@@ -1,0 +1,55 @@
+{
+  "batch_id": "codex-pilot-v1-valid-dialects-a",
+  "created_at": "2026-10-27T14:59:13.859655+00:00",
+  "instructions": "Author exactly five NEW Arabic-script candidate inputs for JaisGuard blind review. Core policy: VALID has reasonably recoverable meaning or communicative intent; GIBBERISH has no reasonably recoverable meaning without inventing it. Intended label: VALID. Construction family: valid-dialects-a. For VALID accept metaphors, unusual coherent expressions, dialects, factual inaccuracies and incomplete requests. For semantic gibberish combine legitimate words without a recoverable communicative intention; for invented-word candidates use Arabic-like pseudowords. Vary syntax, length and domain within the batch. Avoid repetitive templates. Do not reuse, paraphrase, or seed from any religious evaluation input. Return text, proposed dialect and domain only. Intended labels are not human ground truth.",
+  "available_model_metadata": {
+    "assistant": "Codex",
+    "provider": "OpenAI",
+    "model_id": null,
+    "session_id": null,
+    "sampling_parameters": null
+  },
+  "metadata_note": "Exact runtime model ID and sampling settings are not exposed; outputs are the artifact.",
+  "candidates": [
+    {
+      "input_text": "أنا دماغي عاملة زي الراديو اللي بيلقط كذا محطة مرة واحدة",
+      "dialect": "Egyptian",
+      "domain": "daily_life",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-a-construction-1"
+    },
+    {
+      "input_text": "هو ينفع أرجع الحاجة لو الكرتونة اتفتحت بس الحاجة لسه جديدة؟",
+      "dialect": "Egyptian",
+      "domain": "shopping",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-a-construction-2"
+    },
+    {
+      "input_text": "محتاج اعرف المواصلات من عندي للشغل بس مش عارف اسم الشارع",
+      "dialect": "Egyptian",
+      "domain": "travel",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-a-construction-3"
+    },
+    {
+      "input_text": "ودي أرتب مصروفي، كل ما نزل الراتب طار قبل آخر الشهر",
+      "dialect": "Gulf",
+      "domain": "finance",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-a-construction-4"
+    },
+    {
+      "input_text": "إذا شريت جهاز مستعمل وما معه فاتورة، وش أسأل البايع؟",
+      "dialect": "Gulf",
+      "domain": "shopping",
+      "intended_label": "VALID",
+      "subtype": "meaningful_counterexample",
+      "family_id": "codex-pilot-v1-valid-dialects-a-construction-5"
+    }
+  ]
+}

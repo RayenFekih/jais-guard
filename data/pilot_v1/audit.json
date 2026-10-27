@@ -1,0 +1,48 @@
+{
+  "created_at": "2026-10-27T15:12:14.114694+00:00",
+  "candidates": 100,
+  "partition": "train",
+  "intended_counts": {
+    "GIBBERISH": 50,
+    "VALID": 50
+  },
+  "sources": {
+    "codex": 55,
+    "public": 30,
+    "python": 15
+  },
+  "quality_issues": [
+    {
+      "id": "P-970eb0072429",
+      "other_id": "P-54ef8eb90459",
+      "kind": "near_duplicate",
+      "cross_partition": false
+    },
+    {
+      "id": "P-ad485c8f105e",
+      "other_id": "P-5b5279f54d13",
+      "kind": "near_duplicate",
+      "cross_partition": false
+    },
+    {
+      "id": "P-be737d5c71ea",
+      "other_id": "P-241b2cd002de",
+      "kind": "near_duplicate",
+      "cross_partition": false
+    },
+    {
+      "id": "P-da9c24757774",
+      "other_id": "P-4f7e2636c193",
+      "kind": "near_duplicate",
+      "cross_partition": false
+    },
+    {
+      "id": "P-dce7cd69016e",
+      "other_id": "P-28411ec8a06c",
+      "kind": "near_duplicate",
+      "cross_partition": false
+    }
+  ],
+  "human_review": "pending for every candidate",
+  "pilot_sha256": "5da772ec894b6ff414d5d4eba0aba94e36ae0f21e85e093a91c2fe38ef81ad76"
+}
