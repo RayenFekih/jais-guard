@@ -46,7 +46,17 @@ with st.sidebar:
     if "active_queue" not in st.session_state:
         st.session_state["active_queue"] = get_state("active_queue", db_path) or "all"
     partition = st.selectbox("Partition", ("train", "validation", "test"), key="active_partition")
-    mode = st.selectbox("Queue", ("all", "unreviewed", "flagged"), key="active_queue")
+    mode = st.selectbox(
+        "Queue", ("all", "VALID", "GIBBERISH", "flagged", "unreviewed"), key="active_queue"
+    )
+    search = (
+        st.text_input(
+            "Search text or example ID",
+            help="Match exact or partial Arabic text, or all or part of an example ID.",
+        )
+        .strip()
+        .casefold()
+    )
     set_state("active_partition", partition, db_path)
     set_state("active_queue", mode, db_path)
     st.caption(
@@ -99,14 +109,30 @@ if partition == "test" and not get_state("test_unlocked", db_path):
         "the annotation guide describes the explicit unlock record."
     )
     st.stop()
-rows = queue(partition, mode, db_path)
-if not rows:
-    st.info("No records in this queue. Import the pilot, choose another queue, or resume later.")
+all_rows = queue(partition, path=db_path)
+if not all_rows:
+    st.info("No records in this partition. Import the pilot or choose another partition.")
     st.stop()
-state_key = f"cursor:{partition}:{mode}"
+rows = all_rows
+if mode in ("VALID", "GIBBERISH"):
+    rows = [record for record in rows if record["human_label"] == mode]
+elif mode == "flagged":
+    rows = [record for record in rows if record["flagged"]]
+elif mode == "unreviewed":
+    rows = [record for record in rows if record["human_label"] is None]
+if search:
+    rows = [
+        record
+        for record in rows
+        if search in record["input_text"].casefold() or search in record["id"].casefold()
+    ]
+# Selection is independent of filters so correcting a label never removes the open example.
+state_key = f"cursor:{partition}:all"
 current_id = get_state(state_key, db_path)
-index = next((i for i, row in enumerate(rows) if row["id"] == current_id), 0)
-row = rows[index]
+row = next(
+    (record for record in all_rows if record["id"] == current_id), rows[0] if rows else all_rows[0]
+)
+index = next((i for i, record in enumerate(rows) if record["id"] == row["id"]), -1)
 set_state(state_key, row["id"], db_path)
 notes_key = f"notes:{row['id']}"
 if notes_key not in st.session_state:
@@ -116,6 +142,9 @@ if notes_key not in st.session_state:
 def persist(label=None, flag=None):
     try:
         fresh = next(r for r in queue(partition, path=db_path) if r["id"] == row["id"])
+        if label is None and flag is None and st.session_state[notes_key] == fresh["notes"]:
+            # Browsing should not create annotation revisions when nothing was edited.
+            return True
         save_annotation(
             row["id"],
             label=label if label is not None else fresh["human_label"],
@@ -132,13 +161,35 @@ def persist(label=None, flag=None):
         return False
 
 
-def navigate(direction):
+def open_example(record_id):
     if persist():
-        next_row = rows[max(0, min(index + direction, len(rows) - 1))]
-        set_state(state_key, next_row["id"], db_path)
+        set_state(state_key, record_id, db_path)
+        st.session_state.pop("save_status", None)
 
 
-st.caption(f"{row['id']} · {index + 1} of {len(rows)} in {mode} queue")
+st.caption(f"{len(rows)} matching examples")
+if rows:
+    with st.container(height=220):
+        for match in rows:
+            preview = " ".join(match["input_text"].split())
+            preview = preview[:77] + "…" if len(preview) > 80 else preview
+            status = match["human_label"] or "Not labeled"
+            if match["flagged"]:
+                status += " · flagged"
+            st.button(
+                f"{match['id']} · {status} · {preview}",
+                key=f"open:{match['id']}",
+                on_click=open_example,
+                args=(match["id"],),
+                use_container_width=True,
+            )
+else:
+    st.info("No matching examples. Change the search or queue filter.")
+if index >= 0:
+    st.caption(f"{row['id']} · {index + 1} of {len(rows)} in {mode} queue")
+else:
+    st.caption(f"{row['id']} · selected example is outside the current search/filter")
+    st.info("This example stays open after saving even when it no longer matches the filter.")
 st.markdown(
     '<div dir="rtl" lang="ar" style="text-align:right;unicode-bidi:plaintext;'
     "white-space:pre-wrap;font-size:1.6rem;line-height:1.9;padding:1rem;"
@@ -173,9 +224,19 @@ if row["flagged"]:
 else:
     st.button("Flag for Review", shortcut="F", on_click=persist, kwargs={"flag": True})
 previous, following = st.columns(2)
-previous.button("Previous", shortcut="P", on_click=navigate, args=(-1,), disabled=index == 0)
+previous.button(
+    "Previous",
+    shortcut="P",
+    on_click=open_example,
+    args=(rows[index - 1]["id"] if index > 0 else row["id"],),
+    disabled=index <= 0,
+)
 following.button(
-    "Next", shortcut="N", on_click=navigate, args=(1,), disabled=index == len(rows) - 1
+    "Next",
+    shortcut="N",
+    on_click=open_example,
+    args=(rows[index + 1]["id"] if rows and index + 1 < len(rows) else row["id"],),
+    disabled=not rows or index == len(rows) - 1,
 )
 st.caption(
     "Shortcuts: 1 VALID · 2 GIBBERISH · F flag · P previous · N next. "
