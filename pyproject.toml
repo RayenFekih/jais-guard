@@ -26,6 +26,11 @@ dependencies = [
     "vllm>=0.2.5",
 ]
 
+[project.optional-dependencies]
+annotation = [
+    "streamlit==1.66.0",
+]
+
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",

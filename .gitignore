@@ -80,3 +80,9 @@ data/processed/
 # Historical benchmark artifacts (keep the source evaluation dataset trackable)
 /data/jev_results.zip
 /data/jev_results/
+
+# Local annotation state, SQLite sidecars, and unreviewed source caches
+/data/annotation/
+/data/exports/
+*.sqlite3-wal
+*.sqlite3-shm
