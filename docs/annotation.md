@@ -1,5 +1,16 @@
 # Dataset pilot and local annotation
 
+**Current checkpoint:** 273 active training candidates. Of the 300 stored records,
+27 originals with transformed copies are archived and excluded from queues and future
+exports. Original text, human labels, and revision history remain in SQLite for audit;
+the source JSONL files and previous exports are historical snapshots, not active lists.
+Future imports apply the same modified-only policy automatically. Existing review flags
+remain for explicit human resolution; exclusion does not silently clear flags.
+Use **Queue → unreviewed** to resume. See the [milestone report](../data/milestone300_v1/README.md)
+for the live audit, new difficulty mix, and quality flags. The original 100-candidate
+pilot documentation below remains as provenance; do not re-import it into this database.
+
+
 The first milestone is **100 candidates for your blind review**, not a labeled
 training release. No model training or evaluation is included. The existing 40/160
 religious benchmark, classification prompts, and all previous results are preserved.
@@ -168,7 +179,7 @@ The repository's software license does not relicense upstream or generated data.
 
 ## Milestones and limits
 
-Stop now at the 100-candidate review milestone. After your feedback: refine policy
+The 100-candidate review milestone is complete; stop next after reviewing the new 200. After your feedback: refine policy
 and collection quality, then grow to 300–500 reviewed training examples, 1,000 train
 plus 200 separately collected validation examples, and eventually a separately
 approved independent 400-example test collection. Source families and generated

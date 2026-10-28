@@ -47,13 +47,28 @@ changing them. Account for the local GPU's 6 GB VRAM limit.
 The introductory study of tokenization, chat templates, prefill, decoding, and
 KV caching is complete.
 
-The current milestone is data creation and local blind annotation, beginning with
-100 training candidates: 30 public-source VALID, 15 Codex VALID, 5 Python VALID,
-40 Codex GIBBERISH, and 10 Python GIBBERISH. Intended labels are not ground truth.
-Stop at the user's pilot review before scaling to 1,000 training, 200 validation,
-and eventually 400 isolated general-purpose test examples. The user is the sole
-human reviewer; disclose this limitation. Do not implement training, heads, LoRA,
-model evaluation, or local Jais generation in this data-only milestone.
+The imported checkpoint contains 300 stored candidates; 27 originals with transformed
+copies are archived, leaving 273 active training candidates. Keep only transformed
+versions in review queues and future exports; retain originals solely for provenance
+and annotation history. Do not add replacements without a separate collection step.
+At the pre-exclusion audit, the first 100 had human labels
+(54 VALID / 46 GIBBERISH at the audit), and the new 200 await blind review. Stop
+before further expansion. New candidate intentions are 96 VALID / 104 GIBBERISH;
+these targets do not override human labels. See `data/milestone300_v1/README.md`
+for the live SQLite pilot audit, provenance, quality checks and checkpoint counts.
+
+For practical GIBBERISH collection, aim for approximately 45% easy keyboard/noise/
+unrecoverable scrambling, 40% medium combinations of real words without coherent
+meaning, and 15% hard grammatically plausible semantic incoherence. Track difficulty
+independently from subtype as proposed metadata. Historical pilot difficulty was
+not recorded; do not invent or backfill it automatically. Prioritize natural VALID
+inputs, dialects, typos and recoverable incomplete requests; keep meaningful metaphor
+examples limited. Avoid excessive surreal poetry and repeated artificial templates.
+
+The user is the sole reviewer. Preserve existing annotations and correction history.
+Do not create validation/test data or implement training, heads, LoRA, model evaluation
+or inference optimization in this checkpoint. Future targets remain 1,000 training,
+200 validation and eventually 400 isolated general-purpose test examples.
 
 Use Codex directly for semantic gibberish, invented words, and hard meaningful
 counterexamples; save instructions, outputs, available metadata, and family IDs.
