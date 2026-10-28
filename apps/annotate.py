@@ -1,5 +1,6 @@
 """Run locally: .venv/bin/python -m streamlit run apps/annotate.py"""
 
+import hashlib
 import html
 import json
 import os
@@ -17,6 +18,7 @@ from jais_guard.annotations import (
     export_dataset,
     get_state,
     import_candidates,
+    preview_import,
     progress,
     provenance_after_review,
     queue,
@@ -83,18 +85,53 @@ with st.sidebar:
         if labeling_mode == "Provisional training batch":
             batch_id = st.text_input("New batch ID")
             audit_seed = int(st.number_input("Audit seed", min_value=0, value=0, step=1))
-            st.caption("Training only. Import freezes membership and random audit samples.")
+            st.caption(
+                "Training only. New imports use provisional-v2. "
+                "Existing frozen audits keep their original policy."
+            )
         uploaded = st.file_uploader("Candidate JSONL", type="jsonl")
-        if st.button("Import uploaded file", disabled=uploaded is None):
+        incoming, projection = None, None
+        upload_stamp = (
+            None
+            if uploaded is None
+            else hashlib.sha256(
+                uploaded.getvalue() + str((batch_id, audit_seed)).encode()
+            ).hexdigest()
+        )
+        already_imported = upload_stamp and st.session_state.get("imported_upload") == upload_stamp
+        if already_imported:
+            st.caption("This upload has been imported. Select another file for a new collection.")
+        if uploaded is not None and not already_imported:
             try:
-                rows = [
+                incoming = [
                     json.loads(line)
                     for line in uploaded.getvalue().decode("utf-8").splitlines()
                     if line.strip()
                 ]
+                if batch_id is not None:
+                    projection = preview_import(incoming, batch_id, audit_seed, db_path)
+                    st.info(
+                        f"Projected manual workload: {projection['required_reviews']}/"
+                        f"{projection['candidates']} — "
+                        f"{projection['audit_samples']} audit samples, "
+                        f"{projection['manual_only']} manual-only cases; "
+                        f"{len(projection['groups'])} groups (provisional-v2)."
+                    )
+                else:
+                    st.info(f"Manual import: {len(incoming)} candidates require human review.")
+            except (ValueError, OSError) as error:
+                incoming = None
+                st.error(str(error))
+        if st.button("Import uploaded file", disabled=incoming is None):
+            try:
                 count = import_candidates(
-                    rows, db_path, provisional_batch=batch_id, seed=audit_seed
+                    incoming,
+                    db_path,
+                    provisional_batch=batch_id,
+                    seed=audit_seed,
+                    expected_projection=projection["fingerprint"] if projection else None,
                 )
+                st.session_state["imported_upload"] = upload_stamp
                 st.success(f"Imported {count} candidates")
             except (ValueError, OSError) as error:
                 st.error(str(error))
@@ -139,12 +176,17 @@ for column, (name, counts) in zip(st.columns(3), stats.items(), strict=True):
 
 with st.expander("Audit progress"):
     reports = audit_report(db_path)
+    history = [r for r in audit_report(db_path, include_history=True) if not r["active"]]
+    if history:
+        st.caption(
+            f"{len(history)} historical groups retained. Only active policy groups affect review."
+        )
     if not reports:
         st.caption("No provisional batches imported. Existing human reviews are unchanged.")
     for report in reports:
         # Administrative source/subtype names and proposed answers are deliberately omitted.
         st.write(
-            f"Group {report['id']} · {report['status']} · "
+            f"Group {report['id']} · {report['policy_version']} · {report['status']} · "
             f"{report['resolved']}/{report['sampled']} audit samples resolved · "
             f"{report['errors']} errors · {report['population']} group members · "
             f"{len(report['coverage'])} dialect strata"

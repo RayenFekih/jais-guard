@@ -84,5 +84,7 @@ data/processed/
 # Local annotation state, SQLite sidecars, and unreviewed source caches
 /data/annotation/
 /data/exports/
+# Unreviewed expansion stays local until an explicit dataset publication decision.
+/data/milestone700_v1/
 *.sqlite3-wal
 *.sqlite3-shm

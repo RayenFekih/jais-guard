@@ -56,7 +56,10 @@ def artificial_rows(count=60, *, method="codex", prefix="fixture", dialects=("MS
 
 def seed_batch(path, *, method="codex", prefix="fixture", count=60, dialects=("MSA",)):
     rows = artificial_rows(count, method=method, prefix=prefix, dialects=dialects)
-    a.import_candidates(rows, path, provisional_batch=prefix, seed=42)
+    # These tests remain a regression suite for frozen v1 behavior.
+    a.import_candidates(
+        rows, path, provisional_batch=prefix, seed=42, policy_version="provisional-v1"
+    )
     return rows, a.audit_report(path)[0]
 
 
@@ -203,7 +206,7 @@ def test_one_error_quarantines_only_affected_group_and_disables_rule(tmp_path):
     assert (folder / "train.jsonl").read_bytes() == export_bytes
     assert len(a.queue("train", "manual-review", path)) == 30
     assert all(
-        "failed audit" in r["review_reasons"] for r in a.queue("train", "manual-review", path)
+        "failed_audit" in r["review_reasons"] for r in a.queue("train", "manual-review", path)
     )
     # Human-reviewed samples remain usable despite the failed group.
     folder2 = a.export_dataset(
@@ -213,7 +216,7 @@ def test_one_error_quarantines_only_affected_group_and_disables_rule(tmp_path):
     next_rows = artificial_rows(2, prefix="later")
     a.import_candidates(next_rows, path, provisional_batch="later")
     assert all(
-        "failed audit" in " ".join(r["review_reasons"])
+        "failed_audit" in " ".join(r["review_reasons"])
         for r in a.queue("train", path=path)
         if r["id"].startswith("later-")
     )

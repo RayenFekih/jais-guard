@@ -258,3 +258,31 @@ def test_failed_audit_write_does_not_complete_or_advance_ui(tmp_path, monkeypatc
     assert any("Audit write failed" in w.value for w in app.error)
     assert queue("train", path=db)[0]["human_label"] is None
     assert audit_report(db)[0]["resolved"] == 0
+
+
+def test_import_preflight_displays_v2_workload_before_any_candidate_write(tmp_path, monkeypatch):
+    from test_provisional_annotations import artificial_rows
+
+    from jais_guard.annotations import audit_report
+
+    rows = artificial_rows(30, method="public", dialects=("MSA", "Egyptian", "Gulf"))
+
+    class Upload:
+        def getvalue(self):
+            return "\n".join(json.dumps(r) for r in rows).encode()
+
+    monkeypatch.setattr("streamlit.file_uploader", lambda *args, **kwargs: Upload())
+    db = tmp_path / "preflight.sqlite3"
+    app = launch(db)
+    next(w for w in app.selectbox if w.label == "Import labeling").select(
+        "Provisional training batch"
+    ).run()
+    next(w for w in app.text_input if w.label == "New batch ID").set_value("v2-source-run").run()
+    assert not app.exception
+    assert any("10/30" in m.value and "Projected" in m.value for m in app.info)
+    with connection(db) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 0
+    button(app, "Import uploaded file").click().run()
+    assert not app.exception
+    assert audit_report(db)[0]["policy_version"] == "provisional-v2"
+    assert len(audit_report(db)[0]["samples"]) == 10

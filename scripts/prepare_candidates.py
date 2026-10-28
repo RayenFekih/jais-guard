@@ -16,12 +16,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from jais_guard.annotations import (
     DEFAULT_DB,
+    PROVISIONAL_POLICY_VERSION,
     ROOT,
     benchmark_references,
     import_candidates,
+    migration_preview,
     now,
+    preview_import,
     quality_issues,
 )
+from jais_guard.audit_policy import boundary, digest
 
 PILOT = ROOT / "data/pilot_v1"
 RAW = ROOT / "data/raw/pilot_v1"
@@ -590,9 +594,289 @@ def milestone_candidates(directory):
     return result
 
 
+def expansion_candidates(directory):
+    """Rebuild the 400-record collection from inspected source snapshots and saved batches."""
+    plan = json.loads((directory / "source_selection.json").read_text())
+    sources = [
+        json.loads(line) for line in (directory / "selected_sources.jsonl").read_text().splitlines()
+    ]
+    result = [dict(r) for r in sources if r["source_role"] == "candidate"]
+    result.extend(codex_candidates(directory))
+    for row in result:
+        row.setdefault("collection_batch", row["generation"].get("batch_id"))
+    parents = [r for r in sources if r["source_role"] != "candidate"]
+    rng = random.Random(plan["python_seed"])
+
+    def add(text, label, subtype, difficulty, recipe, batch, parent=None):
+        if parent:
+            provenance = {
+                **parent["provenance"],
+                "parent_id": parent["id"],
+                "modifications": recipe,
+            }
+            dialect, domain, family = parent["dialect"], parent["domain"], parent["family_id"]
+        else:
+            provenance = {
+                "source": "JaisGuard deterministic Python recipes",
+                "source_id": batch + ":" + str(len(result)),
+                "license": "project-original-content",
+                "attribution": "JaisGuard contributors",
+                "rights_evidence": "scripts/prepare_candidates.py",
+                "rights_status": "publication_review_pending",
+            }
+            dialect, domain, family = "none", "noise", batch
+        row = record(
+            text,
+            label,
+            "python",
+            subtype,
+            dialect if label == "VALID" else "none",
+            domain,
+            family,
+            provenance,
+            {
+                "seed": plan["python_seed"],
+                "recipe": recipe,
+                "batch_id": batch,
+                "parent_id": parent["id"] if parent else None,
+            },
+            difficulty=difficulty,
+        )
+        row["collection_batch"] = batch
+        result.append(row)
+
+    for i, parent in enumerate(
+        r for r in parents if r["source_role"] == "valid_transformation_parent"
+    ):
+        text = parent["input_text"]
+        recipe = (
+            "join_first_space",
+            "repeat_one_letter",
+            "drop_one_letter",
+            "append_limited_noise",
+            "join_last_space",
+        )[i % 5]
+        if recipe == "join_first_space":
+            text = text.replace(" ", "", 1)
+        elif recipe == "join_last_space":
+            position = text.rfind(" ")
+            text = text[:position] + text[position + 1 :]
+        elif recipe == "append_limited_noise":
+            text += " طظ"
+        else:
+            positions = [j for j in range(1, len(text) - 1) if text[j].isalpha()]
+            position = rng.choice(positions)
+            replacement = text[position] * 2 if recipe == "repeat_one_letter" else ""
+            text = text[:position] + replacement + text[position + 1 :]
+        add(
+            text,
+            "VALID",
+            "meaning_preserving_noise",
+            "medium",
+            recipe,
+            f"m700-python-valid-{i // 5 + 1:02}",
+            parent,
+        )
+    for i, parent in enumerate(r for r in parents if r["source_role"] == "scrambling_parent"):
+        words = ["".join(c for c in word if c.isalpha()) for word in parent["input_text"].split()]
+        chars = list("".join(words))
+        rng.shuffle(chars)
+        offset, scrambled = 0, []
+        for word in words:
+            if word:
+                scrambled.append("".join(chars[offset : offset + len(word)]))
+                offset += len(word)
+        add(
+            " ".join(scrambled),
+            "GIBBERISH",
+            "unrecoverable_scrambling",
+            "easy",
+            "whole_input_character_shuffle",
+            f"m700-python-scramble-{i // 10 + 1:02}",
+            parent,
+        )
+    keyboard = "ضصثقفغعهخحج"
+    for i in range(40):
+        layout = keyboard if i % 2 else keyboard[::-1]
+        start = rng.randrange(4)
+        walk = layout[start : start + 8]
+        prefix = "".join(rng.choices(keyboard, k=rng.randrange(3, 8)))
+        suffix = "".join(rng.choices(keyboard, k=rng.randrange(3, 8)))
+        text = prefix + (" " if i % 3 else "") + walk + (" " if i % 4 else "") + suffix
+        add(
+            text,
+            "GIBBERISH",
+            "keyboard_noise",
+            "easy",
+            "keyboard_noise",
+            f"m700-python-keyboard-{i // 20 + 1:02}",
+        )
+    repeated_pairs = set()
+    for i in range(16):
+        chars = rng.sample("ثظضصقغخجطز", 2)
+        while tuple(chars) in repeated_pairs:
+            chars = rng.sample("ثظضصقغخجطز", 2)
+        repeated_pairs.add(tuple(chars))
+        text = chars[0] * rng.randrange(5, 11) + " " + chars[1] * rng.randrange(5, 11)
+        add(
+            text,
+            "GIBBERISH",
+            "repeated_characters",
+            "easy",
+            "two_repeated_character_blocks",
+            f"m700-python-repeat-{i // 8 + 1:02}",
+        )
+    assert len(result) == 400
+    assert Counter(r["intended_label"] for r in result) == plan["intended_counts"]
+    assert (
+        Counter(r["difficulty"] for r in result if r["intended_label"] == "GIBBERISH")
+        == plan["gibberish_difficulty_targets"]
+    )
+    for row in result:
+        row["collection_name"] = "milestone700_v1"
+    assert not ({r["id"] for r in result} & {p["id"] for p in parents})
+    return result
+
+
+def import_expansion(
+    rows, path=DEFAULT_DB, *, policy_version=PROVISIONAL_POLICY_VERSION, batch_id=None
+):
+    """Keep generation batches separate, even when their source/subtype match."""
+    if policy_version == PROVISIONAL_POLICY_VERSION:
+        batch_id = batch_id or "collection-v2-" + digest(sorted(r["id"] for r in rows))[:12]
+        projection = preview_import(rows, batch_id, 700428, path)
+        print(json.dumps(workload_summary(projection, rows), ensure_ascii=False, indent=2))
+        return import_candidates(
+            rows,
+            path,
+            provisional_batch=batch_id,
+            seed=700428,
+            expected_projection=projection["fingerprint"],
+        )
+    stored = []
+    with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as db:
+        stored = [json.loads(row[0]) for row in db.execute("SELECT payload FROM candidates")]
+        frozen = {r[0] for r in db.execute("SELECT id FROM collection_batches")}
+    # Preflight the whole collection before committing any individual batch.
+    issues = quality_issues(rows, benchmark_references() + stored)
+    if any(i["kind"] != "near_duplicate" or i["cross_partition"] for i in issues):
+        raise ValueError(f"Expansion overlap blockers: {issues}")
+    batches = {}
+    for row in rows:
+        batch = row["collection_batch"]
+        if batch in frozen:
+            raise ValueError(f"Batch already frozen: {batch}")
+        if row["source_method"] == "codex" and batch != row["generation"]["batch_id"]:
+            raise ValueError("Codex generation batches must not be merged for auditing")
+        batches.setdefault(batch, []).append(row)
+    for index, (batch_id, members) in enumerate(sorted(batches.items())):
+        count = import_candidates(
+            members,
+            path,
+            provisional_batch=batch_id,
+            seed=700428 + index,
+            policy_version=policy_version,
+        )
+        print(f"Imported {count} candidates in {batch_id}")
+
+
+def workload_summary(plan, rows):
+    by_id = {r["id"]: r for r in rows}
+    breakdown = {}
+    for row in rows:
+        key = (row["provenance"]["source"], row["source_method"], row["subtype"])
+        item = breakdown.setdefault(
+            key,
+            dict(
+                source=key[0],
+                method=key[1],
+                subtype=key[2],
+                candidates=0,
+                risk="manual",
+                audit_samples=0,
+                manual_only=0,
+                required_reviews=0,
+            ),
+        )
+        item["candidates"] += 1
+    sampled = set()
+    for group in plan["groups"]:
+        key = (group["source"], group["method"], group["subtype"])
+        breakdown[key]["risk"] = group["risk"]
+        breakdown[key]["audit_samples"] += len(group["sampled_ids"])
+        sampled.update(group["sampled_ids"])
+    for record_id in set(plan["review_requests"]) - sampled:
+        row = by_id[record_id]
+        breakdown[(row["provenance"]["source"], row["source_method"], row["subtype"])][
+            "manual_only"
+        ] += 1
+    for item in breakdown.values():
+        item["required_reviews"] = item["audit_samples"] + item["manual_only"]
+    return dict(
+        policy_version=plan["policy_version"],
+        candidates=plan["candidates"],
+        audit_groups=len(plan["groups"]),
+        audit_samples=plan["audit_samples"],
+        manual_only=plan["manual_only"],
+        required_reviews=plan["required_reviews"],
+        fingerprint=plan["fingerprint"],
+        breakdown=list(breakdown.values()),
+        reasons=dict(Counter(plan["review_requests"].values())),
+    )
+
+
+def propose_collection_v2(directory, path=DEFAULT_DB):
+    """Propose verified source/recipe regrouping; never update the old frozen audits."""
+    rows = [json.loads(line) for line in (directory / "candidates.jsonl").read_text().splitlines()]
+    source_plan = json.loads((directory / "source_selection.json").read_text())
+    with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as db:
+        stored = [json.loads(r[0]) for r in db.execute("SELECT payload FROM candidates")]
+    live = [r for r in stored if r.get("collection_name") == directory.name]
+    if digest(sorted(rows, key=lambda r: r["id"])) != digest(sorted(live, key=lambda r: r["id"])):
+        raise ValueError("Saved collection no longer matches the imported immutable records")
+    if len(rows) != 400 or directory.name != "milestone700_v1":
+        raise ValueError("This evidence-backed regrouping proposal is scoped to the existing 400")
+    processes = {}
+    for row in rows:
+        p, g = row["provenance"], row["generation"]
+        if row["source_method"] == "public":
+            if row["collection_batch"].split("-")[-1] not in {"01", "02"}:
+                raise ValueError("Unexpected public collection boundary")
+            processes[row["id"]] = dict(
+                run="m700-acquisition:" + p["source"] + ":" + p["revision"], family=row["subtype"]
+            )
+        elif row["source_method"] == "python":
+            if g["seed"] != source_plan["python_seed"]:
+                raise ValueError("Python run has inconsistent seeds")
+            processes[row["id"]] = dict(
+                run="m700-python-seed:" + str(g["seed"]), family=g["recipe"], recipe=g["recipe"]
+            )
+        else:
+            processes[row["id"]] = boundary(row, directory.name)  # Keep Codex chunks separate.
+    result = migration_preview(directory.name, boundaries=processes, path=path)
+    result["regrouping_evidence"] = {
+        "source_selection_sha256": digest(source_plan),
+        "candidate_sha256": hashlib.sha256(
+            (directory / "candidates.jsonl").read_bytes()
+        ).hexdigest(),
+        "public": "Same pinned source/revision, acquisition plan and subtype; "
+        "40/35 chunks were artificial.",
+        "python": "One saved seed and deterministic recipe run; each recipe stays separate.",
+        "codex": "Original generation-batch boundaries retained; "
+        "no inferred instruction-family merge.",
+    }
+    result["fingerprint"] = digest({k: v for k, v in result.items() if k != "fingerprint"})
+    return result, workload_summary(result, rows)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch", action="store_true", help="Download admitted source snapshots")
+    parser.add_argument(
+        "--project-v2",
+        action="store_true",
+        help="Read-only proposal for the existing 400; never replace audits",
+    )
     parser.add_argument(
         "--build", action="store_true", help="Create pilot once from source snapshots"
     )
@@ -601,20 +885,28 @@ def main():
     )
     parser.add_argument(
         "--collection",
-        choices=("pilot_v1", "milestone300_v1"),
+        choices=("pilot_v1", "milestone300_v1", "milestone700_v1"),
         default="pilot_v1",
         help="Choose an explicit versioned candidate batch",
     )
     args = parser.parse_args()
     directory = ROOT / "data" / args.collection
     path = directory / "candidates.jsonl"
-    stored = live_candidates() if args.collection == "milestone300_v1" else []
+    if args.project_v2:
+        if args.fetch or args.build or args.do_import:
+            parser.error("--project-v2 cannot be combined with writes, downloads, or imports")
+        _, summary = propose_collection_v2(directory)
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return
+    stored = live_candidates() if args.collection != "pilot_v1" else []
     if args.fetch:
         fetch()
     if args.build:
         if path.exists():
             raise FileExistsError("Pilot exists; create a new version instead of overwriting it")
-        if args.collection == "milestone300_v1":
+        if args.collection == "milestone700_v1":
+            rows = expansion_candidates(directory)
+        elif args.collection == "milestone300_v1":
             rows = milestone_candidates(directory)
         else:
             public = public_candidates()
@@ -669,7 +961,10 @@ def main():
     }
     (directory / "audit.json").write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n")
     if args.do_import:
-        print(f"Imported {import_candidates(rows)} candidates")
+        if args.collection == "milestone700_v1":
+            import_expansion(rows)
+        else:
+            print(f"Imported {import_candidates(rows)} candidates")
     print(f"{len(rows)} candidates; {len(issues)} within-training near-duplicate review hints")
     print("No new human labels assigned. Stop here for blind review before further expansion.")
 

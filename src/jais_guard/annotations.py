@@ -13,12 +13,16 @@ from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
+from jais_guard.audit_migrations import policy_table
+from jais_guard.audit_policy import VERSION as PROVISIONAL_POLICY_VERSION
+from jais_guard.audit_policy import admission, digest, project_workload
+
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = ROOT / "data/annotation/annotations.sqlite3"
 LABELS = ("VALID", "GIBBERISH")
 PARTITIONS = ("train", "validation", "test")
 POLICY_VERSION = "recoverable-meaning-v1"
-PROVISIONAL_POLICY_VERSION = "provisional-v1"
+LEGACY_PROVISIONAL_POLICY_VERSION = "provisional-v1"
 # Source/subset approval is deliberately narrower than license admission.
 PUBLIC_RULES = {
     "google-research-datasets/tydiqa": ("da78f23f9119363459acbaf46bf89426ff26c259", "question"),
@@ -215,21 +219,40 @@ def import_candidates(
     *,
     provisional_batch: str | None = None,
     seed: int = 0,
+    policy_version: str = PROVISIONAL_POLICY_VERSION,
+    expected_projection: str | None = None,
 ) -> int:
     if provisional_batch is not None:
+        if policy_version not in {PROVISIONAL_POLICY_VERSION, LEGACY_PROVISIONAL_POLICY_VERSION}:
+            raise ValueError("Unknown provisional policy version")
         if not re.fullmatch(r"[A-Za-z0-9_-]+", provisional_batch):
             raise ValueError("A unique batch ID is required for provisional import")
         if any(r.get("partition") != "train" for r in rows):
             raise ValueError("Provisional labels are training-only")
     with connection(path) as db:
+        db.execute("BEGIN IMMEDIATE")
         existing = [json.loads(r[0]) for r in db.execute("SELECT payload FROM candidates")]
-        if any(r["partition"] == "test" for r in rows) and not get_state("test_unlocked", path):
+        test_unlocked = db.execute("SELECT value FROM state WHERE key='test_unlocked'").fetchone()
+        if any(r["partition"] == "test" for r in rows) and not (test_unlocked and test_unlocked[0]):
             raise ValueError("Test collection locked; record a freeze decision before test import")
         issues = quality_issues(rows, benchmark_references() + existing)
         blockers = [i for i in issues if i["kind"] != "near_duplicate" or i["cross_partition"]]
         if blockers:
             raise ValueError(f"Import blocked by overlap: {blockers[:5]}")
         flagged_ids = {i["id"] for i in issues}
+        projection = None
+        if provisional_batch is not None and policy_version == PROVISIONAL_POLICY_VERSION:
+            projection = _project_import(db, rows, provisional_batch, seed, flagged_ids)
+            if expected_projection is not None and expected_projection != projection["fingerprint"]:
+                raise ValueError(
+                    "Projected workload changed; inspect a fresh preview before importing"
+                )
+            print(
+                f"Projected v2 workload: {projection['required_reviews']}/"
+                f"{projection['candidates']} "
+                f"reviews ({projection['audit_samples']} audit samples, "
+                f"{projection['manual_only']} manual-only)"
+            )
         for row in rows:
             db.execute(
                 "INSERT INTO candidates VALUES (?,?,?,?)",
@@ -242,11 +265,13 @@ def import_candidates(
                 )
         _exclude_transformed_originals(db)
         if provisional_batch is not None:
-            _prepare_provisional_batch(db, rows, provisional_batch, seed)
+            _prepare_provisional_batch(
+                db, rows, provisional_batch, seed, policy_version, projection
+            )
     return len(rows)
 
 
-def _proposal(row):
+def _proposal_v1(row):
     """Conservative, inspectable heuristics; an intended label is never sufficient alone."""
     p, g = row["provenance"], row.get("generation", {})
     method, subtype, text = row["source_method"], row["subtype"], row["input_text"]
@@ -289,13 +314,218 @@ def _proposal(row):
             return None
         label, origin, risk = row["intended_label"], "codex-proposal", "higher"
     rule = json.dumps(
-        [PROVISIONAL_POLICY_VERSION, method, p["source"], p.get("revision", "unknown"), subtype],
+        [
+            LEGACY_PROVISIONAL_POLICY_VERSION,
+            method,
+            p["source"],
+            p.get("revision", "unknown"),
+            subtype,
+        ],
         ensure_ascii=False,
     )
     return label, origin, risk, rule
 
 
-def _prepare_provisional_batch(db, rows, batch, seed):
+def _proposal(row, policy_version=PROVISIONAL_POLICY_VERSION):
+    if policy_version == LEGACY_PROVISIONAL_POLICY_VERSION:
+        return _proposal_v1(row)
+    if policy_version != PROVISIONAL_POLICY_VERSION:
+        raise ValueError("Unknown provisional policy version")
+    proposal, _ = admission(row)
+    return (
+        None
+        if proposal is None
+        else tuple(proposal[k] for k in ("label", "origin", "risk", "rule_id"))
+    )
+
+
+def _project_import(db, rows, batch, seed, quality_flags):
+    parents = {r.get("generation", {}).get("parent_id") for r in rows}
+    active = [r for r in rows if r["id"] not in parents]
+    disabled = {r[0] for r in db.execute("SELECT rule_id FROM disabled_rules")}
+    plan = project_workload(
+        active, batch, seed, disabled_rules=disabled, quality_flags=quality_flags
+    )
+    if db.execute("SELECT 1 FROM collection_batches WHERE id=?", (batch,)).fetchone():
+        raise ValueError("Batch already frozen; use a new batch ID, not a new sample")
+    frozen = {r[0] for r in db.execute("SELECT id FROM audit_groups")}
+    if any(g["id"] in frozen for g in plan["groups"]):
+        raise ValueError("Audit run/family is already frozen; do not append or resample it")
+    plan["archived_original_ids"] = sorted(r["id"] for r in rows if r["id"] in parents)
+    plan["import_sha256"] = digest(sorted(rows, key=lambda r: r["id"]))
+    plan["fingerprint"] = digest({k: v for k, v in plan.items() if k != "fingerprint"})
+    return plan
+
+
+def preview_import(rows, batch, seed=0, path=DEFAULT_DB):
+    """Read-only preflight of new IDs. This cannot replace or alter an existing audit."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", batch):
+        raise ValueError("A unique batch ID is required")
+    with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as db:
+        existing = [json.loads(r[0]) for r in db.execute("SELECT payload FROM candidates")]
+        issues = quality_issues(rows, benchmark_references() + existing)
+        blockers = [i for i in issues if i["kind"] != "near_duplicate" or i["cross_partition"]]
+        if blockers:
+            raise ValueError(f"Import blocked by overlap: {blockers[:5]}")
+        return _project_import(db, rows, batch, seed, {i["id"] for i in issues})
+
+
+def migration_preview(collection, *, seed=700428, boundaries=None, path=DEFAULT_DB):
+    """A read-only proposal, never a migration action or an import of existing IDs."""
+    with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as db:
+        db.row_factory = sqlite3.Row
+        db.execute("BEGIN")
+        candidates = [
+            json.loads(r[0])
+            for r in db.execute(
+                "SELECT payload FROM candidates "
+                "WHERE id NOT IN (SELECT id FROM candidate_exclusions)"
+            )
+        ]
+        rows = [r for r in candidates if r.get("collection_name") == collection]
+        ids = {r["id"] for r in rows}
+        if not ids:
+            raise ValueError("No active candidates in the requested collection")
+        proposals = [
+            dict(r) for r in db.execute("SELECT * FROM provisional_labels") if r["id"] in ids
+        ]
+        group_ids = {r["group_id"] for r in proposals}
+        groups = [dict(r) for r in db.execute("SELECT * FROM audit_groups") if r["id"] in group_ids]
+        samples = [
+            dict(r) for r in db.execute("SELECT * FROM audit_samples") if r["group_id"] in group_ids
+        ]
+        requests = [dict(r) for r in db.execute("SELECT * FROM review_requests") if r["id"] in ids]
+        events = [
+            dict(r) for r in db.execute("SELECT * FROM audit_events") if r["group_id"] in group_ids
+        ]
+        annotations = [dict(r) for r in db.execute("SELECT * FROM annotations") if r["id"] in ids]
+        disabled = [dict(r) for r in db.execute("SELECT * FROM disabled_rules")]
+        all_members = {
+            r[0]
+            for r in db.execute("SELECT id,group_id FROM provisional_labels")
+            if r[1] in group_ids
+        }
+        recorded_migration = None
+        if db.execute(
+            "SELECT 1 FROM sqlite_master WHERE name='audit_policy_migrations'"
+        ).fetchone():
+            recorded_migration = db.execute(
+                "SELECT id FROM audit_policy_migrations WHERE collection=?", (collection,)
+            ).fetchone()
+    blockers = []
+    if recorded_migration:
+        blockers.append(
+            "Collection already has a versioned migration; use its ledger/rollback workflow"
+        )
+    if annotations:
+        blockers.append(
+            "Collection has annotation activity; preserve and adjudicate it before migration"
+        )
+    if any(g["status"] != "pending" for g in groups) or any(
+        s["outcome"] != "pending" for s in samples
+    ):
+        blockers.append(
+            "Existing audit decisions cannot be superseded by this unreviewed-batch proposal"
+        )
+    if any(g["policy_version"] != LEGACY_PROVISIONAL_POLICY_VERSION for g in groups):
+        blockers.append("This proposal only supersedes untouched v1 audits, not another v2 sample")
+    if not all_members <= ids:
+        blockers.append("An existing group extends beyond the proposed collection")
+    for row in rows:
+        validate_candidate(row)
+    plan = project_workload(
+        rows,
+        collection + "-v2-proposal",
+        seed,
+        disabled_rules={r["rule_id"] for r in disabled},
+        boundaries=boundaries,
+    )
+    plan.update(
+        proposal_only=True,
+        approval_required=True,
+        safe_to_propose=not blockers,
+        blockers=blockers,
+        original_policy_versions=sorted({g["policy_version"] for g in groups}),
+        original_group_ids=sorted(group_ids),
+        original_required_reviews=len({s["id"] for s in samples} | {r["id"] for r in requests}),
+        original_audits_sha256=digest(
+            {
+                key: sorted(values, key=digest)
+                for key, values in dict(
+                    groups=groups,
+                    samples=samples,
+                    events=events,
+                    proposals=proposals,
+                    requests=requests,
+                    annotations=annotations,
+                    disabled_rules=disabled,
+                ).items()
+            }
+        ),
+    )
+    plan["fingerprint"] = digest({k: v for k, v in plan.items() if k != "fingerprint"})
+    return plan
+
+
+def _prepare_provisional_batch(db, rows, batch, seed, policy_version, projection=None):
+    if policy_version == LEGACY_PROVISIONAL_POLICY_VERSION:
+        return _prepare_provisional_batch_v1(db, rows, batch, seed)
+    if policy_version != PROVISIONAL_POLICY_VERSION:
+        raise ValueError("Unknown provisional policy version")
+    plan = projection
+    db.execute("INSERT INTO collection_batches VALUES (?,?,?)", (batch, seed, now()))
+    for record_id, reason in plan["review_requests"].items():
+        db.execute("INSERT INTO review_requests VALUES (?,?)", (record_id, reason))
+    for group in plan["groups"]:
+        db.execute(
+            "INSERT INTO audit_groups VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (
+                group["id"],
+                batch,
+                group["source"],
+                group["source_revision"],
+                group["method"],
+                group["subtype"],
+                group["rule_id"],
+                policy_version,
+                group["risk"],
+                seed,
+                "pending",
+                now(),
+            ),
+        )
+        for member in group["members"]:
+            db.execute(
+                "INSERT INTO provisional_labels VALUES (?,?,?,?,?)",
+                (
+                    member["id"],
+                    member["label"],
+                    member["origin"],
+                    group["id"],
+                    now(),
+                ),
+            )
+            if member["id"] in group["sampled_ids"]:
+                db.execute(
+                    "INSERT INTO audit_samples VALUES (?,?,?,NULL,NULL,'pending','',?)",
+                    (member["id"], group["id"], member["dialect"], now()),
+                )
+        _audit_event(
+            db,
+            group["id"],
+            {
+                "action": "frozen",
+                "policy_version": policy_version,
+                "projection_fingerprint": plan["fingerprint"],
+                "boundary": group["boundary"],
+                "strata": group["strata"],
+                "members": [m["id"] for m in group["members"]],
+                "sampled_ids": group["sampled_ids"],
+            },
+        )
+
+
+def _prepare_provisional_batch_v1(db, rows, batch, seed):
     if db.execute("SELECT 1 FROM collection_batches WHERE id=?", (batch,)).fetchone():
         raise ValueError("Batch already frozen; use a new batch ID, not a new sample")
     db.execute("INSERT INTO collection_batches VALUES (?,?,?)", (batch, seed, now()))
@@ -303,7 +533,7 @@ def _prepare_provisional_batch(db, rows, batch, seed):
     for row in rows:
         if db.execute("SELECT 1 FROM candidate_exclusions WHERE id=?", (row["id"],)).fetchone():
             continue
-        proposal = _proposal(row)
+        proposal = _proposal_v1(row)
         reason = "uncertainty: no approved automatic labeling rule"
         if proposal:
             label, origin, risk, rule = proposal
@@ -332,7 +562,7 @@ def _prepare_provisional_batch(db, rows, batch, seed):
                 first["source_method"],
                 first["subtype"],
                 rule,
-                PROVISIONAL_POLICY_VERSION,
+                LEGACY_PROVISIONAL_POLICY_VERSION,
                 risk,
                 seed,
                 "pending",
@@ -377,9 +607,11 @@ def _audit_event(db, group_id, payload):
 
 
 def _refresh_audit(db, record_id):
+    samples_table = policy_table(db, "audit_samples")
+    proposals_table = policy_table(db, "provisional_labels")
     sample = db.execute(
-        """SELECT s.*, p.label AS proposed FROM audit_samples s
-        JOIN provisional_labels p ON p.id=s.id WHERE s.id=?""",
+        f"""SELECT s.*, p.label AS proposed FROM {samples_table} s
+        JOIN {proposals_table} p ON p.id=s.id WHERE s.id=?""",
         (record_id,),
     ).fetchone()
     annotation = db.execute("SELECT * FROM annotations WHERE id=?", (record_id,)).fetchone()
@@ -390,7 +622,7 @@ def _refresh_audit(db, record_id):
     if sample is None:
         # A voluntary review can also discover an error; it is not a random audit sample.
         proposal = db.execute(
-            "SELECT * FROM provisional_labels WHERE id=?", (record_id,)
+            f"SELECT * FROM {proposals_table} WHERE id=?", (record_id,)
         ).fetchone()
         if proposal is not None and resolved:
             group = db.execute(
@@ -419,15 +651,21 @@ def _refresh_audit(db, record_id):
         if resolved
         else "pending"
     )
+    migrated = "migration_id" in sample.keys() and sample["migration_id"] is not None
+    target = "versioned_audit_samples" if migrated else "audit_samples"
+    values = (annotation["human_label"], revision, outcome, annotation["notes"], now(), record_id)
+    if migrated:
+        values += (sample["migration_id"],)
     db.execute(
-        "UPDATE audit_samples SET human_label=?,revision=?,outcome=?,notes=?,updated_at=? "
-        "WHERE id=?",
-        (annotation["human_label"], revision, outcome, annotation["notes"], now(), record_id),
+        f"UPDATE {target} SET human_label=?,revision=?,outcome=?,notes=?,updated_at=? "
+        "WHERE id=?" + (" AND migration_id=?" if migrated else ""),
+        values,
     )
     group_id = sample["group_id"]
     group = db.execute("SELECT * FROM audit_groups WHERE id=?", (group_id,)).fetchone()
     counts = Counter(
-        r[0] for r in db.execute("SELECT outcome FROM audit_samples WHERE group_id=?", (group_id,))
+        r[0]
+        for r in db.execute(f"SELECT outcome FROM {samples_table} WHERE group_id=?", (group_id,))
     )
     status = (
         "failed"
@@ -493,10 +731,19 @@ def set_state(key: str, value: str, path: Path = DEFAULT_DB) -> None:
         db.execute("INSERT OR REPLACE INTO state VALUES (?,?)", (key, value))
 
 
-def _audit_reports(db):
+def _audit_reports(db, *, include_history=False):
+    if not db.in_transaction:
+        db.execute("BEGIN")  # Keep group membership and active pointers in one read snapshot.
     reports = []
+    samples_table = policy_table(db, "audit_samples", history=True)
+    proposals_table = policy_table(db, "provisional_labels", history=True)
+    active_proposals = policy_table(db, "provisional_labels")
+    active_groups = {r[0] for r in db.execute(f"SELECT DISTINCT group_id FROM {active_proposals}")}
     for group in db.execute("SELECT * FROM audit_groups ORDER BY created_at,id").fetchall():
+        if not include_history and group["id"] not in active_groups:
+            continue
         report = dict(group)
+        report["active"] = group["id"] in active_groups
         events = [
             json.loads(r[0])
             for r in db.execute(
@@ -506,13 +753,13 @@ def _audit_reports(db):
         samples = [
             dict(r)
             for r in db.execute(
-                "SELECT * FROM audit_samples WHERE group_id=? ORDER BY id", (group["id"],)
+                f"SELECT * FROM {samples_table} WHERE group_id=? ORDER BY id", (group["id"],)
             )
         ]
         members = [
             json.loads(r[0])
             for r in db.execute(
-                "SELECT c.payload FROM candidates c JOIN provisional_labels p ON p.id=c.id "
+                f"SELECT c.payload FROM candidates c JOIN {proposals_table} p ON p.id=c.id "
                 "WHERE p.group_id=?",
                 (group["id"],),
             )
@@ -527,6 +774,10 @@ def _audit_reports(db):
                 "errors": sum(s["outcome"] == "error" for s in selected),
             }
         report.update(
+            boundary=next(
+                (e["boundary"] for e in events if e.get("action") == "frozen" and "boundary" in e),
+                None,
+            ),
             population=len(members),
             sampled=len(samples),
             resolved=sum(s["outcome"] != "pending" for s in samples),
@@ -548,22 +799,27 @@ def _audit_reports(db):
     return reports
 
 
-def audit_report(path: Path = DEFAULT_DB) -> list[dict]:
+def audit_report(path: Path = DEFAULT_DB, *, include_history=False) -> list[dict]:
     """Administrative report. Never display source/label metadata in the blind review view."""
     with connection(path) as db:
-        return _audit_reports(db)
+        return _audit_reports(db, include_history=include_history)
 
 
 def _workflow(db, partition):
+    if not db.in_transaction:
+        db.execute("BEGIN")
     reports = {r["id"]: r for r in _audit_reports(db)}
+    proposals = policy_table(db, "provisional_labels")
+    requests = policy_table(db, "review_requests")
+    samples = policy_table(db, "audit_samples")
     rows = db.execute(
-        """SELECT c.id,c.partition,c.payload,a.human_label,COALESCE(a.flagged,0) AS human_flag,
+        f"""SELECT c.id,c.partition,c.payload,a.human_label,COALESCE(a.flagged,0) AS human_flag,
         COALESCE(a.notes,'') AS notes,a.updated_at,p.label AS provisional_label,p.origin,
         p.group_id,q.reason,s.id AS sampled
         FROM candidates c LEFT JOIN annotations a ON c.id=a.id
-        LEFT JOIN provisional_labels p ON c.id=p.id
-        LEFT JOIN review_requests q ON c.id=q.id
-        LEFT JOIN audit_samples s ON c.id=s.id
+        LEFT JOIN {proposals} p ON c.id=p.id
+        LEFT JOIN {requests} q ON c.id=q.id
+        LEFT JOIN {samples} s ON c.id=s.id
         WHERE c.partition=? AND NOT EXISTS(SELECT 1 FROM candidate_exclusions e WHERE e.id=c.id)
         ORDER BY c.id""",
         (partition,),
@@ -576,14 +832,21 @@ def _workflow(db, partition):
         resolved = row["human_label"] is not None and not row["human_flag"]
         reasons = []
         if row["human_flag"]:
-            reasons.append("quality flag" if "near-duplicate" in row["notes"] else "uncertainty")
+            if "near-duplicate" in row["notes"]:
+                reasons.append("quality_issue")
+            elif not row["reason"] and not row["sampled"]:
+                reasons.append("content_uncertain")
         if not resolved:
             if row["reason"]:
-                reasons.append(row["reason"])
+                legacy_codes = {
+                    "uncertainty: no approved automatic labeling rule": "rule_not_admitted",
+                    "failed audit: automatic labeling rule disabled": "failed_audit",
+                }
+                reasons.append(legacy_codes.get(row["reason"], row["reason"]))
             if group and group["status"] == "failed":
-                reasons.append("failed audit")
+                reasons.append("failed_audit")
             if row["sampled"]:
-                reasons.append("audit sample")
+                reasons.append("audit_sample")
         row["review_reasons"] = reasons
         row["flagged"] = bool(reasons)
         row["status"] = (
@@ -610,6 +873,7 @@ def _workflow(db, partition):
                 "sample_size": group["sampled"],
                 "error_count": group["errors"],
                 "risk": group["risk"],
+                "boundary": group["boundary"],
             }
         )
         row["exportable"] = not reasons and (
@@ -660,11 +924,11 @@ def queue(partition: str, mode: str = "all", path: Path = DEFAULT_DB) -> list[di
         reasons = " ".join(row["review_reasons"])
         return (
             0
-            if "failed audit" in reasons
+            if "failed_audit" in reasons
             else 1
-            if "uncertainty" in reasons
+            if "content_uncertain" in reasons
             else 2
-            if "quality flag" in reasons
+            if "quality_issue" in reasons
             else 3
             if row["higher_risk"]
             else 4
@@ -685,12 +949,14 @@ def save_annotation(
     if label is not None and label not in LABELS:
         raise ValueError("Only VALID and GIBBERISH are annotation labels")
     with connection(path) as db:
+        db.execute("BEGIN IMMEDIATE")
+        samples = policy_table(db, "audit_samples")
+        requests = policy_table(db, "review_requests")
         if (
             label is None
             and not flagged
             and db.execute(
-                "SELECT 1 FROM audit_samples WHERE id=? "
-                "UNION SELECT 1 FROM review_requests WHERE id=?",
+                f"SELECT 1 FROM {samples} WHERE id=? UNION SELECT 1 FROM {requests} WHERE id=?",
                 (record_id, record_id),
             ).fetchone()
         ):
