@@ -49,14 +49,23 @@ KV caching is complete.
 
 The checkpoint contains 327 stored candidates; 27 originals with transformed
 copies are archived, leaving 300 active training candidates after adding 27 fresh
-public-source replacements in `data/replacements_v1`. Keep only transformed
+public-source replacements in `data/replacements_v1`. All 300 active training records
+are now human-reviewed and unflagged (163 VALID / 137 GIBBERISH; 615 revisions).
+Keep only transformed
 versions in review queues and future exports; retain originals solely for provenance
-and annotation history. The replacement collection is complete; stop for human review.
-At the pre-exclusion audit, the first 100 had human labels
-(54 VALID / 46 GIBBERISH at the audit), and the new 200 await blind review. Stop
-before further expansion. New candidate intentions are 96 VALID / 104 GIBBERISH;
-these targets do not override human labels. See `data/milestone300_v1/README.md`
-for the live SQLite pilot audit, provenance, quality checks and checkpoint counts.
+and annotation history. Historical collection reports remain in `data/milestone300_v1`.
+The current work adds scalable annotation infrastructure only; do not collect more data yet.
+
+New training batches may explicitly opt into versioned provisional-label rules and
+seeded, frozen audits. Keep automatic proposals separate from human labels. Audit
+20% (minimum 10 per dialect stratum) for approved public/keyboard inputs and 50%
+(minimum 20) for Codex or other higher-risk groups, capped at stratum size. One
+confirmed error quarantines the affected group and disables that rule version.
+Human labels override proposals; flags require explicit resolution. Unsampled
+records remain provisional after a group passes. Human-only exports remain the
+default, with audited provisional labels allowed only through an explicit training
+export option. Validation/test exports must remain fully human-reviewed. Preserve
+all existing records/history and exports; never promote historical intentions.
 
 For practical GIBBERISH collection, aim for approximately 45% easy keyboard/noise/
 unrecoverable scrambling, 40% medium combinations of real words without coherent

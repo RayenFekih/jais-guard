@@ -4,13 +4,124 @@
 27 originals with transformed copies are archived and excluded from queues and future
 exports. Original text, human labels, and revision history remain in SQLite for audit;
 the source JSONL files and previous exports are historical snapshots, not active lists.
-The [27 replacement inputs](../data/replacements_v1/README.md) are imported and await
-blind review alongside the remaining expansion candidates (205 currently unreviewed).
+All 300 active examples are now human-reviewed and unflagged: **163 VALID / 137
+GIBBERISH**, with **615 revisions** preserved. The [replacement report](../data/replacements_v1/README.md)
+and milestone reports are historical snapshots, not the current review counts.
 Future imports apply the same modified-only policy automatically. Existing review flags
 remain for explicit human resolution; exclusion does not silently clear flags.
 Use **Queue → unreviewed** to resume. See the [milestone report](../data/milestone300_v1/README.md)
 for the live audit, new difficulty mix, and quality flags. The original 100-candidate
 pilot documentation below remains as provenance; do not re-import it into this database.
+
+## Provisional training labels and audits
+
+The classification labels remain **VALID / GIBBERISH**. Review status is separate:
+**human-reviewed**, **provisional**, or **flagged**. Incoming candidates without a
+label are pending. Flags take precedence; a human label overrides an automatic
+proposal, but saving a label does not resolve a flag. Existing 300 reviews are not
+retroactively assigned automatic labels or audits.
+
+In **Import candidates**, select **Provisional training batch**, supply a new batch
+ID and seed, then upload a new candidate JSONL. This is training-only and freezes
+group membership and sampling in the same transaction as import. Reusing a batch
+ID is rejected. The default import remains manual. An equivalent Python call is:
+
+```python
+import_candidates(rows, path=db_path, provisional_batch="train-next-v1", seed=42)
+```
+
+No separate operation assigns automatic labels to records already in SQLite.
+The existing duplicate/script/license/family checks and modified-only policy still
+apply before admission. Rule eligibility is conservative, not proof of meaning:
+
+- Pinned TyDi question and MASSIVE localized-request subsets may receive provisional
+  VALID after basic standalone-text checks. Source revisions are listed in
+  `PUBLIC_RULES`; short or context-dependent inputs stay manual. Aya's varied
+  instruction templates remain manual until a narrower subset is approved.
+- Python may provisionally label GIBBERISH only for the `keyboard_noise` recipe
+  with 10–30 characters drawn exclusively from the consonant-heavy first Arabic
+  keyboard row and containing an eight-character contiguous forward/reverse walk.
+  Repetition, short strings, other rows, shuffling and meaning-preserving typos stay
+  manual. These restrictions reduce recognizable-word/laughter risks; they do not
+  replace the random audit.
+- Codex proposals require generation instructions (or their file path), available
+  model metadata (unknown values are allowed), batch ID and family provenance.
+  All Codex proposals receive the higher-risk audit rate, regardless of difficulty.
+- Other candidates go to manual review with an uncertainty reason. Licensing
+  admission alone never supplies a VALID label. Unsupported scripts are rejected,
+  never automatically labeled GIBBERISH.
+
+### Random audit policy
+
+Each group fixes the collection batch, source/revision, method, subtype and rule
+version. Dialect strata include explicit `unknown`/`none` values. Sampling is seeded,
+without replacement, sorted independently of import order, and persisted once:
+
+| Risk | Sample per dialect stratum |
+| --- | --- |
+| Standard public or mechanical-noise rules | 20%, minimum 10 |
+| Higher risk: all Codex and any hard-difficulty group | 50%, minimum 20 |
+
+Round upward, cap at stratum size. Small strata are fully reviewed. A hard member
+raises the whole group's rate; subtype and difficulty remain separate metadata.
+The frozen event stores membership, selected IDs and dialect denominators.
+
+Use **Queue → manual-review** for failed-audit and uncertain cases first, then quality
+flags and higher-risk audit samples. Proposed labels, source names and subtypes
+remain hidden before initial human labeling. Enter your binary decision, then
+explicitly resolve the flag. **Audit progress** shows opaque group IDs, status,
+sample progress, errors and dialect-stratum coverage without revealing answers.
+
+A group passes only after all sampled records are resolved with zero errors.
+One confirmed error—including an error discovered in voluntary review—fails the
+group, quarantines remaining provisional records and disables that rule version
+for later imports. Resolved human reviews remain usable. Failure is retained even
+if a subsequent correction agrees with the original proposal; fixing the rule
+requires an explicit code/policy version revision and fresh audits for new batches.
+An unresolved correction of a sampled label returns a passed audit to pending.
+Sample outcomes store human decisions, notes and revision IDs; append-only audit
+events preserve earlier decisions. Existing exports are never rewritten; the audit
+report identifies exports affected by later audit invalidation.
+
+For full administrative coverage by source, method, subtype and dialect, inspect:
+
+```python
+from jais_guard.annotations import audit_report
+reports = audit_report(db_path)
+```
+
+This administrative report contains source metadata and is intentionally separate
+from blind labeling. It includes sampled/resolved counts, current sample errors,
+confirmed historical errors, frozen population sizes and affected export paths.
+Voluntary reviews do not increase the random sample's denominator. A passing audit
+does not establish that every unsampled record is correct or give a precise error rate.
+
+### Export provenance and compatibility
+
+**Human-reviewed only** remains the default export mode. **Include audited provisional
+training labels** additionally permits unflagged provisional records from passed
+groups. Validation and test reject this option. Archived, flagged, pending and
+unaudited/failed-group automatic labels are never exported.
+
+Schema-version 2 JSONL adds `review_status`, `label_origin`,
+`original_provisional_label` and `audit` metadata. `annotation.label` remains the
+actual human label (null for unsampled automatic records); top-level `label` and
+`is_gibberish` carry the effective classification label. The audit metadata records
+group/batch/rule IDs, policy version, sampled status, group outcome, sample size and
+error count. A passed group never changes an unsampled record to human-reviewed.
+
+Manifests separate human/provisional and origin counts, include audit coverage and
+distinguish export completeness from human-annotation completeness. Existing version
+folders are never overwritten. `read_export` still reads legacy human-only exports;
+reading mixed exports requires `allow_provisional=True` in addition to the existing
+partial-milestone opt-in where applicable. This permission never permits automatic
+validation/test labels. Source licensing/publication review remains separate.
+
+SQLite adds provisional decisions, review requests, frozen audit groups/samples,
+audit events, disabled rules and export references. The additive upgrade is
+transactional and creates a local `backups/before-provisional-*.sqlite3` backup for
+an existing populated database. Human annotation rows/history are not migrated or
+rewritten. No dependencies, new candidates, models or training jobs are added.
 
 
 The first milestone is **100 candidates for your blind review**, not a labeled
@@ -67,9 +178,9 @@ IDs are opaque and queue order is stable but shuffled independently of source or
 label. Progress and your position survive application restarts. A failed save
 shows an error and prevents navigation.
 
-Five within-training near-duplicate pairs are intentional meaning-preserving
-Python variants of public inputs. Their derivative records start flagged, and
-must be resolved before export. The blind UI does not expose their intended labels.
+The historical pilot included five meaning-preserving near-duplicate pairs.
+Their originals are now archived under the modified-only policy. New lexical
+quality flags still require explicit resolution; blind review hides intended labels.
 No candidate overlaps the religious benchmark at the configured lexical thresholds.
 Lexical checks cannot establish absence of semantic overlap; your review remains necessary.
 
@@ -146,16 +257,19 @@ are flagged for review. Future collection still needs human semantic/family chec
 Use the sidebar to export a partition with a unique version. Snapshots go under
 `data/exports/<partition>-<version>/` and are never overwritten.
 
-Only human-labeled, unflagged records are exported. Every record preserves its
+By default, only human-labeled, unflagged records are exported. The explicit
+training-only provisional option is documented above. Every record preserves its
 original intended label and provenance separately from the human label and derived
 `is_gibberish`. The manifest records counts, exclusions, subtype breakdowns, policy,
 source snapshot hash, data hash, and annotation completeness. `complete` means all
-imported records in that snapshot are resolved; `target_reached` separately reports
+active records in that snapshot are exportable under the selected mode;
+`annotation_complete` separately requires human review of every active record.
+`target_reached` separately reports
 whether the 1,000/200/400 collection target has been met. Partial snapshots remain
 explicitly marked and must not masquerade as completed collections.
 
 The `read_export` helper requires an explicit expected partition, checks hashes and
-human annotations, and rejects incomplete milestones unless explicitly allowed.
+review metadata, and rejects incomplete milestones unless explicitly allowed.
 No training consumer or model code is implemented. Do not combine partitions using
 a directory glob.
 
@@ -181,8 +295,9 @@ The repository's software license does not relicense upstream or generated data.
 
 ## Milestones and limits
 
-The 100-candidate review milestone is complete; stop next after reviewing the new 200. After your feedback: refine policy
-and collection quality, then grow to 300–500 reviewed training examples, 1,000 train
+The 300-candidate human review milestone is complete. The current change adds
+annotation/auditing infrastructure only; stop before collecting more records.
+Future approved collection can grow toward 1,000 training examples
 plus 200 separately collected validation examples, and eventually a separately
 approved independent 400-example test collection. Source families and generated
 paraphrase families must remain within one partition. No held-out inputs may seed
