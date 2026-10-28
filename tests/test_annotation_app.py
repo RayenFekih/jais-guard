@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.annotations import connection, import_candidates, queue, save_annotation
+from jais_guard.annotations import connection, import_candidates, queue, save_annotation, set_state
 
 AppTest = pytest.importorskip("streamlit.testing.v1").AppTest
 
@@ -165,3 +165,44 @@ def test_empty_search_keeps_selection_and_annotation_unchanged(reviewed_db):
     assert any(records[0]["id"] in c.value for c in app.caption)
     with connection(db) as conn:
         assert conn.execute("SELECT COUNT(*) FROM revisions").fetchone()[0] == 3
+
+
+def test_end_of_queue_links_back_to_unlabeled_records_without_changing_labels(tmp_path):
+    candidates = [
+        json.loads(line)
+        for line in (ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()
+    ][:3]
+    db = tmp_path / "app.sqlite3"
+    import_candidates(candidates, db)
+    records = queue("train", path=db)
+    save_annotation(records[-1]["id"], label="VALID", flagged=False, notes="Reviewed", path=db)
+    set_state("cursor:train:all", records[-1]["id"], db)
+    app = launch(db)
+    assert any("Position 3 of 3" in c.value for c in app.caption)
+    assert any("2 examples" in message.value for message in app.warning)
+    assert button(app, "Next").disabled
+    button(app, "Open next unlabeled example").click().run()
+    assert not app.exception
+    assert any(records[0]["id"] in c.value and "Position 1 of 3" in c.value for c in app.caption)
+    assert [r["human_label"] for r in queue("train", path=db)] == [None, None, "VALID"]
+    with connection(db) as conn:
+        assert conn.execute("SELECT COUNT(*) FROM revisions").fetchone()[0] == 1
+
+
+def test_unlabeled_navigation_does_not_bypass_failed_notes_save(tmp_path, monkeypatch):
+    candidates = [
+        json.loads(line)
+        for line in (ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()
+    ][:2]
+    db = tmp_path / "app.sqlite3"
+    import_candidates(candidates, db)
+
+    def fail(*args, **kwargs):
+        raise OSError("disk full")
+
+    monkeypatch.setattr("jais_guard.annotations.save_annotation", fail)
+    app = launch(db)
+    app.text_area[0].set_value("Unsaved note")
+    button(app, "Open next unlabeled example").click().run()
+    assert any("Position 1 of 2" in c.value for c in app.caption)
+    assert any("disk full" in message.value for message in app.error)

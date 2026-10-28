@@ -187,7 +187,7 @@ if rows:
 else:
     st.info("No matching examples. Change the search or queue filter.")
 if index >= 0:
-    st.caption(f"{row['id']} · {index + 1} of {len(rows)} in {mode} queue")
+    st.caption(f"{row['id']} · Position {index + 1} of {len(rows)} in {mode} queue")
 else:
     st.caption(f"{row['id']} · selected example is outside the current search/filter")
     st.info("This example stays open after saving even when it no longer matches the filter.")
@@ -239,6 +239,24 @@ following.button(
     args=(rows[index + 1]["id"] if rows and index + 1 < len(rows) else row["id"],),
     disabled=not rows or index == len(rows) - 1,
 )
+unlabeled = [record for record in all_rows if record["human_label"] is None]
+if unlabeled:
+    if index == len(rows) - 1:
+        st.warning(
+            f"End of this queue, but {len(unlabeled)} examples in this partition are still "
+            "unlabeled. Queue position is not annotation progress."
+        )
+    # Imports can sort before the saved cursor. Wrap to the beginning rather than skip them.
+    current_position = next(i for i, record in enumerate(all_rows) if record["id"] == row["id"])
+    after_cursor = [
+        record for record in all_rows[current_position + 1 :] if record["human_label"] is None
+    ]
+    st.button(
+        "Open next unlabeled example",
+        on_click=open_example,
+        args=((after_cursor or unlabeled)[0]["id"],),
+        help="Search the entire partition, wrapping to the beginning if needed.",
+    )
 st.caption(
     "Shortcuts: 1 VALID · 2 GIBBERISH · F flag · P previous · N next. "
     "Shortcuts are inactive while typing notes."
