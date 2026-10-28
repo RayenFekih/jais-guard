@@ -321,3 +321,22 @@ new generation prompts.
 This is a single-reviewer pilot, not independent annotation or a representative
 production corpus. Disclose synthetic/source proportions, dialect uncertainty,
 annotation disagreements, and the limits of lexical leakage checks.
+
+### Approved realism retirements
+
+A replacement import can supply an explicit one-to-one retirement manifest and a
+new backup path. It verifies the saved candidate hashes and rejects human-reviewed
+or already retired records. New candidates, new v2 audits and retirement exclusions
+commit together; a failed write rolls everything back. The checked backup is taken
+before writes while holding the import's writer lock.
+
+Retirement removes a record from active queues and future exports, without deleting
+its candidate, annotation, proposal, audit sample or revision. Exclusion metadata
+records the replacement ID and approval fingerprint. All frozen audit populations,
+sample outcomes and failed-rule decisions remain unchanged. The audit panel reports
+retired members separately: their pending historical samples do **not** become
+resolved, and retirement never passes a group. A retained, resolved human review
+remains usable independently of its group's provisional eligibility.
+
+See [the realism replacement checkpoint](realism-replacement-checkpoint.md) for the
+81-record operation. All candidate artifacts and the SQLite backup remain local.
