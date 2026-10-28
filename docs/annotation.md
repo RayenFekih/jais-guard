@@ -1,15 +1,24 @@
 # Dataset pilot and local annotation
 
-**Current checkpoint:** 300 active training candidates. Of the 327 stored records,
+**Audit policy update:** the existing 400 and future imports use [provisional-v2](audit-policy-v2.md), with
+narrow Aya/repetition admission, group-level sample minimums, explicit run/family
+boundaries and pre-import workload previews. The approved replacement is active:
+**255 reviews** (207 audit samples + 48 manual-only cases), with 145 unsampled
+provisional records awaiting audits. All 22 v1 groups and 199 samples remain immutable
+history. Restart/refresh Streamlit and choose **train → manual-review** to continue.
+
+**Current checkpoint:** 700 active training candidates. Of the 727 stored records,
 27 originals with transformed copies are archived and excluded from queues and future
 exports. Original text, human labels, and revision history remain in SQLite for audit;
 the source JSONL files and previous exports are historical snapshots, not active lists.
-All 300 active examples are now human-reviewed and unflagged: **163 VALID / 137
-GIBBERISH**, with **615 revisions** preserved. The [replacement report](../data/replacements_v1/README.md)
+The original 300 examples remain human-reviewed and unflagged: **163 VALID / 137
+GIBBERISH**, with all revision history preserved. The new 400 await the required audits
+and manual cases. See the [700-record checkpoint](training-700-checkpoint.md).
+The [replacement report](../data/replacements_v1/README.md)
 and milestone reports are historical snapshots, not the current review counts.
 Future imports apply the same modified-only policy automatically. Existing review flags
 remain for explicit human resolution; exclusion does not silently clear flags.
-Use **Queue → unreviewed** to resume. See the [milestone report](../data/milestone300_v1/README.md)
+Use **Queue → manual-review** for required samples and flagged cases. See the [milestone report](../data/milestone300_v1/README.md)
 for the live audit, new difficulty mix, and quality flags. The original 100-candidate
 pilot documentation below remains as provenance; do not re-import it into this database.
 
@@ -27,9 +36,15 @@ group membership and sampling in the same transaction as import. Reusing a batch
 ID is rejected. The default import remains manual. An equivalent Python call is:
 
 ```python
-import_candidates(rows, path=db_path, provisional_batch="train-next-v1", seed=42)
+plan = preview_import(rows, "train-next-v2", seed=42, path=db_path)
+print(plan["required_reviews"], plan["audit_samples"], plan["manual_only"])
+import_candidates(rows, path=db_path, provisional_batch="train-next-v2", seed=42,
+                  expected_projection=plan["fingerprint"])
 ```
 
+The following admission/sampling details describe **historical v1 audits** from the
+original import. For current review and new imports, [the v2 policy](audit-policy-v2.md) takes precedence.
+Existing v1 reasons display clearer codes without rewriting stored rows or flags.
 No separate operation assigns automatic labels to records already in SQLite.
 The existing duplicate/script/license/family checks and modified-only policy still
 apply before admission. Rule eligibility is conservative, not proof of meaning:
@@ -295,8 +310,8 @@ The repository's software license does not relicense upstream or generated data.
 
 ## Milestones and limits
 
-The 300-candidate human review milestone is complete. The current change adds
-annotation/auditing infrastructure only; stop before collecting more records.
+The 300-candidate human review milestone is complete. The collection now has 700
+active candidates; stop for audits/manual review of the new 400 before collecting more.
 Future approved collection can grow toward 1,000 training examples
 plus 200 separately collected validation examples, and eventually a separately
 approved independent 400-example test collection. Source families and generated

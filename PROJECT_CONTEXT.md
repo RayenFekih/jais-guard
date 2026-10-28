@@ -47,19 +47,32 @@ changing them. Account for the local GPU's 6 GB VRAM limit.
 The introductory study of tokenization, chat templates, prefill, decoding, and
 KV caching is complete.
 
-The checkpoint contains 327 stored candidates; 27 originals with transformed
-copies are archived, leaving 300 active training candidates after adding 27 fresh
-public-source replacements in `data/replacements_v1`. All 300 active training records
-are now human-reviewed and unflagged (163 VALID / 137 GIBBERISH; 615 revisions).
+The checkpoint contains 727 stored candidates; 27 originals with transformed
+copies are archived, leaving 700 active training candidates. The original 300
+human reviews and history are preserved (163 VALID / 137 GIBBERISH). The new
+400 candidates in local, Git-ignored `data/milestone700_v1` have intentions of
+187 VALID / 213 GIBBERISH, not ground truth. They were imported across 31 collection
+batches, initially with 22 v1 audits. The approved v2 replacement is now active:
+207 audit samples plus 48 manual-only cases require 255 reviews; 145 unsampled
+provisional records await passed group audits. Stop for review;
+do not collect more. See `docs/training-700-checkpoint.md` for counts and limitations.
+The 400 now have explicit active-v2 pointers. All 22 v1 groups and 199 original
+sample rows remain immutable history; the original 300 annotations and all human
+revision history are unchanged. A checked SQLite backup and guarded pointer rollback
+are available. See `docs/audit-policy-v2.md` for the migration receipt and procedure.
 Keep only transformed
 versions in review queues and future exports; retain originals solely for provenance
 and annotation history. Historical collection reports remain in `data/milestone300_v1`.
-The current work adds scalable annotation infrastructure only; do not collect more data yet.
+No validation/test collection or model work belongs to this checkpoint.
 
 New training batches may explicitly opt into versioned provisional-label rules and
-seeded, frozen audits. Keep automatic proposals separate from human labels. Audit
-20% (minimum 10 per dialect stratum) for approved public/keyboard inputs and 50%
-(minimum 20) for Codex or other higher-risk groups, capped at stratum size. One
+seeded, frozen audits. Keep automatic proposals separate from human labels. Under v2,
+audit 20% (minimum 10 PER GROUP) for approved public/keyboard/repetition inputs and
+50% (minimum 20 PER GROUP) for all Codex or other higher-risk groups, capped at group
+size. Represent dialects where feasible within this fixed budget; never multiply
+the minimum by dialect count. Preserve source/subtype/recipe/generation-family and
+rule-version boundaries; declare genuine acquisition/generation runs before import.
+Always project the workload before importing, and never append to a frozen run. One
 confirmed error quarantines the affected group and disables that rule version.
 Human labels override proposals; flags require explicit resolution. Unsampled
 records remain provisional after a group passes. Human-only exports remain the
