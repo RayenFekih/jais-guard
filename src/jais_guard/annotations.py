@@ -221,7 +221,15 @@ def import_candidates(
     seed: int = 0,
     policy_version: str = PROVISIONAL_POLICY_VERSION,
     expected_projection: str | None = None,
+    retirements: list[dict] | None = None,
+    backup_path: Path | None = None,
 ) -> int:
+    # A replacement is one transaction: new records plus append-only exclusions.
+    # Frozen proposals/samples and all human history remain untouched.
+    if retirements and (not backup_path or len(retirements) != len(rows)):
+        raise ValueError("Replacements require a backup and one retirement per new record")
+    if retirements and any(row.get("partition") != "train" for row in rows):
+        raise ValueError("Replacements are training-only")
     if provisional_batch is not None:
         if policy_version not in {PROVISIONAL_POLICY_VERSION, LEGACY_PROVISIONAL_POLICY_VERSION}:
             raise ValueError("Unknown provisional policy version")
@@ -239,6 +247,32 @@ def import_candidates(
         blockers = [i for i in issues if i["kind"] != "near_duplicate" or i["cross_partition"]]
         if blockers:
             raise ValueError(f"Import blocked by overlap: {blockers[:5]}")
+        if retirements:
+            if len({r["id"] for r in retirements}) != len(retirements):
+                raise ValueError("Duplicate retirement ID")
+            if {r["replacement_id"] for r in retirements} != {r["id"] for r in rows}:
+                raise ValueError("Replacement mapping must cover every new ID exactly once")
+            for decision in retirements:
+                stored = db.execute(
+                    "SELECT payload,partition FROM candidates WHERE id=?", (decision["id"],)
+                ).fetchone()
+                if (
+                    not stored
+                    or stored["partition"] != "train"
+                    or digest(json.loads(stored["payload"])) != decision["candidate_sha256"]
+                    or not decision.get("reason")
+                ):
+                    raise ValueError("Retirement snapshot changed or is not a training record")
+                if (
+                    db.execute(
+                        "SELECT 1 FROM annotations WHERE id=? AND human_label IS NOT NULL",
+                        (decision["id"],),
+                    ).fetchone()
+                    or db.execute(
+                        "SELECT 1 FROM candidate_exclusions WHERE id=?", (decision["id"],)
+                    ).fetchone()
+                ):
+                    raise ValueError("Cannot retire a human-reviewed or already retired record")
         flagged_ids = {i["id"] for i in issues}
         projection = None
         if provisional_batch is not None and policy_version == PROVISIONAL_POLICY_VERSION:
@@ -253,6 +287,18 @@ def import_candidates(
                 f"reviews ({projection['audit_samples']} audit samples, "
                 f"{projection['manual_only']} manual-only)"
             )
+        if retirements:
+            backup_path = Path(backup_path)
+            backup_path.parent.mkdir(parents=True, exist_ok=True)
+            # Never replace an existing backup. A second reader avoids backing up
+            # this connection while it holds an uncommitted write transaction.
+            with backup_path.open("xb"):
+                pass
+            with sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True) as source:
+                with sqlite3.connect(backup_path) as destination:
+                    source.backup(destination)
+                    if destination.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                        raise ValueError("Replacement backup failed integrity check")
         for row in rows:
             db.execute(
                 "INSERT INTO candidates VALUES (?,?,?,?)",
@@ -267,6 +313,11 @@ def import_candidates(
         if provisional_batch is not None:
             _prepare_provisional_batch(
                 db, rows, provisional_batch, seed, policy_version, projection
+            )
+        for decision in retirements or []:
+            db.execute(
+                "INSERT INTO candidate_exclusions VALUES (?,?,?)",
+                (decision["id"], json.dumps(decision, ensure_ascii=False, sort_keys=True), now()),
             )
     return len(rows)
 
@@ -739,6 +790,7 @@ def _audit_reports(db, *, include_history=False):
     proposals_table = policy_table(db, "provisional_labels", history=True)
     active_proposals = policy_table(db, "provisional_labels")
     active_groups = {r[0] for r in db.execute(f"SELECT DISTINCT group_id FROM {active_proposals}")}
+    retired = {r[0] for r in db.execute("SELECT id FROM candidate_exclusions")}
     for group in db.execute("SELECT * FROM audit_groups ORDER BY created_at,id").fetchall():
         if not include_history and group["id"] not in active_groups:
             continue
@@ -779,6 +831,12 @@ def _audit_reports(db, *, include_history=False):
                 None,
             ),
             population=len(members),
+            active_population=sum(r["id"] not in retired for r in members),
+            retired_ids=sorted(r["id"] for r in members if r["id"] in retired),
+            retired_samples=sum(s["id"] in retired for s in samples),
+            active_pending_samples=sum(
+                s["id"] not in retired and s["outcome"] == "pending" for s in samples
+            ),
             sampled=len(samples),
             resolved=sum(s["outcome"] != "pending" for s in samples),
             errors=len({e["id"] for e in events if e.get("outcome") == "error"}),

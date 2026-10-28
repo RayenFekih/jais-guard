@@ -210,6 +210,13 @@ with st.expander("Audit progress"):
             f"{report['errors']} errors · {report['population']} group members · "
             f"{len(report['coverage'])} dialect strata"
         )
+        if report["retired_ids"]:
+            st.caption(
+                f"{len(report['retired_ids'])} retired records retained in this frozen audit; "
+                f"{report['retired_samples']} retired samples remain historical. "
+                f"{report['active_pending_samples']} active samples still pending. "
+                "Retirement does not pass or resample an audit."
+            )
         if report["affected_exports"]:
             st.warning("Affected earlier exports: " + ", ".join(report["affected_exports"]))
 

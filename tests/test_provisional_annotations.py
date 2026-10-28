@@ -319,3 +319,110 @@ def test_legacy_export_and_additive_upgrade_preserve_existing_rows(tmp_path):
     # Existing IDs cannot be submitted again to acquire provisional labels.
     with pytest.raises(ValueError, match="Duplicate ID"):
         a.import_candidates([copy.deepcopy(row)], path, provisional_batch="retroactive")
+
+
+def test_replacement_preserves_frozen_failed_audit_and_human_history(tmp_path):
+    path = tmp_path / "annotations.sqlite3"
+    old = artificial_rows(6, prefix="retirement-old")
+    a.import_candidates(old, path, provisional_batch="retirement-old")
+    # One confirmed error fails the group; preserve it even after retiring samples.
+    a.save_annotation(old[0]["id"], label="VALID", flagged=False, notes="Human decision", path=path)
+    before = a.audit_report(path)[0]
+    assert before["status"] == "failed"
+    with a.connection(path) as db:
+        frozen = {
+            table: [tuple(r) for r in db.execute(f"SELECT * FROM {table} ORDER BY 1")]
+            for table in (
+                "annotations",
+                "revisions",
+                "audit_groups",
+                "audit_samples",
+                "provisional_labels",
+                "disabled_rules",
+                "audit_events",
+            )
+        }
+    new = artificial_rows(2, prefix="replacement-new")
+    decisions = [
+        dict(
+            id=row["id"],
+            candidate_sha256=a.digest(row),
+            replacement_id=replacement["id"],
+            reason="Approved realism retirement",
+        )
+        for row, replacement in zip(old[1:3], new, strict=True)
+    ]
+    preview = a.preview_import(new, "replacement-new", path=path)
+    backup = tmp_path / "before.sqlite3"
+    a.import_candidates(
+        new,
+        path,
+        provisional_batch="replacement-new",
+        expected_projection=preview["fingerprint"],
+        retirements=decisions,
+        backup_path=backup,
+    )
+    with a.connection(path) as db:
+        for table, snapshot in frozen.items():
+            after = [tuple(r) for r in db.execute(f"SELECT * FROM {table} ORDER BY 1")]
+            assert all(row in after for row in snapshot)
+        assert db.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 8
+        assert db.execute("SELECT COUNT(*) FROM candidate_exclusions").fetchone()[0] == 2
+    with sqlite3.connect(backup) as db:
+        assert db.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 6
+        assert db.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    report = next(r for r in a.audit_report(path) if r["id"] == before["id"])
+    assert report["status"] == "failed"
+    assert report["population"] == before["population"] == 6
+    assert report["sampled"] == before["sampled"] == 6
+    assert report["samples"] == before["samples"]
+    assert report["active_population"] == 4 and report["retired_samples"] == 2
+    active_ids = {r["id"] for r in a.queue("train", path=path)}
+    assert not {r["id"] for r in old[1:3]} & active_ids
+    assert old[0]["id"] in active_ids
+    # Neither retirement nor the failed group invalidates a resolved human label.
+    exported = a.export_dataset("train", "retired-fixture", tmp_path / "exports", path=path)
+    assert {r["id"] for r in a.read_export(exported, "train", allow_partial=True)} == {old[0]["id"]}
+
+
+def test_replacement_rejects_reviewed_stale_and_failed_writes(tmp_path):
+    path = tmp_path / "annotations.sqlite3"
+    old = artificial_rows(2, prefix="replace-guard-old")
+    new = artificial_rows(1, prefix="replace-guard-new")
+    a.import_candidates(old, path)
+    decision = dict(
+        id=old[0]["id"],
+        candidate_sha256=a.digest(old[0]),
+        replacement_id=new[0]["id"],
+        reason="Approved realism retirement",
+    )
+    a.save_annotation(old[0]["id"], label="VALID", flagged=False, notes="", path=path)
+    with pytest.raises(ValueError, match="human-reviewed"):
+        a.import_candidates(
+            new, path, retirements=[decision], backup_path=tmp_path / "reviewed.sqlite3"
+        )
+    decision.update(id=old[1]["id"], candidate_sha256="stale")
+    with pytest.raises(ValueError, match="snapshot changed"):
+        a.import_candidates(
+            new, path, retirements=[decision], backup_path=tmp_path / "stale.sqlite3"
+        )
+    decision["candidate_sha256"] = a.digest(old[1])
+    with a.connection(path) as db:
+        db.execute(
+            "CREATE TRIGGER fail_retirement BEFORE INSERT ON candidate_exclusions "
+            "BEGIN SELECT RAISE(ABORT, 'simulated failed retirement'); END"
+        )
+    with pytest.raises(sqlite3.IntegrityError, match="simulated failed retirement"):
+        a.import_candidates(
+            new,
+            path,
+            provisional_batch="replace-guard-new",
+            retirements=[decision],
+            backup_path=tmp_path / "failed.sqlite3",
+        )
+    with a.connection(path) as db:
+        assert db.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 2
+        assert db.execute("SELECT COUNT(*) FROM revisions").fetchone()[0] == 1
+        assert db.execute("SELECT COUNT(*) FROM candidate_exclusions").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM collection_batches").fetchone()[0] == 0
+        assert db.execute("SELECT COUNT(*) FROM audit_groups").fetchone()[0] == 0
