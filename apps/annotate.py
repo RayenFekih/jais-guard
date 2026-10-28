@@ -46,33 +46,38 @@ with st.sidebar:
     st.header("Collection")
     if "active_partition" not in st.session_state:
         st.session_state["active_partition"] = get_state("active_partition", db_path) or "train"
-    if "active_queue" not in st.session_state:
-        st.session_state["active_queue"] = get_state("active_queue", db_path) or "all"
     partition = st.selectbox("Partition", ("train", "validation", "test"), key="active_partition")
-    mode = st.selectbox(
-        "Queue",
-        (
-            "all",
-            "VALID",
-            "GIBBERISH",
-            "flagged",
-            "unreviewed",
-            "human-reviewed",
-            "provisional",
-            "manual-review",
-        ),
-        key="active_queue",
-    )
-    search = (
-        st.text_input(
-            "Search text or example ID",
-            help="Match exact or partial Arabic text, or all or part of an example ID.",
+    view = st.radio("View", ("Review Queue", "Browse All"), key="annotation_view")
+    reviewing = view == "Review Queue"
+    mode, search = "all", ""
+    if not reviewing:
+        if "active_queue" not in st.session_state:
+            st.session_state["active_queue"] = get_state("browse_filter", db_path) or "all"
+        mode = st.selectbox(
+            "Queue",
+            (
+                "all",
+                "VALID",
+                "GIBBERISH",
+                "flagged",
+                "unreviewed",
+                "human-reviewed",
+                "provisional",
+                "manual-review",
+            ),
+            key="active_queue",
         )
-        .strip()
-        .casefold()
-    )
+        search = (
+            st.text_input(
+                "Search text or example ID",
+                help="Match exact or partial Arabic text, or all or part of an example ID.",
+            )
+            .strip()
+            .casefold()
+        )
+        set_state("active_queue", mode, db_path)
+        set_state("browse_filter", mode, db_path)
     set_state("active_partition", partition, db_path)
-    set_state("active_queue", mode, db_path)
     st.caption(
         "Review the current training collection before further collection. "
         "Originals with transformed copies are archived and excluded."
@@ -165,14 +170,28 @@ with st.sidebar:
             except (ValueError, OSError) as error:
                 st.error(str(error))
 
-stats = progress(db_path)
-for column, (name, counts) in zip(st.columns(3), stats.items(), strict=True):
-    with column:
-        st.metric(name, f"{counts['human_reviewed']} / {counts['imported']} human-reviewed")
-        st.caption(
-            f"{counts['provisional']} provisional · {counts['flagged']} flagged · "
-            f"{counts['export_eligible']} export-eligible"
-        )
+
+def required_records():
+    # Active audit/quality flags come first. Plain manual imports also need labeling,
+    # although they have no automatic review_request row and are simply pending.
+    flagged = queue(partition, "manual-review", path=db_path)
+    pending = [r for r in queue(partition, path=db_path) if r["status"] == "pending"]
+    return flagged + pending
+
+
+required = required_records()
+if reviewing:
+    st.metric("Remaining reviews", len(required))
+    st.caption("Label once to save, resolve and move to the next required example.")
+else:
+    stats = progress(db_path)
+    for column, (name, counts) in zip(st.columns(3), stats.items(), strict=True):
+        with column:
+            st.metric(name, f"{counts['human_reviewed']} / {counts['imported']} human-reviewed")
+            st.caption(
+                f"{counts['provisional']} provisional · {counts['flagged']} flagged · "
+                f"{counts['export_eligible']} export-eligible"
+            )
 
 with st.expander("Audit progress"):
     reports = audit_report(db_path)
@@ -201,32 +220,35 @@ if partition == "test" and not get_state("test_unlocked", db_path):
     )
     st.stop()
 all_rows = queue(partition, path=db_path)
-if not all_rows:
-    st.info("No records in this partition. Import the pilot or choose another partition.")
+if reviewing and not required:
+    st.success("No examples currently require manual review.")
+    st.caption("Use Browse All to search, inspect or correct records.")
     st.stop()
-rows = all_rows
-if mode in ("VALID", "GIBBERISH"):
-    rows = [record for record in rows if record["human_label"] == mode]
-elif mode == "flagged":
-    rows = [record for record in rows if record["flagged"]]
-elif mode == "unreviewed":
-    rows = [record for record in rows if record["human_label"] is None]
-elif mode in {"human-reviewed", "provisional"}:
-    rows = [record for record in rows if record["status"] == mode]
-elif mode == "manual-review":
-    rows = queue(partition, "manual-review", path=db_path)
-if search:
-    rows = [
-        record
-        for record in rows
-        if search in record["input_text"].casefold() or search in record["id"].casefold()
-    ]
-# Selection is independent of filters so correcting a label never removes the open example.
-state_key = f"cursor:{partition}:all"
+if not all_rows:
+    st.info("No records in this partition. Import candidates or choose another partition.")
+    st.stop()
+rows = required if reviewing else all_rows
+if not reviewing:
+    if mode in ("VALID", "GIBBERISH"):
+        rows = [record for record in rows if record["human_label"] == mode]
+    elif mode == "flagged":
+        rows = [record for record in rows if record["flagged"]]
+    elif mode == "unreviewed":
+        rows = [record for record in rows if record["human_label"] is None]
+    elif mode in {"human-reviewed", "provisional"}:
+        rows = [record for record in rows if record["status"] == mode]
+    elif mode == "manual-review":
+        rows = queue(partition, "manual-review", path=db_path)
+    if search:
+        rows = [
+            r for r in rows if search in r["input_text"].casefold() or search in r["id"].casefold()
+        ]
+# Review selection is restricted to the live required set. Browse selection remains
+# independent of filters so correcting a label does not remove the open record.
+state_key = f"cursor:{partition}:review" if reviewing else f"cursor:{partition}:all"
 current_id = get_state(state_key, db_path)
-row = next(
-    (record for record in all_rows if record["id"] == current_id), rows[0] if rows else all_rows[0]
-)
+selection_pool = rows if reviewing else all_rows
+row = next((r for r in selection_pool if r["id"] == current_id), rows[0] if rows else all_rows[0])
 index = next((i for i, record in enumerate(rows) if record["id"] == row["id"]), -1)
 set_state(state_key, row["id"], db_path)
 notes_key = f"notes:{row['id']}"
@@ -238,7 +260,6 @@ def persist(label=None, flag=None):
     try:
         fresh = next(r for r in queue(partition, path=db_path) if r["id"] == row["id"])
         if label is None and flag is None and st.session_state[notes_key] == fresh["notes"]:
-            # Browsing should not create annotation revisions when nothing was edited.
             return True
         save_annotation(
             row["id"],
@@ -262,28 +283,53 @@ def open_example(record_id):
         st.session_state.pop("save_status", None)
 
 
-st.caption(f"{len(rows)} matching examples")
-if rows:
-    with st.container(height=220):
-        for match in rows:
-            preview = " ".join(match["input_text"].split())
-            preview = preview[:77] + "…" if len(preview) > 80 else preview
-            status = match["human_label"] or "Not labeled"
-            if match["flagged"]:
-                status += " · flagged"
-            elif match["status"] == "provisional":
-                status += " · provisional (answer hidden)"
-            st.button(
-                f"{match['id']} · {status} · {preview}",
-                key=f"open:{match['id']}",
-                on_click=open_example,
-                args=(match["id"],),
-                use_container_width=True,
-            )
-else:
-    st.info("No matching examples. Change the search or queue filter.")
+def advance_required():
+    remaining = required_records()
+    by_id = {r["id"] for r in remaining}
+    # Wrap around unfinished records; an audit error can also add newly quarantined cases.
+    following = rows[index + 1 :] + rows[:index]
+    target = next((r for r in following if r["id"] in by_id), remaining[0] if remaining else None)
+    if target:
+        set_state(state_key, target["id"], db_path)
+
+
+def complete_review(label):
+    # One backend transaction saves the label/notes, clears the flag and updates the audit.
+    # A failed write leaves the current record and queue untouched.
+    if persist(label=label, flag=False):
+        advance_required()
+
+
+def flag_uncertain():
+    if persist(flag=True):
+        st.session_state["save_status"] = "Kept unresolved for later review."
+        advance_required()
+
+
+if not reviewing:
+    st.caption(f"{len(rows)} matching examples")
+    if rows:
+        with st.container(height=220):
+            for match in rows:
+                preview = " ".join(match["input_text"].split())
+                preview = preview[:77] + "…" if len(preview) > 80 else preview
+                status = match["human_label"] or "Not labeled"
+                if match["flagged"]:
+                    status += " · flagged"
+                elif match["status"] == "provisional":
+                    status += " · provisional (answer hidden)"
+                st.button(
+                    f"{match['id']} · {status} · {preview}",
+                    key=f"open:{match['id']}",
+                    on_click=open_example,
+                    args=(match["id"],),
+                    use_container_width=True,
+                )
+    else:
+        st.info("No matching examples. Change the search or queue filter.")
 if index >= 0:
-    st.caption(f"{row['id']} · Position {index + 1} of {len(rows)} in {mode} queue")
+    location = "Review Queue" if reviewing else f"{mode} queue"
+    st.caption(f"{row['id']} · Position {index + 1} of {len(rows)} in {location}")
 else:
     st.caption(f"{row['id']} · selected example is outside the current search/filter")
     st.info("This example stays open after saving even when it no longer matches the filter.")
@@ -297,24 +343,38 @@ st.write(
     f"Your label: **{row['human_label'] or 'Not labeled'}**"
     + (" · **Flagged for review**" if row["flagged"] else "")
 )
-st.caption(f"Review status: {row['status']}")
-if row["review_reasons"]:
-    st.caption("Review required: " + "; ".join(row["review_reasons"]))
+if reviewing:
+    reason_names = {
+        "audit_sample": "Audit sample",
+        "content_uncertain": "Needs review",
+        "rule_not_admitted": "Manual labeling",
+        "failed_audit": "Audit error review",
+        "quality_issue": "Quality review",
+    }
+    st.caption(
+        " · ".join(reason_names.get(reason, "Manual review") for reason in row["review_reasons"])
+        or "Manual labeling"
+    )
+else:
+    st.caption(f"Review status: {row['status']}")
+    if row["review_reasons"]:
+        st.caption("Review required: " + "; ".join(row["review_reasons"]))
 left, right = st.columns(2)
-left.button(
-    "VALID", shortcut="1", on_click=persist, kwargs={"label": "VALID"}, use_container_width=True
-)
-right.button(
-    "GIBBERISH",
-    shortcut="2",
-    on_click=persist,
-    kwargs={"label": "GIBBERISH"},
-    use_container_width=True,
-)
+for column, label, shortcut in ((left, "VALID", "1"), (right, "GIBBERISH", "2")):
+    column.button(
+        label,
+        shortcut=shortcut,
+        on_click=complete_review if reviewing else persist,
+        kwargs={"label": label},
+        use_container_width=True,
+    )
 st.text_area(
     "Notes (optional; saved on blur and before navigation)", key=notes_key, on_change=persist
 )
-if row["flagged"]:
+if reviewing:
+    st.button("Flag as uncertain", shortcut="F", on_click=flag_uncertain)
+    st.caption("Uncertain examples stay unresolved and remain available in Review Queue.")
+elif row["flagged"]:
     st.button(
         "Resolve review flag",
         disabled=row["human_label"] is None,
@@ -335,27 +395,31 @@ following.button(
     "Next",
     shortcut="N",
     on_click=open_example,
-    args=(rows[index + 1]["id"] if rows and index + 1 < len(rows) else row["id"],),
-    disabled=not rows or index == len(rows) - 1,
+    args=(
+        rows[(index + 1) % len(rows)]["id"]
+        if reviewing
+        else rows[index + 1]["id"]
+        if rows and index + 1 < len(rows)
+        else row["id"],
+    ),
+    disabled=len(rows) <= 1 if reviewing else not rows or index == len(rows) - 1,
 )
-unlabeled = [record for record in all_rows if record["human_label"] is None]
-if unlabeled:
-    if index == len(rows) - 1:
-        st.warning(
-            f"End of this queue, but {len(unlabeled)} examples in this partition are still "
-            "unlabeled. Queue position is not annotation progress."
+if not reviewing:
+    unlabeled = [r for r in all_rows if r["human_label"] is None]
+    if unlabeled:
+        if index == len(rows) - 1:
+            st.warning(
+                f"End of this queue, but {len(unlabeled)} examples in this partition are still "
+                "unlabeled. Queue position is not annotation progress."
+            )
+        current_position = next(i for i, r in enumerate(all_rows) if r["id"] == row["id"])
+        after_cursor = [r for r in all_rows[current_position + 1 :] if r["human_label"] is None]
+        st.button(
+            "Open next unlabeled example",
+            on_click=open_example,
+            args=((after_cursor or unlabeled)[0]["id"],),
+            help="Search the entire partition, wrapping to the beginning if needed.",
         )
-    # Imports can sort before the saved cursor. Wrap to the beginning rather than skip them.
-    current_position = next(i for i, record in enumerate(all_rows) if record["id"] == row["id"])
-    after_cursor = [
-        record for record in all_rows[current_position + 1 :] if record["human_label"] is None
-    ]
-    st.button(
-        "Open next unlabeled example",
-        on_click=open_example,
-        args=((after_cursor or unlabeled)[0]["id"],),
-        help="Search the entire partition, wrapping to the beginning if needed.",
-    )
 st.caption(
     "Shortcuts: 1 VALID · 2 GIBBERISH · F flag · P previous · N next. "
     "Shortcuts are inactive while typing notes."
@@ -365,7 +429,7 @@ if st.session_state.get("save_status"):
         st.error(st.session_state["save_status"])
     else:
         st.success(st.session_state["save_status"])
-if row["human_label"] is not None:
+if not reviewing and row["human_label"] is not None:
     with st.expander("Source details (available after initial labeling)"):
         if st.checkbox("Show source and intended label"):
             st.json(provenance_after_review(row["id"], db_path))
