@@ -479,3 +479,47 @@ def test_browse_all_has_its_own_filter_and_returns_to_required_selection(review_
     assert get_state("cursor:train:review", db) == review_id
     assert not any(completed in c.value for c in app.caption)
     assert remaining_count(app) == "13"
+
+
+def test_validation_collection_requires_blind_manual_review_without_training_changes(tmp_path):
+    from test_provisional_annotations import artificial_rows
+
+    from jais_guard.annotations import audit_report, export_dataset
+
+    db = tmp_path / "validation-review.sqlite3"
+    training = artificial_rows(1, prefix="preserved-training")
+    import_candidates(training, db)
+    save_annotation(training[0]["id"], label="VALID", flagged=False, notes="Keep", path=db)
+    with connection(db) as conn:
+        before = {
+            t: [tuple(r) for r in conn.execute(f"SELECT * FROM {t}")]
+            for t in ("annotations", "revisions", "audit_groups", "audit_samples")
+        }
+    validation = artificial_rows(2, prefix="held-out-validation")
+    for row in validation:
+        row["partition"] = "validation"
+    import_candidates(validation, db)
+    assert {r["status"] for r in queue("validation", path=db)} == {"pending"}
+    assert audit_report(db) == []
+    with pytest.raises(ValueError, match="human-reviewed only"):
+        export_dataset("validation", "automatic", tmp_path, path=db, include_provisional=True)
+    app = launch(db, view=None)
+    next(w for w in app.selectbox if w.label == "Partition").select("validation").run()
+    assert not app.exception and remaining_count(app) == "2"
+    assert not app.json and not app.checkbox
+    with connection(db) as conn:
+        assert before == {t: [tuple(r) for r in conn.execute(f"SELECT * FROM {t}")] for t in before}
+    button(app, "VALID").click().run()
+    assert remaining_count(app) == "1"
+    assert sum(r["human_label"] is not None for r in queue("validation", path=db)) == 1
+    assert queue("train", path=db)[0]["human_label"] == "VALID"
+    with connection(db) as conn:
+        assert [
+            tuple(r)
+            for r in conn.execute("SELECT * FROM annotations WHERE id=?", (training[0]["id"],))
+        ] == before["annotations"]
+        assert [
+            tuple(r)
+            for r in conn.execute("SELECT * FROM revisions WHERE id=?", (training[0]["id"],))
+        ] == before["revisions"]
+        assert conn.execute("SELECT COUNT(*) FROM provisional_labels").fetchone()[0] == 0

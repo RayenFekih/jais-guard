@@ -47,15 +47,22 @@ changing them. Account for the local GPU's 6 GB VRAM limit.
 The introductory study of tokenization, chat templates, prefill, decoding, and
 KV caching is complete.
 
-The checkpoint contains 727 stored candidates; 27 originals with transformed
-copies are archived, leaving 700 active training candidates. The original 300
-human reviews and history are preserved (163 VALID / 137 GIBBERISH). The new
-400 candidates in local, Git-ignored `data/milestone700_v1` have intentions of
-187 VALID / 213 GIBBERISH, not ground truth. They were imported across 31 collection
-batches, initially with 22 v1 audits. The approved v2 replacement is now active:
-207 audit samples plus 48 manual-only cases require 255 reviews; 145 unsampled
-provisional records await passed group audits. Stop for review;
-do not collect more. See `docs/training-700-checkpoint.md` for counts and limitations.
+The checkpoint contains 808 stored candidates and 700 active training candidates.
+27 transformed originals and 81 user-approved unrealistic, unreviewed semantic
+constructions are retired without deleting records or audit history. The original
+300 human reviews (currently 161 VALID / 139 GIBBERISH after user corrections) and
+76 completed expansion reviews remain unchanged. The approved realism replacement
+added exactly 81 fresh candidates: 30 keyboard failures, 20 character/long-press
+failures, 11 invented-word proposals and 20 corruption transformations, including
+6 recoverable intended VALID examples. These are proposals, not human labels.
+The live collection has 376 human-reviewed records, 191 remaining reviews
+(94 audit samples and 97 manual-only cases), and 133 unsampled provisional records.
+Two new v2 audit groups require all 19 members to be sampled under the existing
+minimums; the other 62 replacements remain manual-only. All old v1/v2 populations,
+samples, failures and quarantine decisions remain frozen. Retired samples do not
+silently pass their former groups. Stop for review; do not collect more.
+See `docs/realism-replacement-checkpoint.md` for the receipt and limitations.
+Earlier counts in `docs/training-700-checkpoint.md` describe the historical import.
 The 400 now have explicit active-v2 pointers. All 22 v1 groups and 199 original
 sample rows remain immutable history; the original 300 annotations and all human
 revision history are unchanged. A checked SQLite backup and guarded pointer rollback
@@ -63,7 +70,32 @@ are available. See `docs/audit-policy-v2.md` for the migration receipt and proce
 Keep only transformed
 versions in review queues and future exports; retain originals solely for provenance
 and annotation history. Historical collection reports remain in `data/milestone300_v1`.
-No validation/test collection or model work belongs to this checkpoint.
+That historical training checkpoint did not include validation/test collection or
+model work. The separately approved validation milestone is recorded below.
+
+### Validation collection checkpoint
+
+`data/validation200_v1/` is a local, Git-ignored collection of 200 validation
+candidates imported into the existing SQLite application: 100 intended VALID and
+100 intended GIBBERISH, with every final label requiring blind human review.
+No provisional labels or audits were assigned to validation. Public inputs use 30
+fresh Aya original annotations from contributor groups unused in training and 30
+fresh MASSIVE dev records; original IDs group related source translations. Codex
+authored 40 meaningful inputs and 30 invented/garbled proposals; deterministic Python
+generated 70 failure simulations using fresh validation-only runs and seeds.
+Proposed meaningful dialect coverage is 50 MSA, 20 Egyptian, 17 Gulf, 10 Levantine
+and 3 Tunisian. All text, family, source-ID and parent checks passed against all 808
+stored training records and the religious benchmark. String checks cannot prove
+semantic independence; the public corpora and synthetic author are shared across
+partitions, while source records, contributor groups and generation seed families
+are reserved separately.
+
+At import, training remained 700 active records: 567 human-reviewed and 133
+unsampled provisional. All 925 existing revisions, all 46 v1/v2 audit groups,
+annotations, exports and results were preserved unchanged. Validation starts at
+0/200 reviewed; choose partition `validation` and **Review Queue** in Streamlit.
+See `docs/validation-200-checkpoint.md` for provenance, checks and the backup receipt.
+Stop for human review. No general-purpose test collection or model work is authorized.
 
 New training batches may explicitly opt into versioned provisional-label rules and
 seeded, frozen audits. Keep automatic proposals separate from human labels. Under v2,
@@ -80,18 +112,21 @@ default, with audited provisional labels allowed only through an explicit traini
 export option. Validation/test exports must remain fully human-reviewed. Preserve
 all existing records/history and exports; never promote historical intentions.
 
-For practical GIBBERISH collection, aim for approximately 45% easy keyboard/noise/
-unrecoverable scrambling, 40% medium combinations of real words without coherent
-meaning, and 15% hard grammatically plausible semantic incoherence. Track difficulty
+Prioritize realistic accidental input failures over artificial semantic puzzles.
+The earlier 45/40/15 difficulty allocation led to excessive contrived word mixtures
+and is superseded by the approved realism replacement. Retain already reviewed
+semantic examples for diversity; do not generate more hard semantic gibberish in
+this checkpoint. Recoverable corrupted inputs remain VALID proposals. Track difficulty
 independently from subtype as proposed metadata. Historical pilot difficulty was
 not recorded; do not invent or backfill it automatically. Prioritize natural VALID
 inputs, dialects, typos and recoverable incomplete requests; keep meaningful metaphor
 examples limited. Avoid excessive surreal poetry and repeated artificial templates.
 
 The user is the sole reviewer. Preserve existing annotations and correction history.
-Do not create validation/test data or implement training, heads, LoRA, model evaluation
-or inference optimization in this checkpoint. Future targets remain 1,000 training,
-200 validation and eventually 400 isolated general-purpose test examples.
+Do not create more validation or any general-purpose test data, or implement
+training, heads, LoRA, model evaluation or inference optimization in this checkpoint.
+Future targets remain 1,000 training and eventually 400 isolated general-purpose
+test examples; the 200 validation candidates now await human review.
 
 Use Codex directly for semantic gibberish, invented words, and hard meaningful
 counterexamples; save instructions, outputs, available metadata, and family IDs.

@@ -86,5 +86,6 @@ data/processed/
 /data/exports/
 # Unreviewed expansion stays local until an explicit dataset publication decision.
 /data/milestone700_v1/
+/data/validation200_v1/
 *.sqlite3-wal
 *.sqlite3-shm
