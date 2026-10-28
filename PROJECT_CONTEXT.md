@@ -47,10 +47,11 @@ changing them. Account for the local GPU's 6 GB VRAM limit.
 The introductory study of tokenization, chat templates, prefill, decoding, and
 KV caching is complete.
 
-The imported checkpoint contains 300 stored candidates; 27 originals with transformed
-copies are archived, leaving 273 active training candidates. Keep only transformed
+The checkpoint contains 327 stored candidates; 27 originals with transformed
+copies are archived, leaving 300 active training candidates after adding 27 fresh
+public-source replacements in `data/replacements_v1`. Keep only transformed
 versions in review queues and future exports; retain originals solely for provenance
-and annotation history. Do not add replacements without a separate collection step.
+and annotation history. The replacement collection is complete; stop for human review.
 At the pre-exclusion audit, the first 100 had human labels
 (54 VALID / 46 GIBBERISH at the audit), and the new 200 await blind review. Stop
 before further expansion. New candidate intentions are 96 VALID / 104 GIBBERISH;

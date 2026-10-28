@@ -1,0 +1,47 @@
+{
+  "tydi_row_indices": [
+    204,
+    229
+  ],
+  "aya_rows": {
+    "724": "MSA",
+    "1151": "MSA",
+    "1167": "MSA",
+    "1513": "MSA",
+    "683": "MSA",
+    "59638": "Egyptian",
+    "70350": "Egyptian",
+    "71868": "Egyptian",
+    "79500": "Egyptian",
+    "92533": "Egyptian",
+    "12761": "Gulf",
+    "14632": "Gulf",
+    "58421": "Gulf",
+    "70412": "Levantine",
+    "109172": "Levantine"
+  },
+  "massive_ids": [
+    "5",
+    "10",
+    "12",
+    "18",
+    "28",
+    "36",
+    "39",
+    "43",
+    "45",
+    "62"
+  ],
+  "created_at": "2026-10-28T09:08:28.267967+00:00",
+  "purpose": "Replace 27 archived source originals with 27 independent public-source VALID candidates. Preserve modified versions and human reviews.",
+  "acquisition": "Existing admitted cached upstream training snapshots only; no new downloads.",
+  "transformation": "None; inputs retained verbatim.",
+  "source_policy": "data/pilot_v1/sources/manifest.json",
+  "cache_sha256": {
+    "data/raw/pilot_v1/aya_train.parquet": "51baa85043b569ba117f41516b32d1b0e4e2647fb203a08933f98a556fb1fb06",
+    "data/raw/pilot_v1/massive.tar.gz": "4cba5faa11c71437928e17cb1b9b3d8b8e727e7ea363a3a9a8045e19c0491577",
+    "data/raw/pilot_v1/tydi_rows.json": "9aaaba3e8990fe0ceb49916150d95e8ab46e791b71d7aa34661d266f878cc49a",
+    "data/raw/pilot_v1/tydi_rows_100.json": "dfff95f8965fbe3df5cea3a6e750ac3d59618501b3708a6dd069032ed08c3411",
+    "data/raw/pilot_v1/tydi_rows_200.json": "6e3d5ff6e81570a6b03b3d269069061d6d635f9d3e7bb56c5fa513d67f53b875"
+  }
+}

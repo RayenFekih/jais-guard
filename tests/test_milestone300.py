@@ -9,8 +9,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from jais_guard.annotations import (
+    benchmark_references,
     connection,
     import_candidates,
+    quality_issues,
     queue,
     save_annotation,
     validate_candidate,
@@ -86,3 +88,36 @@ def test_cached_reconstruction_is_deterministic():
     assert {tuple(r[k] for k in fields) for r in rebuilt} == {
         tuple(r[k] for k in fields) for r in saved
     }
+
+
+def test_replacements_restore_300_without_originals_or_changed_reviews(tmp_path):
+    old = candidates(ROOT / "data/pilot_v1/candidates.jsonl")
+    expansion = candidates(BATCH / "candidates.jsonl")
+    replacements = candidates(ROOT / "data/replacements_v1/candidates.jsonl")
+    assert len(replacements) == 27
+    assert all(
+        r["source_method"] == "public" and r["intended_label"] == "VALID" for r in replacements
+    )
+    assert all(not r["generation"].get("parent_id") for r in replacements)
+    assert not quality_issues(replacements, old + expansion + benchmark_references())
+    path = tmp_path / "annotations.sqlite3"
+    import_candidates(old + expansion, path)
+    reviewed = queue("train", path=path)[0]["id"]
+    save_annotation(reviewed, label="VALID", flagged=False, notes="Keep this review", path=path)
+    with connection(path) as db:
+        history = [tuple(r) for r in db.execute("SELECT * FROM revisions ORDER BY revision")]
+        annotations = [tuple(r) for r in db.execute("SELECT * FROM annotations ORDER BY id")]
+    assert import_candidates(replacements, path) == 27
+    active = queue("train", path=path)
+    assert len(active) == 300
+    assert all(
+        r["human_label"] is None for r in active if r["id"] in {x["id"] for x in replacements}
+    )
+    with connection(path) as db:
+        assert [
+            tuple(r) for r in db.execute("SELECT * FROM revisions ORDER BY revision")
+        ] == history
+        assert [
+            tuple(r) for r in db.execute("SELECT * FROM annotations ORDER BY id")
+        ] == annotations
+        assert db.execute("SELECT COUNT(*) FROM candidate_exclusions").fetchone()[0] == 27

@@ -1,0 +1,84 @@
+{
+  "created_at": "2026-10-28T09:09:05.650708+00:00",
+  "replacement_candidates": 27,
+  "replacement_intended_labels": {
+    "VALID": 27
+  },
+  "replacement_public_sources": {
+    "CohereLabs/aya_dataset": 15,
+    "AmazonScience/massive": 10,
+    "google-research-datasets/tydiqa": 2
+  },
+  "replacement_dialect_hints": {
+    "MSA": 7,
+    "Arabic-ar-SA-unverified": 10,
+    "Gulf": 3,
+    "Egyptian": 5,
+    "Levantine": 2
+  },
+  "replacement_subtypes": {
+    "human_instruction": 15,
+    "localized_request": 10,
+    "question": 2
+  },
+  "replacement_difficulty": {
+    "easy": 27
+  },
+  "quality_issues": [],
+  "family_overlap_with_existing_training": [
+    "aya-author:13c05f2d3912479e80ce8aea399db395ce766b841c936cd9c58cdd74440f8428",
+    "aya-author:561bff8c7fa965892dc1797918c2052df12a142b4a6906249b3be5bac8a811ca",
+    "aya-author:6760daf959c74fdb6550b26eb5dfa7266816f2ad8721f4ac05cd38ad1c940a64",
+    "aya-author:7c3f904b581721a92771a3f52fd77a2d698543ad1b5dbeb7edaa897d4f42970e",
+    "aya-author:7e2f92b1fdb1a83cbd6d507fff9c5478fee7da855370d4644984399159bbf852",
+    "aya-author:88557ea1af844780b6d868e2a43a3b8cb35e8606901c64b8b50435316b490db7",
+    "aya-author:cc5bfe7b17b2b7e81b7b82c43fc6594a88bccccd653e92c9e10a3e8558f8ee07"
+  ],
+  "family_overlap_note": "Shared Aya author groups remain in training only. Human semantic review is still required; no lexical overlap detected.",
+  "stored_candidates": 327,
+  "archived_originals": 27,
+  "active_candidates": 300,
+  "active_intended_labels": {
+    "GIBBERISH": 154,
+    "VALID": 146
+  },
+  "active_source_methods": {
+    "codex": 138,
+    "public": 100,
+    "python": 62
+  },
+  "active_human_labels": {
+    "unreviewed": 205,
+    "GIBBERISH": 46,
+    "VALID": 49
+  },
+  "progress": {
+    "train": {
+      "imported": 300,
+      "reviewed": 95,
+      "flagged": 7,
+      "unresolved": 205,
+      "exportable": 95
+    },
+    "validation": {
+      "imported": 0,
+      "reviewed": 0,
+      "flagged": 0,
+      "unresolved": 0,
+      "exportable": 0
+    },
+    "test": {
+      "imported": 0,
+      "reviewed": 0,
+      "flagged": 0,
+      "unresolved": 0,
+      "exportable": 0
+    }
+  },
+  "revisions_preserved": 285,
+  "all_prior_payloads_annotations_and_exclusions_unchanged": true,
+  "benchmark_prompts_and_results_unchanged": true,
+  "candidate_sha256": "c9f9868ce504bc12793ef531edb1f4f48c0dbefaef2ad760cdc205639d43458f",
+  "publication_status": "Requires source-license compatibility review before publication; unchanged source notices apply.",
+  "backup": "/home/rayen/projects/fine-tuning/data/annotation/backups/before-replacements-2026-10-28T09-09-04.032320+00-00.sqlite3"
+}

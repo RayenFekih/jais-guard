@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from jais_guard.annotations import (
     connection,
+    exclude_transformed_originals,
     export_dataset,
     get_state,
     import_candidates,
@@ -166,3 +167,34 @@ def test_export_detects_tampering(tmp_path, candidate):
         stream.write("{}\n")
     with pytest.raises(ValueError, match="hash"):
         read_export(folder, "train", allow_partial=True)
+
+
+def test_modified_only_policy_preserves_reviews_and_excludes_originals(tmp_path, candidate):
+    path = tmp_path / "annotations.sqlite3"
+    original = candidate
+    modified = copy.deepcopy(original)
+    modified.update(id="modified", input_text=original["input_text"] + "؟")
+    modified["generation"]["parent_id"] = original["id"]
+    import_candidates([original], path)
+    save_annotation(original["id"], label="VALID", flagged=False, notes="Reviewed", path=path)
+    import_candidates([modified], path)
+    assert [r["id"] for r in queue("train", path=path)] == ["modified"]
+    save_annotation("modified", label="VALID", flagged=False, notes="Resolved", path=path)
+    with connection(path) as db:
+        before = [tuple(r) for r in db.execute("SELECT * FROM annotations ORDER BY id")]
+        history = [tuple(r) for r in db.execute("SELECT * FROM revisions ORDER BY revision")]
+        db.execute("DELETE FROM candidate_exclusions")  # Simulate the pre-policy database.
+    assert exclude_transformed_originals(path) == [original["id"]]
+    assert exclude_transformed_originals(path) == [original["id"]]
+    with connection(path) as db:
+        assert [tuple(r) for r in db.execute("SELECT * FROM annotations ORDER BY id")] == before
+        assert [
+            tuple(r) for r in db.execute("SELECT * FROM revisions ORDER BY revision")
+        ] == history
+        assert db.execute("SELECT COUNT(*) FROM candidates").fetchone()[0] == 2
+        assert db.execute("SELECT COUNT(*) FROM candidate_exclusions").fetchone()[0] == 1
+    folder = export_dataset("train", "modified-only", tmp_path / "exports", path=path)
+    assert [r["id"] for r in read_export(folder, "train", allow_partial=True)] == ["modified"]
+    manifest = json.loads((folder / "manifest.json").read_text())
+    assert manifest["archived_originals"][0]["id"] == original["id"]
+    assert progress(path)["train"]["imported"] == 1

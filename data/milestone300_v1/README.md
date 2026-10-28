@@ -1,9 +1,10 @@
 # Training milestone: 300 candidates
 
 **Modified-only correction:** 27 source originals (5 pilot, 22 expansion) are now
-archived, leaving **273 active training candidates**. Their transformed copies remain.
+archived, initially leaving **273 active training candidates**. Their transformed copies remain.
 Original text, annotations and revision history are preserved; originals are excluded
-from review queues and future exports. No replacements were generated. The counts
+from review queues and future exports. Subsequently, [27 fresh public-source replacements](../replacements_v1/README.md)
+restored the active count to **300**; no originals were reactivated. The counts
 below describe the historical 300-record import before this exclusion. Candidate JSONL
 and generation files remain unchanged as provenance, not an export for training.
 
