@@ -1,0 +1,50 @@
+{
+  "source": "live SQLite annotations, not JSONL exports",
+  "records": 100,
+  "human_labels": {
+    "GIBBERISH": 46,
+    "VALID": 54
+  },
+  "source_distribution": {
+    "codex": 55,
+    "public": 30,
+    "python": 15
+  },
+  "subtypes": {
+    "incoherent_real_words": 30,
+    "question": 15,
+    "contiguous_keyboard_run": 4,
+    "meaningful_counterexample": 15,
+    "localized_request": 5,
+    "human_instruction": 10,
+    "arabic_like_nonsense": 10,
+    "seeded_word_character_shuffle": 3,
+    "meaning_preserving_noise": 5,
+    "repeated_arabic_character": 3
+  },
+  "difficulty": {
+    "not_recorded": 100
+  },
+  "dialect_hints": {
+    "MSA": 54,
+    "none": 15,
+    "Tunisian": 3,
+    "Arabic-ar-SA-unverified": 5,
+    "Gulf": 7,
+    "Egyptian": 9,
+    "Moroccan": 1,
+    "Levantine": 6
+  },
+  "unresolved_flags": 0,
+  "unlabeled": 0,
+  "revisions": 285,
+  "intention_disagreements": 4,
+  "gaps": [
+    "Difficulty absent for all 100 historical candidates; no retroactive assignments.",
+    "Public inputs are elicited/localized, not production-query logs.",
+    "Pilot difficulty proportions cannot be reconstructed: 36 of 46 human-labeled gibberish inputs came from Codex and 10 from Python, but source/subtype is not a difficulty rating.",
+    "Some meaningful partial requests were intended as gibberish; respect the human corrections.",
+    "Source dialect tags can disagree with text; coverage is proposed, not independently verified.",
+    "Very limited spontaneous short dialogue and no independent validation/test collection yet."
+  ]
+}

@@ -60,7 +60,8 @@ with st.sidebar:
     set_state("active_partition", partition, db_path)
     set_state("active_queue", mode, db_path)
     st.caption(
-        "Targets: 1,000 train · 200 validation · 400 isolated test. Stop after the 100 pilot."
+        "Review the current training collection before further collection. "
+        "Originals with transformed copies are archived and excluded."
     )
     with st.expander("Import candidates"):
         uploaded = st.file_uploader("Candidate JSONL", type="jsonl")

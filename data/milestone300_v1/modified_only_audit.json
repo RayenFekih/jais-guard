@@ -1,0 +1,72 @@
+{
+  "created_at": "2026-10-28T07:15:50.220549+00:00",
+  "policy": "Keep transformed candidates; archive original parents without deleting annotations/history.",
+  "stored_candidates": 300,
+  "active_candidates": 273,
+  "archived_original_ids": [
+    "P-21bbf0b4f33d",
+    "P-241b2cd002de",
+    "P-2511a5da626e",
+    "P-2c70d9a6d086",
+    "P-2e667fbe4a00",
+    "P-32a43cca1fa0",
+    "P-38849980e61c",
+    "P-3f060955723e",
+    "P-45e7afcae520",
+    "P-4f7e2636c193",
+    "P-5b5279f54d13",
+    "P-64aeee369bf6",
+    "P-650e31068b71",
+    "P-6ce1764f896d",
+    "P-75f6f4abe989",
+    "P-9098ddfc18bb",
+    "P-970eb0072429",
+    "P-b4a684e92a55",
+    "P-b5d31e4b6f88",
+    "P-b663a6bd4fbd",
+    "P-c2d160a360cf",
+    "P-c7cf98a983ed",
+    "P-c7e5d914bf48",
+    "P-d40d1a7984c6",
+    "P-dce7cd69016e",
+    "P-eb578e9f7e15",
+    "P-f58eeb367ce4"
+  ],
+  "active_intended_labels": {
+    "GIBBERISH": 154,
+    "VALID": 119
+  },
+  "active_human_labels": {
+    "unreviewed": 178,
+    "GIBBERISH": 46,
+    "VALID": 49
+  },
+  "progress": {
+    "train": {
+      "imported": 273,
+      "reviewed": 95,
+      "flagged": 7,
+      "unresolved": 178,
+      "exportable": 95
+    },
+    "validation": {
+      "imported": 0,
+      "reviewed": 0,
+      "flagged": 0,
+      "unresolved": 0,
+      "exportable": 0
+    },
+    "test": {
+      "imported": 0,
+      "reviewed": 0,
+      "flagged": 0,
+      "unresolved": 0,
+      "exportable": 0
+    }
+  },
+  "annotations_preserved": 114,
+  "revisions_preserved": 285,
+  "original_payloads_and_reviews_unchanged": true,
+  "protected_files_unchanged": true,
+  "backup": "data/annotation/backups/before-modified-only-2026-10-28T07-15-50.190875+00-00.sqlite3"
+}

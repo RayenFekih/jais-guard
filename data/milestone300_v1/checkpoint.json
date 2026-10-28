@@ -1,0 +1,208 @@
+{
+  "created_at": "2026-10-27T16:23:34.750562+00:00",
+  "total_candidates": 300,
+  "new_candidates": 200,
+  "human_labels": {
+    "GIBBERISH": 46,
+    "VALID": 54,
+    "unreviewed": 200
+  },
+  "combined_original_candidate_intentions": {
+    "GIBBERISH": 154,
+    "VALID": 146
+  },
+  "planning_balance_existing_human_plus_new_intentions": {
+    "VALID": 150,
+    "GIBBERISH": 150
+  },
+  "combined_source_methods": {
+    "codex": 138,
+    "public": 100,
+    "python": 62
+  },
+  "combined_dialect_hints": {
+    "MSA": 149,
+    "none": 62,
+    "Tunisian": 4,
+    "Arabic-ar-SA-unverified": 25,
+    "Gulf": 17,
+    "Egyptian": 26,
+    "Moroccan": 2,
+    "Levantine": 15
+  },
+  "combined_difficulty": {
+    "not_recorded": 100,
+    "hard": 17,
+    "easy": 125,
+    "medium": 58
+  },
+  "new_flags": 14,
+  "old_flags": 0,
+  "revisions": 285,
+  "partitions": {
+    "train": 300
+  },
+  "preservation": "All pre-existing 100 candidate payloads, annotations, and 285 revisions verified unchanged; protected benchmark/results hashes unchanged.",
+  "new_batch": {
+    "created_at": "2026-10-27T16:18:26.343220+00:00",
+    "candidates": 200,
+    "partition": "train",
+    "intended_counts": {
+      "GIBBERISH": 104,
+      "VALID": 96
+    },
+    "sources": {
+      "codex": 83,
+      "public": 70,
+      "python": 47
+    },
+    "public_sources": {
+      "CohereLabs/aya_dataset": 35,
+      "google-research-datasets/tydiqa": 15,
+      "AmazonScience/massive": 20
+    },
+    "dialect_hints": {
+      "MSA": 95,
+      "none": 47,
+      "Egyptian": 17,
+      "Gulf": 10,
+      "Arabic-ar-SA-unverified": 20,
+      "Levantine": 9,
+      "Moroccan": 1,
+      "Tunisian": 1
+    },
+    "subtypes": {
+      "semantic_incoherence": 15,
+      "human_instruction": 35,
+      "keyboard_noise": 15,
+      "question": 17,
+      "repeated_characters": 10,
+      "incoherent_real_words": 42,
+      "request": 3,
+      "meaning_preserving_noise": 10,
+      "localized_request": 20,
+      "invented_word_noise": 10,
+      "informal_spelling": 1,
+      "unrecoverable_scrambling": 12,
+      "incomplete_request": 2,
+      "informal_message": 1,
+      "missing_spaces": 2,
+      "greeting_request": 1,
+      "meaningful_metaphor": 2,
+      "short_topic": 1,
+      "dialectal_question": 1
+    },
+    "difficulty": {
+      "hard": 17,
+      "easy": 125,
+      "medium": 58
+    },
+    "gibberish_difficulty": {
+      "hard": 15,
+      "easy": 47,
+      "medium": 42
+    },
+    "families_shared_with_existing_training": 5,
+    "semantic_overlap": "manual author screening; lexical checks cannot prove independence",
+    "quality_issues": [
+      {
+        "id": "P-02b7d068873b",
+        "other_id": "P-024cd5162785",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-6ce1764f896d",
+        "other_id": "P-621b9e7f2612",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-7eeb388fdb5c",
+        "other_id": "P-64aeee369bf6",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-8de2c5cefe7a",
+        "other_id": "P-45e7afcae520",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-9098ddfc18bb",
+        "other_id": "P-4fb6622b1e6c",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-9a31a469388d",
+        "other_id": "P-5c90d8a27b9b",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-a145a78fad4d",
+        "other_id": "P-3264c65f9006",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-c7cf98a983ed",
+        "other_id": "P-0ba025335133",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-c7e5d914bf48",
+        "other_id": "P-b69959e99339",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-d40d1a7984c6",
+        "other_id": "P-62edf91601b5",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-d63ca2f227a1",
+        "other_id": "P-00d8f8b8526d",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-dfd4e7a7e49f",
+        "other_id": "P-32a43cca1fa0",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-eb578e9f7e15",
+        "other_id": "P-ac11d0110e56",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      },
+      {
+        "id": "P-f58eeb367ce4",
+        "other_id": "P-55d6c1737576",
+        "kind": "near_duplicate",
+        "cross_partition": false
+      }
+    ],
+    "human_review": "pending for every candidate",
+    "pilot_sha256": "ceaaaf28a6b5a0e8e1d80a103299542dbf35447d25a67108ce1e66bb2469e396"
+  },
+  "generation_adjustments": [
+    "One duplicate Python keyboard draft was regenerated deterministically before saving the accepted batch.",
+    "Repetition character choices avoid exact/near copies in the protected corpora; no model performance or test labels were used."
+  ],
+  "limitations": [
+    "Single reviewer; intended labels and difficulty are not ground truth.",
+    "Public text is elicited or localized, not sampled from private production traffic.",
+    "Five existing broad source-author families recur within training; no cross-partition family match.",
+    "Twenty ar-SA localized inputs have unconfirmed dialect; source tags are not proof of dialect.",
+    "Lexical similarity checks and manual author screening do not prove semantic independence.",
+    "Historical difficulty remains unknown for 100 records. No validation/test collection created."
+  ]
+}

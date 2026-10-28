@@ -1,0 +1,60 @@
+{
+  "batch_id": "milestone300-v1-hard-1",
+  "created_at": "2026-10-27T16:15:12.815350+00:00",
+  "instructions": "Author this small batch of NEW general-purpose Arabic-script candidate inputs for JaisGuard. VALID means reasonably recoverable meaning or communicative intent. GIBBERISH means no reasonably recoverable meaning without inventing missing meaning. Accept typos, incomplete requests, dialects and understandable metaphors; unsafe, irrelevant or unanswerable does not mean gibberish. Intended label GIBBERISH. Five grammatically plausible but semantically incoherent practical-looking inputs. Use administrative/technical category mismatches rather than fantasy or surreal poetry. Difficulty does not justify forcing a label; human review can disagree. Use practical everyday domains, varied syntax and lengths, and no religious benchmark examples or paraphrases as seeds. Do not copy the reviewed pilot. Avoid surreal poetry and repetitive slot-swapping templates. Return only new input texts and proposed domain/dialect/subtype/difficulty. All labels and difficulty are candidate metadata, not human ground truth; every input gets blind review.",
+  "available_model_metadata": {
+    "assistant": "Codex",
+    "provider": "OpenAI",
+    "model_id": null,
+    "session_id": null,
+    "sampling_parameters": null
+  },
+  "metadata_note": "Model/session IDs and sampling settings are unavailable; no deterministic replay claimed.",
+  "candidates": [
+    {
+      "input_text": "حوّل اسم المستلم إلى مدة انتظار ثم اقسم النافذة على موعد الاستلام.",
+      "dialect": "MSA",
+      "domain": "administration",
+      "subtype": "semantic_incoherence",
+      "difficulty": "hard",
+      "intended_label": "GIBBERISH",
+      "family_id": "milestone300-v1-hard-1-construction-1"
+    },
+    {
+      "input_text": "تم تسجيل سبب الإلغاء في خانة السرعة، ولذلك صار العنوان يساوي نصف الموافقة.",
+      "dialect": "MSA",
+      "domain": "administration",
+      "subtype": "semantic_incoherence",
+      "difficulty": "hard",
+      "intended_label": "GIBBERISH",
+      "family_id": "milestone300-v1-hard-1-construction-2"
+    },
+    {
+      "input_text": "ما قيمة اتجاه الفاتورة إذا كان مقدار الدخول أقدم من اسم المبلغ؟",
+      "dialect": "MSA",
+      "domain": "finance",
+      "subtype": "semantic_incoherence",
+      "difficulty": "hard",
+      "intended_label": "GIBBERISH",
+      "family_id": "milestone300-v1-hard-1-construction-3"
+    },
+    {
+      "input_text": "أريد ترتيب الحروف حسب درجة امتلاء المسافة بين رقم الهاتف وأمس.",
+      "dialect": "MSA",
+      "domain": "administration",
+      "subtype": "semantic_incoherence",
+      "difficulty": "hard",
+      "intended_label": "GIBBERISH",
+      "family_id": "milestone300-v1-hard-1-construction-4"
+    },
+    {
+      "input_text": "اجعل صلاحية الجواب مساوية لارتفاع وقت السؤال قبل أن ترسل سبب الرصيد.",
+      "dialect": "MSA",
+      "domain": "administration",
+      "subtype": "semantic_incoherence",
+      "difficulty": "hard",
+      "intended_label": "GIBBERISH",
+      "family_id": "milestone300-v1-hard-1-construction-5"
+    }
+  ]
+}

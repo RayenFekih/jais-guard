@@ -1,9 +1,10 @@
-"""Prepare the 100-candidate pilot. No model loading, APIs, or training."""
+"""Prepare an explicit training-candidate milestone. No models, paid APIs, or training."""
 
 import argparse
 import hashlib
 import json
 import random
+import sqlite3
 import sys
 import tarfile
 import urllib.parse
@@ -14,6 +15,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from jais_guard.annotations import (
+    DEFAULT_DB,
     ROOT,
     benchmark_references,
     import_candidates,
@@ -74,7 +76,11 @@ def fetch() -> None:
         "https://amazon-massive-nlu-dataset.s3.amazonaws.com/amazon-massive-dataset-1.1.tar.gz",
         RAW / "massive.tar.gz",
     )
-    for offset, filename in [(0, "tydi_rows.json"), (100, "tydi_rows_100.json")]:
+    for offset, filename in [
+        (0, "tydi_rows.json"),
+        (100, "tydi_rows_100.json"),
+        (200, "tydi_rows_200.json"),
+    ]:
         query = urllib.parse.urlencode(
             {
                 "dataset": SOURCES["tydi"][0],
@@ -93,8 +99,19 @@ def fetch() -> None:
         raise ValueError("TyDi viewer revision changed; review source selection before rebuilding")
 
 
-def record(text, label, method, subtype, dialect, domain, family, provenance, generation=None):
-    return {
+def record(
+    text,
+    label,
+    method,
+    subtype,
+    dialect,
+    domain,
+    family,
+    provenance,
+    generation=None,
+    difficulty=None,
+):
+    result = {
         "id": "P-" + hashlib.sha256((method + family + text).encode()).hexdigest()[:12],
         "input_text": text,
         "partition": "train",
@@ -109,6 +126,9 @@ def record(text, label, method, subtype, dialect, domain, family, provenance, ge
         "generation": generation or {},
         "created_at": now(),
     }
+    if difficulty is not None:
+        result.update(difficulty=difficulty, difficulty_status="proposed_not_human_confirmed")
+    return result
 
 
 def public_provenance(name, source_id, upstream_split="train"):
@@ -249,9 +269,9 @@ def public_candidates():
     return result
 
 
-def codex_candidates():
+def codex_candidates(directory=PILOT):
     result = []
-    for path in sorted((PILOT / "generation").glob("*.json")):
+    for path in sorted((directory / "generation").glob("*.json")):
         batch = json.loads(path.read_text(encoding="utf-8"))
         for candidate in batch["candidates"]:
             p = {
@@ -277,6 +297,7 @@ def codex_candidates():
                         "instructions_file": str(path.relative_to(ROOT)),
                         "model_metadata": batch["available_model_metadata"],
                     },
+                    difficulty=candidate.get("difficulty"),
                 )
             )
     return result
@@ -370,6 +391,205 @@ def python_candidates(parents):
     return result
 
 
+def live_candidates():
+    """Read current candidates from SQLite, never from a stale annotation export."""
+    with sqlite3.connect(f"file:{DEFAULT_DB.resolve()}?mode=ro", uri=True) as db:
+        return [json.loads(row[0]) for row in db.execute("SELECT payload FROM candidates")]
+
+
+def milestone_candidates(directory):
+    import pyarrow.parquet as pq
+
+    plan = json.loads((directory / "source_selection.json").read_text())
+    public = []
+    for page in sorted(RAW.glob("tydi_rows*.json")):
+        for entry in json.loads(page.read_text())["rows"]:
+            row = entry["row"]
+            if entry["row_idx"] in plan["tydi_row_indices"]:
+                if row["language"] != "arabic":
+                    raise ValueError("Selected TyDi record is not Arabic")
+                p = public_provenance("tydi", f"primary_task:train:row-{entry['row_idx']}")
+                p["original_document_url"] = row["document_url"]
+                public.append(
+                    record(
+                        row["question_text"],
+                        "VALID",
+                        "public",
+                        "question",
+                        "MSA",
+                        "information_seeking",
+                        "tydi-document:" + row["document_url"],
+                        p,
+                        difficulty="easy",
+                    )
+                )
+    aya = pq.read_table(RAW / "aya_train.parquet").to_pylist()
+    for index, dialect in plan["aya_rows"].items():
+        row = aya[int(index)]
+        if row["annotation_type"] != "original-annotations":
+            raise ValueError("Only original Aya human annotations are admitted")
+        p = public_provenance("aya", f"train:row-{index}")
+        p.update(
+            annotation_type=row["annotation_type"],
+            publisher_language_code=row["language_code"],
+            author_group=row["user_id"],
+        )
+        public.append(
+            record(
+                row["inputs"],
+                "VALID",
+                "public",
+                "human_instruction",
+                dialect,
+                "everyday",
+                "aya-author:" + row["user_id"],
+                p,
+                difficulty="easy",
+            )
+        )
+    with tarfile.open(RAW / "massive.tar.gz") as archive:
+        massive = [json.loads(line) for line in archive.extractfile("1.1/data/ar-SA.jsonl")]
+    release_hash = hashlib.sha256((RAW / "massive.tar.gz").read_bytes()).hexdigest()
+    for row in massive:
+        if row["id"] in plan["massive_ids"]:
+            if row["partition"] != "train":
+                raise ValueError("Unexpected MASSIVE source split")
+            p = public_provenance("massive", f"1.1:ar-SA:{row['id']}")
+            p.update(
+                origin="human_localized_from_English",
+                release="1.1",
+                release_sha256=release_hash,
+                rights_evidence="data/pilot_v1/sources/massive_LICENSE.txt",
+            )
+            public.append(
+                record(
+                    row["utt"],
+                    "VALID",
+                    "public",
+                    "localized_request",
+                    "Arabic-ar-SA-unverified",
+                    row["scenario"],
+                    "massive-original:" + row["id"],
+                    p,
+                    difficulty="easy",
+                )
+            )
+    if len(public) != 70:
+        raise ValueError(f"Expected 70 public records, found {len(public)}")
+    rng = random.Random(plan["python_seed"])
+    generated = []
+
+    def derived(parent, text, label, subtype, difficulty, recipe):
+        p = {**parent["provenance"], "modifications": recipe, "parent_id": parent["id"]}
+        return record(
+            text,
+            label,
+            "python",
+            subtype,
+            parent["dialect"] if label == "VALID" else "none",
+            parent["domain"],
+            parent["family_id"],
+            p,
+            {"seed": plan["python_seed"], "recipe": recipe, "parent_id": parent["id"]},
+            difficulty=difficulty,
+        )
+
+    for i, parent in enumerate(public[:10]):
+        text = parent["input_text"]
+        recipe = [
+            "join_first_space",
+            "repeat_one_letter",
+            "drop_one_letter",
+            "append_limited_noise",
+            "join_last_space",
+        ][i % 5]
+        if recipe == "join_first_space":
+            text = text.replace(" ", "", 1)
+        elif recipe == "join_last_space":
+            position = text.rfind(" ")
+            text = text[:position] + text[position + 1 :]
+        elif recipe == "append_limited_noise":
+            text += " صص"
+        else:
+            # Internal characters preserve enough of a real input for human assessment.
+            positions = [j for j in range(1, len(text) - 1) if text[j].isalpha()]
+            position = rng.choice(positions)
+            replacement = text[position] * 2 if recipe == "repeat_one_letter" else ""
+            text = text[:position] + replacement + text[position + 1 :]
+        generated.append(
+            derived(parent, text, "VALID", "meaning_preserving_noise", "medium", recipe)
+        )
+    for parent in public[15:27]:
+        # Shuffle characters across the whole input, then restore varied word lengths.
+        chars = [c for c in parent["input_text"] if c.isalpha()]
+        rng.shuffle(chars)
+        words = []
+        while chars:
+            length = rng.randrange(3, 7)
+            words.append("".join(chars[:length]))
+            chars = chars[length:]
+        generated.append(
+            derived(
+                parent,
+                " ".join(words),
+                "GIBBERISH",
+                "unrecoverable_scrambling",
+                "easy",
+                "whole_input_character_shuffle",
+            )
+        )
+    keyboards = ["ضصثقفغعهخحج", "شسيبلاتنمكط", "ئءؤرلاىةوزظ"]
+    for i in range(25):
+        if i < 15:
+            layout = keyboards[i % 3]
+            if i % 2:
+                layout = layout[::-1]
+            start = rng.randrange(0, 4)
+            chunk = layout[start : start + rng.randrange(5, 9)]
+            other = keyboards[(i + 1) % 3]
+            text = chunk + (" " if i % 3 else "") + other[: rng.randrange(4, 8)]
+            subtype = "keyboard_noise"
+            family = f"m300-keyboard-row-walk-{i % 3}"
+            while any(r["input_text"] == text for r in generated):
+                text += rng.choice(layout)
+        else:
+            # Avoid laughter/hesitation fragments and the pilot's repeated characters.
+            chars = plan["python_repetition_characters"]
+            text = chars[i - 15] * (6 + rng.randrange(0, 18))
+            subtype = "repeated_characters"
+            family = "m300-repeated-characters"
+        p = {
+            "source": "JaisGuard deterministic Python recipes",
+            "source_id": f"m300:{subtype}:{i}",
+            "license": "project-original-content",
+            "attribution": "JaisGuard contributors",
+            "rights_status": "publication_review_pending",
+            "rights_evidence": "scripts/prepare_candidates.py",
+        }
+        generated.append(
+            record(
+                text,
+                "GIBBERISH",
+                "python",
+                subtype,
+                "none",
+                "noise",
+                family,
+                p,
+                {"seed": plan["python_seed"], "recipe": subtype},
+                difficulty="easy",
+            )
+        )
+    result = public + codex_candidates(directory) + generated
+    actual = Counter(f"{r['source_method']}_{r['intended_label']}" for r in result)
+    if actual != plan["planned_counts"]:
+        raise ValueError(f"Milestone source distribution mismatch: {actual}")
+    difficulties = Counter(r["difficulty"] for r in result if r["intended_label"] == "GIBBERISH")
+    if difficulties != plan["gibberish_difficulty_targets"]:
+        raise ValueError(f"Gibberish difficulty target mismatch: {difficulties}")
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--fetch", action="store_true", help="Download admitted source snapshots")
@@ -379,17 +599,28 @@ def main():
     parser.add_argument(
         "--import", dest="do_import", action="store_true", help="Import into SQLite"
     )
+    parser.add_argument(
+        "--collection",
+        choices=("pilot_v1", "milestone300_v1"),
+        default="pilot_v1",
+        help="Choose an explicit versioned candidate batch",
+    )
     args = parser.parse_args()
-    path = PILOT / "candidates.jsonl"
+    directory = ROOT / "data" / args.collection
+    path = directory / "candidates.jsonl"
+    stored = live_candidates() if args.collection == "milestone300_v1" else []
     if args.fetch:
         fetch()
     if args.build:
         if path.exists():
             raise FileExistsError("Pilot exists; create a new version instead of overwriting it")
-        public = public_candidates()
-        rows = public + codex_candidates() + python_candidates(public)
+        if args.collection == "milestone300_v1":
+            rows = milestone_candidates(directory)
+        else:
+            public = public_candidates()
+            rows = public + codex_candidates() + python_candidates(public)
         counts = Counter((r["source_method"], r["intended_label"]) for r in rows)
-        if counts != {
+        if args.collection == "pilot_v1" and counts != {
             ("public", "VALID"): 30,
             ("codex", "VALID"): 15,
             ("codex", "GIBBERISH"): 40,
@@ -398,29 +629,49 @@ def main():
         }:
             raise ValueError(f"Pilot distribution mismatch: {counts}")
         rows.sort(key=lambda r: r["id"])
-        issues = quality_issues(rows, benchmark_references())
+        issues = quality_issues(rows, benchmark_references() + stored)
         if any(i["kind"] != "near_duplicate" or i["cross_partition"] for i in issues):
             raise ValueError(f"Pilot overlap blockers: {issues}")
         path.write_text(
             "".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows), encoding="utf-8"
         )
     rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
-    issues = quality_issues(rows, benchmark_references())
+    new_ids = {r["id"] for r in rows}
+    references = benchmark_references() + [r for r in stored if r["id"] not in new_ids]
+    issues = quality_issues(rows, references)
     audit = {
         "created_at": now(),
         "candidates": len(rows),
         "partition": "train",
         "intended_counts": dict(Counter(r["intended_label"] for r in rows)),
         "sources": dict(Counter(r["source_method"] for r in rows)),
+        "public_sources": dict(
+            Counter(r["provenance"]["source"] for r in rows if r["source_method"] == "public")
+        ),
+        "dialect_hints": dict(Counter(r["dialect"] for r in rows)),
+        "subtypes": dict(Counter(r["subtype"] for r in rows)),
+        "difficulty": dict(Counter(r.get("difficulty", "not_recorded") for r in rows)),
+        "gibberish_difficulty": dict(
+            Counter(
+                r.get("difficulty", "not_recorded")
+                for r in rows
+                if r["intended_label"] == "GIBBERISH"
+            )
+        ),
+        "families_shared_with_existing_training": len(
+            {r["family_id"] for r in rows}
+            & {r["family_id"] for r in references if r.get("partition") == "train"}
+        ),
+        "semantic_overlap": "manual author screening; lexical checks cannot prove independence",
         "quality_issues": issues,
-        "human_review": "pending for every candidate",
+        "human_review": "Candidate intentions only; current human annotations live in SQLite.",
         "pilot_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
     }
-    (PILOT / "audit.json").write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n")
+    (directory / "audit.json").write_text(json.dumps(audit, ensure_ascii=False, indent=2) + "\n")
     if args.do_import:
         print(f"Imported {import_candidates(rows)} candidates")
     print(f"{len(rows)} candidates; {len(issues)} within-training near-duplicate review hints")
-    print("No human labels assigned. Stop here for blind pilot review.")
+    print("No new human labels assigned. Stop here for blind review before further expansion.")
 
 
 if __name__ == "__main__":

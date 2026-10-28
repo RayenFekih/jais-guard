@@ -57,6 +57,8 @@ def validate_candidate(row: dict) -> None:
         raise ValueError("Unknown partition or intended label")
     if row["source_method"] not in {"public", "codex", "python"}:
         raise ValueError("Unknown source method")
+    if "difficulty" in row and row["difficulty"] not in {"easy", "medium", "hard"}:
+        raise ValueError("Difficulty must be easy, medium or hard when recorded")
     if not arabic_script(row["input_text"]):
         raise ValueError(f"Unsupported script: {row['id']}; no gibberish label assigned")
     provenance = row.get("provenance", {})
@@ -135,6 +137,9 @@ def connection(path: Path = DEFAULT_DB):
             revision INTEGER PRIMARY KEY, id TEXT NOT NULL REFERENCES candidates(id),
             payload TEXT NOT NULL, timestamp TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS state (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS candidate_exclusions (
+            id TEXT PRIMARY KEY REFERENCES candidates(id),
+            reason TEXT NOT NULL, excluded_at TEXT NOT NULL);
     """)
     try:
         with db:
@@ -171,7 +176,37 @@ def import_candidates(rows: list[dict], path: Path = DEFAULT_DB) -> int:
                     "INSERT INTO annotations VALUES (?,NULL,1,?,?)",
                     (row["id"], "Automatic near-duplicate review required", now()),
                 )
+        _exclude_transformed_originals(db)
     return len(rows)
+
+
+def _exclude_transformed_originals(db) -> list[str]:
+    """Archive source candidates without deleting their text or human review history."""
+    stored = {r[0]: json.loads(r[1]) for r in db.execute("SELECT id,payload FROM candidates")}
+    parents = set()
+    for row in stored.values():
+        parent_id = row.get("generation", {}).get("parent_id")
+        if parent_id not in stored:
+            continue  # An external source remains provenance, not an active candidate.
+        if stored[parent_id]["partition"] != row["partition"]:
+            raise ValueError("Transformed candidates must share their parent's partition")
+        parents.add(parent_id)
+    for parent_id in sorted(parents):
+        db.execute(
+            "INSERT OR IGNORE INTO candidate_exclusions VALUES (?,?,?)",
+            (
+                parent_id,
+                "Original replaced by transformed candidate; retain provenance/history",
+                now(),
+            ),
+        )
+    return sorted(parents)
+
+
+def exclude_transformed_originals(path: Path = DEFAULT_DB) -> list[str]:
+    """Explicitly apply the modified-only policy to an already imported collection."""
+    with connection(path) as db:
+        return _exclude_transformed_originals(db)
 
 
 def get_state(key: str, path: Path = DEFAULT_DB) -> str | None:
@@ -192,7 +227,8 @@ def queue(partition: str, mode: str = "all", path: Path = DEFAULT_DB) -> list[di
         rows = db.execute(
             """SELECT c.id, c.partition, c.payload, a.human_label,
             COALESCE(a.flagged,0) AS flagged, COALESCE(a.notes,'') AS notes, a.updated_at
-            FROM candidates c LEFT JOIN annotations a ON c.id=a.id WHERE c.partition=?""",
+            FROM candidates c LEFT JOIN annotations a ON c.id=a.id WHERE c.partition=?
+            AND NOT EXISTS (SELECT 1 FROM candidate_exclusions e WHERE e.id=c.id)""",
             (partition,),
         ).fetchall()
     # Opaque IDs plus stable hash ordering avoid grouping candidates by intended label/source.
@@ -274,9 +310,19 @@ def export_dataset(
         stored = db.execute(
             """SELECT c.payload, a.human_label, a.flagged, a.notes, a.updated_at
             FROM candidates c LEFT JOIN annotations a ON c.id=a.id
-            WHERE c.partition=? ORDER BY c.id""",
+            WHERE c.partition=?
+            AND NOT EXISTS (SELECT 1 FROM candidate_exclusions e WHERE e.id=c.id)
+            ORDER BY c.id""",
             (partition,),
         ).fetchall()
+        archived = [
+            dict(r)
+            for r in db.execute(
+                """SELECT e.* FROM candidate_exclusions e JOIN candidates c ON c.id=e.id
+                WHERE c.partition=? ORDER BY e.id""",
+                (partition,),
+            )
+        ]
         snapshots = []
         for row in stored:
             candidate = json.loads(row[0])
@@ -316,6 +362,7 @@ def export_dataset(
         "annotation_standard": "single-reviewer",
         "imported": len(snapshots),
         "exported": len(eligible),
+        "archived_originals": archived,
         "excluded_ids": [
             r["id"]
             for r in snapshots
@@ -332,6 +379,7 @@ def export_dataset(
         ).hexdigest(),
         "class_counts": dict(Counter(r["label"] for r in eligible)),
         "subtype_counts": dict(Counter(r["subtype"] for r in eligible)),
+        "difficulty_counts": dict(Counter(r.get("difficulty", "not_recorded") for r in eligible)),
         "sources": sources,
         "publication_status": "requires source-license compatibility review before publication",
     }
