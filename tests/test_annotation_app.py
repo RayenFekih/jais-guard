@@ -206,3 +206,55 @@ def test_unlabeled_navigation_does_not_bypass_failed_notes_save(tmp_path, monkey
     button(app, "Open next unlabeled example").click().run()
     assert any("Position 1 of 2" in c.value for c in app.caption)
     assert any("disk full" in message.value for message in app.error)
+
+
+def test_provisional_audit_is_blind_and_requires_explicit_resolution(tmp_path):
+    from jais_guard.annotations import audit_report
+
+    candidate = json.loads((ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()[0])
+    candidate.update(id="audit-fixture", source_method="codex", intended_label="GIBBERISH")
+    candidate["generation"] = {
+        "batch_id": "audit-fixture",
+        "instructions": "Artificial fixture",
+        "model_metadata": {"model_id": None},
+    }
+    db = tmp_path / "audit.sqlite3"
+    import_candidates([candidate], db, provisional_batch="audit-fixture")
+    app = launch(db)
+    assert not app.exception
+    assert not app.json and not app.checkbox
+    assert any("Your label: **Not labeled**" in w.value for w in app.markdown)
+    assert any("pending" in w.value and "0/1" in w.value for w in app.markdown)
+    assert button(app, "Resolve review flag").disabled
+    next(w for w in app.selectbox if w.label == "Queue").select("manual-review").run()
+    button(app, "GIBBERISH").click().run()
+    assert audit_report(db)[0]["status"] == "pending"
+    assert any("audit-fixture" in c.value for c in app.caption)
+    button(app, "Resolve review flag").click().run()
+    assert audit_report(db)[0]["status"] == "passed"
+    assert not app.exception
+    assert queue("train", path=db)[0]["status"] == "human-reviewed"
+
+
+def test_failed_audit_write_does_not_complete_or_advance_ui(tmp_path, monkeypatch):
+    from jais_guard.annotations import audit_report
+
+    candidate = json.loads((ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()[0])
+    candidate.update(id="audit-failure-fixture", source_method="codex")
+    candidate["generation"] = {
+        "batch_id": "audit-fixture",
+        "instructions": "Artificial fixture",
+        "model_metadata": {"model_id": None},
+    }
+    db = tmp_path / "audit.sqlite3"
+    import_candidates([candidate], db, provisional_batch="audit-fixture")
+    app = launch(db)
+
+    def fail(*args):
+        raise OSError("Audit write failed")
+
+    monkeypatch.setattr("jais_guard.annotations._audit_event", fail)
+    button(app, "VALID").click().run()
+    assert any("Audit write failed" in w.value for w in app.error)
+    assert queue("train", path=db)[0]["human_label"] is None
+    assert audit_report(db)[0]["resolved"] == 0

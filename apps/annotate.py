@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from jais_guard.annotations import (
     DEFAULT_DB,
     ROOT,
+    audit_report,
     export_dataset,
     get_state,
     import_candidates,
@@ -29,7 +30,7 @@ db_path = Path(
     st.session_state.get("db_path", os.environ.get("JAISGUARD_ANNOTATION_DB", DEFAULT_DB))
 )
 st.title("JaisGuard · Arabic annotation")
-st.caption("Single-reviewer pilot. Intended labels are hidden; your judgment is the annotation.")
+st.caption("Single-reviewer workflow. Provisional answers stay hidden during human review.")
 with st.expander("Labeling policy"):
     st.write(
         "VALID: reasonably recoverable meaning or communicative intent. GIBBERISH: no "
@@ -47,7 +48,18 @@ with st.sidebar:
         st.session_state["active_queue"] = get_state("active_queue", db_path) or "all"
     partition = st.selectbox("Partition", ("train", "validation", "test"), key="active_partition")
     mode = st.selectbox(
-        "Queue", ("all", "VALID", "GIBBERISH", "flagged", "unreviewed"), key="active_queue"
+        "Queue",
+        (
+            "all",
+            "VALID",
+            "GIBBERISH",
+            "flagged",
+            "unreviewed",
+            "human-reviewed",
+            "provisional",
+            "manual-review",
+        ),
+        key="active_queue",
     )
     search = (
         st.text_input(
@@ -64,6 +76,14 @@ with st.sidebar:
         "Originals with transformed copies are archived and excluded."
     )
     with st.expander("Import candidates"):
+        labeling_mode = st.selectbox(
+            "Import labeling", ("Manual review", "Provisional training batch")
+        )
+        batch_id, audit_seed = None, 0
+        if labeling_mode == "Provisional training batch":
+            batch_id = st.text_input("New batch ID")
+            audit_seed = int(st.number_input("Audit seed", min_value=0, value=0, step=1))
+            st.caption("Training only. Import freezes membership and random audit samples.")
         uploaded = st.file_uploader("Candidate JSONL", type="jsonl")
         if st.button("Import uploaded file", disabled=uploaded is None):
             try:
@@ -72,7 +92,10 @@ with st.sidebar:
                     for line in uploaded.getvalue().decode("utf-8").splitlines()
                     if line.strip()
                 ]
-                st.success(f"Imported {import_candidates(rows, db_path)} candidates")
+                count = import_candidates(
+                    rows, db_path, provisional_batch=batch_id, seed=audit_seed
+                )
+                st.success(f"Imported {count} candidates")
             except (ValueError, OSError) as error:
                 st.error(str(error))
         pilot = ROOT / "data/pilot_v1/candidates.jsonl"
@@ -84,13 +107,23 @@ with st.sidebar:
                 st.error(str(error))
     with st.expander("Export reviewed records"):
         version = st.text_input("Export version", value="v1")
+        export_mode = st.selectbox(
+            "Export labels", ("Human-reviewed only", "Include audited provisional training labels")
+        )
         st.caption(
-            "Unlabeled and flagged records are excluded. Exports are local snapshots, "
+            "Flagged records are excluded. Provisional labels require a passed group audit "
+            "and are allowed only for training. Exports are local snapshots, "
             "not automatically cleared for public redistribution."
         )
         if st.button("Export partition"):
             try:
-                folder = export_dataset(partition, version, ROOT / "data/exports", path=db_path)
+                folder = export_dataset(
+                    partition,
+                    version,
+                    ROOT / "data/exports",
+                    path=db_path,
+                    include_provisional=export_mode != "Human-reviewed only",
+                )
                 st.success(f"Saved {folder}")
             except (ValueError, OSError) as error:
                 st.error(str(error))
@@ -98,11 +131,26 @@ with st.sidebar:
 stats = progress(db_path)
 for column, (name, counts) in zip(st.columns(3), stats.items(), strict=True):
     with column:
-        st.metric(name, f"{counts['reviewed']} / {counts['imported']}")
+        st.metric(name, f"{counts['human_reviewed']} / {counts['imported']} human-reviewed")
         st.caption(
-            f"{counts['exportable']} exportable · {counts['flagged']} flagged · "
-            f"{counts['unresolved']} unresolved"
+            f"{counts['provisional']} provisional · {counts['flagged']} flagged · "
+            f"{counts['export_eligible']} export-eligible"
         )
+
+with st.expander("Audit progress"):
+    reports = audit_report(db_path)
+    if not reports:
+        st.caption("No provisional batches imported. Existing human reviews are unchanged.")
+    for report in reports:
+        # Administrative source/subtype names and proposed answers are deliberately omitted.
+        st.write(
+            f"Group {report['id']} · {report['status']} · "
+            f"{report['resolved']}/{report['sampled']} audit samples resolved · "
+            f"{report['errors']} errors · {report['population']} group members · "
+            f"{len(report['coverage'])} dialect strata"
+        )
+        if report["affected_exports"]:
+            st.warning("Affected earlier exports: " + ", ".join(report["affected_exports"]))
 
 if partition == "test" and not get_state("test_unlocked", db_path):
     st.info(
@@ -121,6 +169,10 @@ elif mode == "flagged":
     rows = [record for record in rows if record["flagged"]]
 elif mode == "unreviewed":
     rows = [record for record in rows if record["human_label"] is None]
+elif mode in {"human-reviewed", "provisional"}:
+    rows = [record for record in rows if record["status"] == mode]
+elif mode == "manual-review":
+    rows = queue(partition, "manual-review", path=db_path)
 if search:
     rows = [
         record
@@ -177,6 +229,8 @@ if rows:
             status = match["human_label"] or "Not labeled"
             if match["flagged"]:
                 status += " · flagged"
+            elif match["status"] == "provisional":
+                status += " · provisional (answer hidden)"
             st.button(
                 f"{match['id']} · {status} · {preview}",
                 key=f"open:{match['id']}",
@@ -201,6 +255,9 @@ st.write(
     f"Your label: **{row['human_label'] or 'Not labeled'}**"
     + (" · **Flagged for review**" if row["flagged"] else "")
 )
+st.caption(f"Review status: {row['status']}")
+if row["review_reasons"]:
+    st.caption("Review required: " + "; ".join(row["review_reasons"]))
 left, right = st.columns(2)
 left.button(
     "VALID", shortcut="1", on_click=persist, kwargs={"label": "VALID"}, use_container_width=True
