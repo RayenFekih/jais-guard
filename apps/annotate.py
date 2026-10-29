@@ -157,7 +157,15 @@ with st.sidebar:
             "and are allowed only for training. Exports are local snapshots, "
             "not automatically cleared for public redistribution."
         )
-        if st.button("Export partition"):
+        independent_test = partition == "test" and bool(
+            get_state("independent_test_workflow", db_path)
+        )
+        if independent_test:
+            st.caption(
+                "Use scripts/prepare_test.py freeze after all 400 reviews; "
+                "this workflow requires an integrity-checked freeze receipt."
+            )
+        if st.button("Export partition", disabled=independent_test):
             try:
                 folder = export_dataset(
                     partition,
@@ -436,7 +444,7 @@ if st.session_state.get("save_status"):
         st.error(st.session_state["save_status"])
     else:
         st.success(st.session_state["save_status"])
-if not reviewing and row["human_label"] is not None:
+if not reviewing and row["human_label"] is not None and not get_state("blind_sources", db_path):
     with st.expander("Source details (available after initial labeling)"):
         if st.checkbox("Show source and intended label"):
             st.json(provenance_after_review(row["id"], db_path))

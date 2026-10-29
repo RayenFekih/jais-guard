@@ -3,7 +3,7 @@
 import unicodedata
 from dataclasses import dataclass
 
-from .prompts import build_prompt, parse_label
+from .prompts import build_prompt, parse_diagnostic
 
 
 @dataclass(frozen=True)
@@ -13,6 +13,7 @@ class BaselineConfig:
     reasoning_effort: str = "low"
     max_tokens: int = 256
     max_model_len: int = 1024
+    local_files_only: bool = False
 
     def __post_init__(self):
         if self.reasoning_effort not in {"high", "medium", "low"}:
@@ -29,12 +30,18 @@ class BaselineClassifier:
         self.config = config
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.tokenizer = AutoTokenizer.from_pretrained(
-            config.model, revision=config.revision, trust_remote_code=True
+            config.model,
+            revision=config.revision,
+            code_revision=config.revision,
+            trust_remote_code=True,
+            local_files_only=config.local_files_only,
         )
         self.model = (
             AutoModelForCausalLM.from_pretrained(
                 config.model,
                 revision=config.revision,
+                code_revision=config.revision,
+                local_files_only=config.local_files_only,
                 trust_remote_code=True,
                 dtype=torch.float16 if self.device == "cuda" else torch.float32,
             )
@@ -71,10 +78,10 @@ class BaselineClassifier:
         # Remove only the terminal EOS; preserve reasoning tags for strict parsing.
         answer_tokens = generated[:-1] if stopped else generated
         raw = self.tokenizer.decode(answer_tokens, skip_special_tokens=False)
-        label = parse_label(raw, cfg.reasoning_effort, constrained=False) if stopped else None
+        parsed = parse_diagnostic(raw, cfg.reasoning_effort, stopped)
         return {
             "prompt": prompt,
-            "prediction": label,
+            **parsed,
             "raw_output": raw,
             "finish_reason": "stop" if stopped else "length",
             "generated_tokens": len(generated),

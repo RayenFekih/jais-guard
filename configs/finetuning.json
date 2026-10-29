@@ -1,0 +1,24 @@
+{
+  "model": "IFM/Jais-3-0.9B",
+  "revision": "e51941b37091287fee4934e3f8a799e0d3fef37f",
+  "train_path": "data/exports/train-train-700-v2/train.jsonl",
+  "validation_path": "data/exports/validation-validation-200-v1/validation.jsonl",
+  "train_sha256": "99106292f85bea8b9a4be18b2019c6cccb541aa4cb05857528e4655786345962",
+  "validation_sha256": "c85287303acc30b18e3d7c06026b32b763e8eef6452f953aca25bee6d4b368f3",
+  "max_length": 64,
+  "seeds": [42, 43, 44],
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "gradient_clip": 1.0,
+  "exploratory_frr": 0.02,
+  "tracking_uri": "http://127.0.0.1:5000",
+  "experiment": "JaisGuard/general-arabic-v1",
+  "output_dir": "results/fine_tuning",
+  "frozen": {"epochs": 30, "patience": 5, "batch_size": 32, "head_lr": 0.001},
+  "lora": {
+    "epochs": 8, "patience": 2, "microbatch": 2, "accumulation": 8,
+    "adapter_lr": 0.0001, "head_lr": 0.001,
+    "rank": 8, "alpha": 16, "dropout": 0.05,
+    "target_modules": ["q_proj", "v_proj"]
+  }
+}

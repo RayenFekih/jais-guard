@@ -151,3 +151,13 @@ The 100-candidate, data-only pilot is ready for blind review:
 
 Open http://localhost:8501. See [annotation workflow and source provenance](docs/annotation.md).
 Labels, notes, flags and progress persist locally in SQLite. No model is loaded.
+
+## Hidden-representation fine-tuning
+
+The frozen-head and LoRA pipelines, CPU tests, local MLflow tracking, and disposable
+GPU smoke checks are documented in [fine-tuning workflow](docs/finetuning.md).
+Full experiments require separate approval; begin with the WSL smoke commands there.
+
+The next [evaluation phase](docs/evaluation-phase.md) adds the versioned untuned
+validation prompt baseline and the isolated, human-reviewed `test-400-v1` preparation
+and freeze workflow. It does not evaluate unfinished test candidates.

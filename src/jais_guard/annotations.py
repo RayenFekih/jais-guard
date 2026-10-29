@@ -1038,6 +1038,8 @@ def save_annotation(
 
 
 def provenance_after_review(record_id: str, path: Path = DEFAULT_DB) -> dict:
+    if get_state("blind_sources", path):
+        raise ValueError("Source metadata remains hidden throughout independent test review")
     with connection(path) as db:
         row = db.execute(
             """SELECT c.payload FROM candidates c JOIN annotations a ON c.id=a.id

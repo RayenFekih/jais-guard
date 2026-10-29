@@ -1,0 +1,20 @@
+{
+  "version": "test-400-v1",
+  "target": 400,
+  "scope": "Arabic-script only; mixed-script examples are a separate unscored supplement",
+  "policy_version": "recoverable-meaning-v1",
+  "proposed_classes": {"VALID": 200, "GIBBERISH": 200},
+  "proposed_valid_dialects": {"MSA": 80, "Tunisian": 30, "Egyptian": 30, "Levantine": 30, "Gulf": 30},
+  "valid_coverage": ["naturally written messages", "typos", "incomplete requests", "informal phrasing", "Arabic-script borrowed words", "recoverable corruption", "borderline meaningful text"],
+  "gibberish_coverage": ["realistic accidental failures", "unrecoverable corruption", "random Arabic characters", "invented words", "incoherent real words", "borderline unrecoverable text"],
+  "length_bins_characters": [15, 40, 100],
+  "collection_policy": [
+    "Collect fresh natural messages from rights-verified sources and reserve source IDs, contributor groups, parents, recipes and seed runs before authoring.",
+    "Never derive test inputs from train/validation texts, including retired records.",
+    "Include both recoverable and unrecoverable transformations from fresh test-only parent material; record transformations truthfully.",
+    "Balance length and methods across proposed classes; inspect the actual final-label distributions without changing human judgments to meet quotas.",
+    "Do not use any classifier, including the prompt baseline, to select, reject or label candidates.",
+    "Human review is blind; intended labels are proposals, not ground truth.",
+    "Do not evaluate candidates; freeze all 400 human judgments and the evaluation protocol first."
+  ]
+}

@@ -23,10 +23,11 @@ dependencies = [
     "tqdm>=4.70.1",
     "transformers==5.20.2",
     "huggingface-hub>=2.3.0",
-    "vllm>=0.2.5",
 ]
 
 [project.optional-dependencies]
+finetune = ["mlflow>=3.17.2,<4", "peft>=0.18,<1"]
+vllm-legacy = ["vllm==0.2.5"]
 annotation = [
     "streamlit==1.66.0",
 ]
@@ -39,3 +40,9 @@ dev = [
     "ruff>=0.16.6",
     "seaborn>=0.13.2",
 ]
+
+[tool.uv]
+conflicts = [[{ extra = "finetune" }, { extra = "vllm-legacy" }]]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

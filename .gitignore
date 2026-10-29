@@ -89,3 +89,6 @@ data/processed/
 /data/validation200_v1/
 *.sqlite3-wal
 *.sqlite3-shm
+
+# Independent test candidate workspace stays local until review and dataset freeze.
+/data/test400_v1/

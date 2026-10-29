@@ -523,3 +523,18 @@ def test_validation_collection_requires_blind_manual_review_without_training_cha
             for r in conn.execute("SELECT * FROM revisions WHERE id=?", (training[0]["id"],))
         ] == before["revisions"]
         assert conn.execute("SELECT COUNT(*) FROM provisional_labels").fetchone()[0] == 0
+
+
+def test_strict_test_sources_hidden_after_label(tmp_path):
+    candidates = [
+        json.loads(line)
+        for line in (ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()
+    ][:1]
+    db = tmp_path / "strict-test.sqlite3"
+    import_candidates(candidates, db)
+    set_state("blind_sources", "1", db)
+    app = launch(db)
+    button(app, "VALID").click().run()
+    assert not app.exception
+    assert not app.json
+    assert not any("Show source" in c.label for c in app.checkbox)
