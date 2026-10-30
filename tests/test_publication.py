@@ -9,7 +9,7 @@ import pyarrow.parquet as pq
 import pytest
 import yaml
 
-from jais_guard import publication as pub
+from jais_guard.publication import frozen as pub
 
 pytestmark = pytest.mark.integration
 

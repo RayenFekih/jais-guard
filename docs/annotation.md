@@ -106,7 +106,7 @@ report identifies exports affected by later audit invalidation.
 For full administrative coverage by source, method, subtype and dialect, inspect:
 
 ```python
-from jais_guard.annotations import audit_report
+from jais_guard.data.annotations import audit_report
 
 reports = audit_report(db_path)
 ```

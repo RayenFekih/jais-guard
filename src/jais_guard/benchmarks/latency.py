@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from jais_guard.serving import (
+from jais_guard.serving.hf import (
     Predictor,
     checked_manifest,
     cuda_required,
@@ -47,12 +47,12 @@ def select_validation(entries):
 
 
 def prepare(directory, comparison=COMPARISON, jev=JEV):
+    from jais_guard.data.test_workflow import sha
     from jais_guard.finetuning.evaluation import metrics
     from jais_guard.finetuning.version_comparison import (
         metric_match,
         verify_files,
     )
-    from jais_guard.test_workflow import sha
 
     directory, comparison, jev = Path(directory), Path(comparison), Path(jev)
     if directory.exists():
@@ -72,7 +72,7 @@ def prepare(directory, comparison=COMPARISON, jev=JEV):
             # Preserve the old source hash; never rewrite an old lock or source file.
             if (
                 Path(name).resolve()
-                != Path(__file__).with_name("finetuning").joinpath("data.py").resolve()
+                != Path(__file__).parents[1].joinpath("finetuning", "data.py").resolve()
             ):
                 raise ValueError(f"Historical artifact changed: {name}")
             code_drift[name] = {"historical_sha256": expected, "current_sha256": actual}
@@ -218,7 +218,8 @@ def prepare(directory, comparison=COMPARISON, jev=JEV):
         "warmup_inputs": 3,
         "batch_size": 1,
         "source_code": {
-            str(p): sha(p) for p in (Path(__file__), Path(__file__).with_name("serving.py"))
+            str(p): sha(p)
+            for p in (Path(__file__), Path(__file__).parents[1].joinpath("serving", "hf.py"))
         },
     }
     manifest["files"].update(manifest["source_code"])

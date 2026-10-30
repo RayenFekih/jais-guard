@@ -9,14 +9,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard import test_workflow as workflow
-from jais_guard.annotations import (
+from jais_guard.data import test_workflow as workflow
+from jais_guard.data.annotations import (
     import_candidates,
     provenance_after_review,
     save_annotation,
     set_state,
 )
-from jais_guard.test_collection import CATEGORIES, adopt, construct, corrupt
+from jais_guard.data.test_collection import CATEGORIES, adopt, construct, corrupt
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -100,7 +100,7 @@ def test_adoption_preserves_parent_and_refuses_overwrite(tmp_path, monkeypatch):
     old = previous / "selection_lock.json"
     old.write_text('{"immutable":"old"}')
     original = old.read_bytes()
-    import jais_guard.test_collection as collection
+    import jais_guard.data.test_collection as collection
 
     monkeypatch.setattr(collection, "verify_lock", lambda _: ({"checkpoints": ["locked"]}, []))
     new = tmp_path / "new"

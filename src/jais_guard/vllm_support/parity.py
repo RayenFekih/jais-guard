@@ -6,10 +6,10 @@ from pathlib import Path
 
 import numpy as np
 
+from jais_guard.benchmarks.latency import summary, write_new
+from jais_guard.data.test_workflow import sha
 from jais_guard.finetuning.data import encode_rows
-from jais_guard.latency_benchmark import summary, write_new
-from jais_guard.serving import cuda_required, frozen_inputs, read_json
-from jais_guard.test_workflow import sha
+from jais_guard.serving.hf import cuda_required, frozen_inputs, read_json
 
 from .artifacts import checked_export, checked_plan, seal, verify_hashes
 from .runtime import OfflineClassifier, audit_worker, probabilities
@@ -265,7 +265,7 @@ def benchmark_offline(root, key, backend="vllm"):
         memory = classifier.memory
         reset = classifier.reset_peak
     elif backend in ("hf-original", "hf-fp16"):
-        from jais_guard.serving import Predictor
+        from jais_guard.serving.hf import Predictor
 
         from .fp16 import FP16Predictor
 

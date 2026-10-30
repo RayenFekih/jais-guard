@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.data import DATA_PATH, load_dataset
+from jais_guard.data.legacy import DATA_PATH, load_dataset
 
 
 def test_existing_dataset_preserves_records_and_splits():

@@ -6,7 +6,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.report import evaluate, write_report
+from jais_guard.baselines.report import evaluate, write_report
 
 
 def test_invalid_predictions_are_failures_without_becoming_wrong_labels():

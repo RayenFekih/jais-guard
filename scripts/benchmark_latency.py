@@ -11,8 +11,8 @@ os.environ.setdefault("HF_HUB_OFFLINE", "1")
 
 
 def main():
-    from jais_guard.latency_benchmark import benchmark_gpu, benchmark_http, prepare, report
-    from jais_guard.serving import DEFAULT_DIRECTORY, checked_manifest
+    from jais_guard.benchmarks.latency import benchmark_gpu, benchmark_http, prepare, report
+    from jais_guard.serving.hf import DEFAULT_DIRECTORY, checked_manifest
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=("prepare", "list", "gpu", "http", "report", "verify"))
@@ -33,7 +33,7 @@ def main():
     elif args.action == "list":
         print("\n".join(checked_manifest(args.directory)["models"]))
     elif args.action == "verify":
-        from jais_guard.serving import frozen_inputs
+        from jais_guard.serving.hf import frozen_inputs
 
         manifest = checked_manifest(args.directory)
         print(

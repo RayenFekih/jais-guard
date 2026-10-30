@@ -78,8 +78,8 @@ def main(argv=None):
         parser.error("Baseline arguments require --baseline-only; no classifiers were started")
     if args.warmup_batches < 1:
         parser.error("At least one warmup batch is required")
+    from jais_guard.data.test_workflow import sha
     from jais_guard.finetuning.final_test import locked_registry, token_preflight
-    from jais_guard.test_workflow import sha
 
     rows, frozen, registry = locked_registry(args.test)
     tokens = token_preflight(rows, registry)

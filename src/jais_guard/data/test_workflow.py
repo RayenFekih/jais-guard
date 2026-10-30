@@ -7,7 +7,7 @@ import sqlite3
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from .annotations import (
+from jais_guard.data.annotations import (
     ROOT,
     benchmark_references,
     comparison_text,
@@ -119,7 +119,10 @@ def initialize(directory, results, reference_db, plan_path):
             "checkpoints": inventory,
             "prompt_files": {
                 str(p.resolve()): sha(p)
-                for p in (ROOT / "configs/prompt_baseline.json", ROOT / "src/jais_guard/prompts.py")
+                for p in (
+                    ROOT / "configs/prompt_baseline.json",
+                    ROOT / "src/jais_guard/baselines/prompts.py",
+                )
             },
             "reference_db": str(Path(reference_db).resolve()),
             "reference_candidates_sha256": hashlib.sha256(

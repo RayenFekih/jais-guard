@@ -231,9 +231,9 @@ def checkpoint_manifest(checkpoint, operating_point="validation_locked"):
 
 
 def evaluate(checkpoint, data, output, operating_point="validation_locked", device="cuda"):
-    from .finetuning.data import read_export
-    from .finetuning.evaluation import metrics
-    from .finetuning.model import load_checkpoint, predict_rows
+    from jais_guard.finetuning.data import read_export
+    from jais_guard.finetuning.evaluation import metrics
+    from jais_guard.finetuning.model import load_checkpoint, predict_rows
 
     path = Path(data)
     manifest = json.loads(path.with_name("manifest.json").read_text())

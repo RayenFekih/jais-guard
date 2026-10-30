@@ -11,9 +11,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from test_provisional_annotations import artificial_rows
 
-from jais_guard import annotations as a
-from jais_guard import audit_migrations as migrations
-from jais_guard.audit_policy import AYA_REVISION, digest
+from jais_guard.data import annotations as a
+from jais_guard.data import audit_migrations as migrations
+from jais_guard.data.audit_policy import AYA_REVISION, digest
 
 
 def snapshot(path):

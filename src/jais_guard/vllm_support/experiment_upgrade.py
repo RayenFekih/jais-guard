@@ -4,8 +4,8 @@ import json
 import shutil
 from pathlib import Path
 
-from jais_guard.latency_benchmark import write_new
-from jais_guard.serving import read_json
+from jais_guard.benchmarks.latency import write_new
+from jais_guard.serving.hf import read_json
 
 from .artifacts import checked_export, seal, sha, verify_hashes
 from .parity import inputs, verify

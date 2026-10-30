@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.annotations import (
+from jais_guard.data.annotations import (
     benchmark_references,
     connection,
     import_candidates,

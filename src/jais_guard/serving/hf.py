@@ -16,8 +16,8 @@ def read_json(path):
 
 
 def checked_manifest(directory):
+    from jais_guard.data.test_workflow import sha
     from jais_guard.finetuning.version_comparison import verify_files
-    from jais_guard.test_workflow import sha
 
     directory = Path(directory)
     manifest = read_json(directory / "manifest.json")
@@ -32,7 +32,7 @@ def checked_manifest(directory):
 
 
 def frozen_inputs(manifest):
-    from jais_guard.test_workflow import read_frozen_test, sha
+    from jais_guard.data.test_workflow import read_frozen_test, sha
 
     rows = read_frozen_test(manifest["test"])
     if len(rows) != 400 or sha(Path(manifest["test"]) / "test.jsonl") != manifest["test_sha256"]:
@@ -53,8 +53,8 @@ class Predictor:
     def __init__(self, manifest, model_key):
         import torch
 
+        from jais_guard.baselines.inference import BaselineClassifier, BaselineConfig
         from jais_guard.finetuning.model import load_checkpoint, seed_everything
-        from jais_guard.inference import BaselineClassifier, BaselineConfig
 
         cuda_required()
         self.item = manifest["models"][model_key]
@@ -200,7 +200,7 @@ def create_app(
     async def lifespan(app):
         selected_checkpoint = checkpoint or os.environ.get("JAISGUARD_CHECKPOINT")
         if selected_checkpoint:
-            from .public_workflow import checkpoint_manifest
+            from jais_guard.workflows.public import checkpoint_manifest
 
             manifest = checkpoint_manifest(
                 selected_checkpoint, os.environ.get("JAISGUARD_OPERATING_POINT", operating_point)

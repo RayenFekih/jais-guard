@@ -7,10 +7,10 @@ from pathlib import Path
 import httpx
 import pytest
 
-from jais_guard import public_workflow as workflow
 from jais_guard.cli import main
 from jais_guard.finetuning.data import expected_counts, load_datasets
-from jais_guard.serving import create_app
+from jais_guard.serving.hf import create_app
+from jais_guard.workflows import public as workflow
 
 
 @pytest.fixture
@@ -218,7 +218,7 @@ def test_predict_command_uses_locked_boundary(checkpoint, monkeypatch, capsys):
 
 
 def test_training_refuses_cpu_before_outputs(prepared, monkeypatch):
-    from jais_guard import serving
+    from jais_guard.serving import hf as serving
 
     def no_cuda():
         raise RuntimeError("CUDA required")
@@ -242,7 +242,7 @@ def test_training_refuses_cpu_before_outputs(prepared, monkeypatch):
 def test_evidence_verification_and_tampering(tmp_path):
     import shutil
 
-    from jais_guard.evidence import verify
+    from jais_guard.benchmarks.evidence import verify
 
     source = Path(__file__).resolve().parents[1] / "docs/benchmarks"
     assert verify(source)["requests"] == 6400

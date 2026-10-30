@@ -71,6 +71,11 @@ not a claim of exhaustive runtime dependency discovery.
 
 ## 4. Final organization
 
+A subsequent package-only grouping supersedes the flat implementation layout below;
+see [current package layout](package-layout.md). The original inventory and dependency
+register remain records of the audited base.
+
+
 ```text
 README.md                         # limited corrections; final rewrite deferred
 pyproject.toml / uv.lock           # Python 3.11 HF package, uv retained

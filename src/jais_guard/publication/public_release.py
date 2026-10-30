@@ -13,7 +13,7 @@ from pathlib import Path
 
 from datasets import Dataset, load_dataset
 
-from . import publication as frozen
+from jais_guard.publication import frozen
 
 ROOT = frozen.ROOT
 STAGE = ROOT / "artifacts/huggingface/arabic-gibberish-detection-public-v1"

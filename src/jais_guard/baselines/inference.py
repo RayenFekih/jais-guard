@@ -3,7 +3,7 @@
 import unicodedata
 from dataclasses import dataclass
 
-from .prompts import build_prompt, parse_diagnostic
+from jais_guard.baselines.prompts import build_prompt, parse_diagnostic
 
 
 @dataclass(frozen=True)

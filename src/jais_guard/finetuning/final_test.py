@@ -9,7 +9,7 @@ from pathlib import Path
 
 import numpy as np
 
-from jais_guard.test_workflow import read_frozen_test, sha
+from jais_guard.data.test_workflow import read_frozen_test, sha
 
 from .evaluation import metrics, write_csv, write_json
 

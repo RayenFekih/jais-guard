@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 os.environ.setdefault("HF_HUB_OFFLINE", "1")
-from jais_guard.serving import create_app  # noqa: E402
+from jais_guard.serving.hf import create_app  # noqa: E402
 
 app = create_app()
 

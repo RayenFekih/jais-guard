@@ -2,7 +2,7 @@
 
 import time
 
-from jais_guard.serving import Predictor
+from jais_guard.serving.hf import Predictor
 
 
 class FP16Predictor(Predictor):

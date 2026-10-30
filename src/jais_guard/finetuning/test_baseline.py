@@ -15,8 +15,12 @@ from urllib.parse import urlparse
 
 import numpy as np
 
-from jais_guard.prompts import RECOVERABLE_INSTRUCTION, RECOVERABLE_PROMPT_VERSION, build_prompt
-from jais_guard.test_workflow import sha
+from jais_guard.baselines.prompts import (
+    RECOVERABLE_INSTRUCTION,
+    RECOVERABLE_PROMPT_VERSION,
+    build_prompt,
+)
+from jais_guard.data.test_workflow import sha
 
 from .evaluation import metrics, write_csv, write_json
 from .final_test import DESCRIPTION, locked_registry
@@ -219,7 +223,7 @@ def classify_timed(classifier, text, variant):
 def infer_baseline(rows, settings, output):
     import torch
 
-    from jais_guard.inference import BaselineClassifier, BaselineConfig
+    from jais_guard.baselines.inference import BaselineClassifier, BaselineConfig
 
     from .model import seed_everything
 
@@ -450,7 +454,7 @@ def run(args):
         raise ValueError("Tracking server does not contain the original validation baseline")
     stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     output = args.output_root.resolve() / f"untuned-baseline-{stamp}"
-    from jais_guard.annotations import ROOT
+    from jais_guard.data.annotations import ROOT
 
     if any(
         output == p or p in output.parents

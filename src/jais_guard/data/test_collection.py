@@ -5,8 +5,8 @@ import random
 from collections import Counter
 from pathlib import Path
 
-from .annotations import connection, now, set_state
-from .test_workflow import sha, verify_lock, write_new
+from jais_guard.data.annotations import connection, now, set_state
+from jais_guard.data.test_workflow import sha, verify_lock, write_new
 
 RUN = "test400-request-corruption-20261029-v2"
 ARABIC = "ابتثجحخدذرزسشصضطظعغفقكلمنهوي"

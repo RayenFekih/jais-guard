@@ -45,7 +45,7 @@ def parser():
 def main(argv=None):
     args = parser().parse_args(argv)
     os.environ.setdefault("MLFLOW_ENABLE_TELEMETRY", "false")
-    from . import public_workflow as workflow
+    from jais_guard.workflows import public as workflow
 
     if args.command == "cache-model":
         from huggingface_hub import snapshot_download
@@ -78,7 +78,7 @@ def main(argv=None):
                 )
             )
             return
-        from .serving import cuda_required
+        from jais_guard.serving.hf import cuda_required
 
         cuda_required()
         from .finetuning.model import load_classifier, seed_everything
@@ -132,7 +132,7 @@ def main(argv=None):
     elif args.command == "serve":
         import uvicorn
 
-        from .serving import create_app
+        from jais_guard.serving.hf import create_app
 
         uvicorn.run(
             create_app(checkpoint=args.checkpoint, operating_point=args.operating_point),
@@ -141,7 +141,7 @@ def main(argv=None):
             workers=1,
         )
     else:
-        from .evidence import verify
+        from jais_guard.benchmarks.evidence import verify
 
         print(json.dumps(verify(args.directory)))
 

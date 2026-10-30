@@ -19,7 +19,7 @@ from datasets import ClassLabel, Dataset, Features, Value, load_dataset
 from huggingface_hub import HfApi, hf_hub_download
 from huggingface_hub.errors import RepositoryNotFoundError
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 STAGE = ROOT / "artifacts/huggingface/arabic-gibberish-detection"
 LOCAL = ROOT / "artifacts/huggingface-review"
 LABELS = {"VALID": 0, "GIBBERISH": 1}

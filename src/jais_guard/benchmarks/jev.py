@@ -16,7 +16,7 @@ from pathlib import Path
 
 import httpx
 
-from .test_workflow import read_frozen_test, sha, write_new
+from jais_guard.data.test_workflow import read_frozen_test, sha, write_new
 
 ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 RETRYABLE = {408, 429, 500, 502, 503, 504, 529}

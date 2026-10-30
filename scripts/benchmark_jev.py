@@ -11,9 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from jais_guard import jev  # noqa: E402
-from jais_guard.annotations import arabic_script  # noqa: E402
-from jais_guard.jev_reporting import cached_comparison, save_report  # noqa: E402
+from jais_guard.benchmarks import jev  # noqa: E402
+from jais_guard.benchmarks.jev_reporting import cached_comparison, save_report  # noqa: E402
+from jais_guard.data.annotations import arabic_script  # noqa: E402
 
 
 def parser():

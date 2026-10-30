@@ -13,18 +13,18 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard import test_workflow as workflow
-from jais_guard.annotations import (
-    connection,
-    quality_issues,
-    queue,
-    save_annotation,
-)
-from jais_guard.prompts import (
+from jais_guard.baselines.prompts import (
     RECOVERABLE_INSTRUCTION,
     RECOVERABLE_PROMPT_VERSION,
     build_prompt,
     parse_diagnostic,
+)
+from jais_guard.data import test_workflow as workflow
+from jais_guard.data.annotations import (
+    connection,
+    quality_issues,
+    queue,
+    save_annotation,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -67,7 +67,7 @@ def test_prompt_baseline_runner_with_fake_inference(tmp_path, monkeypatch):
     """Exercise real reports and SQLite logging; no model initialization or GPU."""
     import mlflow
 
-    import jais_guard.inference
+    import jais_guard.baselines.inference
 
     spec = importlib.util.spec_from_file_location("finetune_cli", ROOT / "scripts/finetune.py")
     runner = importlib.util.module_from_spec(spec)
@@ -99,7 +99,7 @@ def test_prompt_baseline_runner_with_fake_inference(tmp_path, monkeypatch):
                 "generated_tokens": 4,
             }
 
-    monkeypatch.setattr(jais_guard.inference, "BaselineClassifier", FakeClassifier)
+    monkeypatch.setattr(jais_guard.baselines.inference, "BaselineClassifier", FakeClassifier)
     monkeypatch.setattr(torch.cuda, "synchronize", lambda: None)
     monkeypatch.setattr(torch.cuda, "empty_cache", lambda: None)
     mlflow.set_tracking_uri(f"sqlite:///{tmp_path / 'mlflow.db'}")
@@ -241,9 +241,9 @@ def test_isolated_review_freeze_and_tamper_detection(collection, tmp_path, monke
     # Unit tests for real deduplication are above. Avoid repeated O(n²) similarity
     # scans on 400 synthetic fixture strings in this state-machine integration test.
     monkeypatch.setattr(workflow, "quality_issues", lambda rows, references: [])
-    import jais_guard.annotations
+    import jais_guard.data.annotations
 
-    monkeypatch.setattr(jais_guard.annotations, "quality_issues", lambda rows, references: [])
+    monkeypatch.setattr(jais_guard.data.annotations, "quality_issues", lambda rows, references: [])
     candidates = tmp_path / "draft.jsonl"
     rows = make_fixture_rows()
     candidates.write_text("".join(json.dumps(r, ensure_ascii=False) + "\n" for r in rows))

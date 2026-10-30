@@ -32,9 +32,9 @@ EOS IDs end generation. Truncated or malformed answers count as failures and
 remain visible in the output. Inputs exceeding the context budget raise an error
 rather than being silently truncated.
 
-Prompt formatting and parsing live in `src/jais_guard/prompts.py`, model loading
-and generation in `src/jais_guard/inference.py`, and the small result summary in
-`src/jais_guard/metrics.py`. The smoke runner has no additional command-line
+Prompt formatting and parsing live in `src/jais_guard/baselines/prompts.py`, model loading
+and generation in `src/jais_guard/baselines/inference.py`, and the small result summary in
+`src/jais_guard/baselines/metrics.py`. The smoke runner has no additional command-line
 options or benchmark machinery. Existing vLLM experiments and `.venv-vllm` are
 preserved for later optimization work.
 

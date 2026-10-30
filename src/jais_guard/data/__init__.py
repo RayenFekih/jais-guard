@@ -1,0 +1,1 @@
+"""JaisGuard data implementation."""

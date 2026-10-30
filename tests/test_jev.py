@@ -12,8 +12,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard import jev
-from jais_guard import jev_reporting as reporting
+from jais_guard.benchmarks import jev
+from jais_guard.benchmarks import jev_reporting as reporting
 
 ROOT = Path(__file__).resolve().parents[1]
 

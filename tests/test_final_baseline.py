@@ -16,11 +16,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from test_final_test import command
 from test_final_test import protocol as protocol
 
+from jais_guard.baselines.prompts import (
+    RECOVERABLE_INSTRUCTION,
+    RECOVERABLE_PROMPT_VERSION,
+    build_prompt,
+)
+from jais_guard.data.test_workflow import sha
 from jais_guard.finetuning import final_test
 from jais_guard.finetuning import test_baseline as baseline
 from jais_guard.finetuning.evaluation import metrics, write_json
-from jais_guard.prompts import RECOVERABLE_INSTRUCTION, RECOVERABLE_PROMPT_VERSION, build_prompt
-from jais_guard.test_workflow import sha
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -169,7 +173,7 @@ def test_invalid_policy_keeps_invalid_separate(tmp_path):
 
 
 def test_generation_timer_does_not_change_arguments_or_recover_invalid(monkeypatch):
-    from jais_guard.prompts import parse_diagnostic
+    from jais_guard.baselines.prompts import parse_diagnostic
 
     calls = []
 

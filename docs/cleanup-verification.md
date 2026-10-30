@@ -112,3 +112,21 @@ read-only evidence verifier with networking disabled. Actual GPU model readiness
 was not exercised. Final local documentation verification covered 76 targets.
 A final prospective-public-tree scan found zero excluded-text or targeted credential
 pattern matches; private integrity receipts remain ignored.
+
+## Follow-up: package grouping
+
+The implementation was subsequently organized into workflow subpackages; see
+[package layout](package-layout.md) for the complete import migration table. The
+package root now contains only `__init__.py`, `__main__.py` and `cli.py`. Existing
+public commands and the `jais_guard.serving:create_app` factory remain stable.
+Source paths for newly prepared plans and repository-root calculations were updated.
+The original audit/dependency register and all frozen artifacts remain historical
+records rather than being rewritten to match the new layout.
+
+After grouping: **232 CPU tests passed**, **30 integrations passed**, and the
+missing-original-parent integration remained skipped. Ruff and documentation links
+passed. A clean wheel contained the three root modules and all subpackages, and
+its installed command help passed in an isolated environment. The local container
+source layer was refreshed as `jaisguard-cleanup:grouped`; ASGI factory compatibility
+and command help were checked without loading a GPU model. Immutable artifact
+hashes were checked again against the original private inventory.

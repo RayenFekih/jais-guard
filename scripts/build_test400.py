@@ -10,9 +10,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from jais_guard.annotations import benchmark_references, quality_issues
-from jais_guard.test_collection import CATEGORIES, RUN, adopt, construct
-from jais_guard.test_workflow import (
+from jais_guard.data.annotations import benchmark_references, quality_issues
+from jais_guard.data.test_collection import CATEGORIES, RUN, adopt, construct
+from jais_guard.data.test_workflow import (
     check_candidates,
     import_collection,
     read_jsonl,
@@ -111,7 +111,7 @@ def main():
             directory / "private/parents.jsonl",
             directory / "private/corruptions.jsonl",
             directory / "private/reference_inventory.json",
-            ROOT / "src/jais_guard/test_collection.py",
+            ROOT / "src/jais_guard/data/test_collection.py",
         )
     }
     # This is initial construction of a NEW lock; never changes the old protocol.

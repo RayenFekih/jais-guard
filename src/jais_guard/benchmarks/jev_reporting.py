@@ -8,10 +8,10 @@ from uuid import uuid4
 
 import numpy as np
 
-from .finetuning.evaluation import metrics
-from .finetuning.version_comparison import cached_metrics, checked_protocol, metric_match
-from .jev import frozen_rows, now, read_ledger, validate_response
-from .test_workflow import sha, write_new
+from jais_guard.benchmarks.jev import frozen_rows, now, read_ledger, validate_response
+from jais_guard.data.test_workflow import sha, write_new
+from jais_guard.finetuning.evaluation import metrics
+from jais_guard.finetuning.version_comparison import cached_metrics, checked_protocol, metric_match
 
 MEASURES = (
     "accuracy",

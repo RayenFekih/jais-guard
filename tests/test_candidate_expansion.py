@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from test_provisional_annotations import artificial_rows
 
-from jais_guard.annotations import audit_report, connection, import_candidates, save_annotation
+from jais_guard.data.annotations import audit_report, connection, import_candidates, save_annotation
 
 ROOT = Path(__file__).resolve().parents[1]
 

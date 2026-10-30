@@ -11,8 +11,8 @@ from pathlib import Path
 
 import httpx
 
-from jais_guard.latency_benchmark import summary, write_new
-from jais_guard.serving import read_json
+from jais_guard.benchmarks.latency import summary, write_new
+from jais_guard.serving.hf import read_json
 
 from .artifacts import checked_plan
 from .parity import (

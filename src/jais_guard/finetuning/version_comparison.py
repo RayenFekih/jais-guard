@@ -8,9 +8,9 @@ from pathlib import Path
 
 import numpy as np
 
-from jais_guard.annotations import ROOT
-from jais_guard.prompts import build_prompt, parse_diagnostic
-from jais_guard.test_workflow import now, read_jsonl, sha, write_new
+from jais_guard.baselines.prompts import build_prompt, parse_diagnostic
+from jais_guard.data.annotations import ROOT
+from jais_guard.data.test_workflow import now, read_jsonl, sha, write_new
 
 from .data import encode_rows, load_datasets
 from .evaluation import metrics, write_csv, write_json

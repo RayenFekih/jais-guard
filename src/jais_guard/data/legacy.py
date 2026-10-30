@@ -4,7 +4,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-DATA_PATH = Path(__file__).resolve().parents[2] / "data/gibberish.jsonl"
+DATA_PATH = Path(__file__).resolve().parents[3] / "data/gibberish.jsonl"
 STRING_FIELDS = (
     "id",
     "input_text",

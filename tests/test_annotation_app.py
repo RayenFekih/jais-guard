@@ -6,7 +6,13 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.annotations import connection, import_candidates, queue, save_annotation, set_state
+from jais_guard.data.annotations import (
+    connection,
+    import_candidates,
+    queue,
+    save_annotation,
+    set_state,
+)
 
 AppTest = pytest.importorskip("streamlit.testing.v1").AppTest
 
@@ -64,7 +70,7 @@ def test_save_failure_does_not_navigate(tmp_path, monkeypatch):
     def fail(*args, **kwargs):
         raise OSError("disk full")
 
-    monkeypatch.setattr("jais_guard.annotations.save_annotation", fail)
+    monkeypatch.setattr("jais_guard.data.annotations.save_annotation", fail)
     app = launch(db)
     app.text_area[0].set_value("Unsaved note")
     button(app, "Next").click().run()
@@ -202,7 +208,7 @@ def test_unlabeled_navigation_does_not_bypass_failed_notes_save(tmp_path, monkey
     def fail(*args, **kwargs):
         raise OSError("disk full")
 
-    monkeypatch.setattr("jais_guard.annotations.save_annotation", fail)
+    monkeypatch.setattr("jais_guard.data.annotations.save_annotation", fail)
     app = launch(db)
     app.text_area[0].set_value("Unsaved note")
     button(app, "Open next unlabeled example").click().run()
@@ -211,7 +217,7 @@ def test_unlabeled_navigation_does_not_bypass_failed_notes_save(tmp_path, monkey
 
 
 def test_provisional_audit_is_blind_and_requires_explicit_resolution(tmp_path):
-    from jais_guard.annotations import audit_report
+    from jais_guard.data.annotations import audit_report
 
     candidate = json.loads((ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()[0])
     candidate.update(id="audit-fixture", source_method="codex", intended_label="GIBBERISH")
@@ -239,7 +245,7 @@ def test_provisional_audit_is_blind_and_requires_explicit_resolution(tmp_path):
 
 
 def test_failed_audit_write_does_not_complete_or_advance_ui(tmp_path, monkeypatch):
-    from jais_guard.annotations import audit_report
+    from jais_guard.data.annotations import audit_report
 
     candidate = json.loads((ROOT / "data/pilot_v1/candidates.jsonl").read_text().splitlines()[0])
     candidate.update(id="audit-failure-fixture", source_method="codex")
@@ -255,7 +261,7 @@ def test_failed_audit_write_does_not_complete_or_advance_ui(tmp_path, monkeypatc
     def fail(*args):
         raise OSError("Audit write failed")
 
-    monkeypatch.setattr("jais_guard.annotations._audit_event", fail)
+    monkeypatch.setattr("jais_guard.data.annotations._audit_event", fail)
     button(app, "VALID").click().run()
     assert any("Audit write failed" in w.value for w in app.error)
     assert queue("train", path=db)[0]["human_label"] is None
@@ -265,7 +271,7 @@ def test_failed_audit_write_does_not_complete_or_advance_ui(tmp_path, monkeypatc
 def test_import_preflight_displays_v2_workload_before_any_candidate_write(tmp_path, monkeypatch):
     from test_provisional_annotations import artificial_rows
 
-    from jais_guard.annotations import audit_report
+    from jais_guard.data.annotations import audit_report
 
     rows = artificial_rows(30, method="public", dialects=("MSA", "Egyptian", "Gulf"))
 
@@ -303,7 +309,7 @@ def review_db(tmp_path):
     save_annotation(manual[1]["id"], label="GIBBERISH", flagged=True, notes="Revisit", path=db)
     unsampled = next(r for r in queue("train", path=db) if r["status"] == "provisional")
     save_annotation(unsampled["id"], label=None, flagged=True, notes="Uncertain", path=db)
-    from jais_guard.annotations import audit_report
+    from jais_guard.data.annotations import audit_report
 
     sample_id = audit_report(db)[0]["samples"][0]["id"]
     return db, sample_id, manual[0]["id"]
@@ -314,7 +320,7 @@ def remaining_count(app):
 
 
 def test_review_queue_is_default_and_ignores_old_browse_cursor(review_db):
-    from jais_guard.annotations import get_state
+    from jais_guard.data.annotations import get_state
 
     db, _, completed = review_db
     set_state("active_queue", "all", db)
@@ -346,7 +352,7 @@ def test_review_queue_is_default_and_ignores_old_browse_cursor(review_db):
 
 
 def test_review_label_resolves_once_saves_notes_and_advances(review_db):
-    from jais_guard.annotations import get_state
+    from jais_guard.data.annotations import get_state
 
     db, sample_id, _ = review_db
     set_state("cursor:train:review", sample_id, db)
@@ -371,7 +377,7 @@ def test_review_label_resolves_once_saves_notes_and_advances(review_db):
 
 
 def test_uncertain_flag_stays_unresolved_and_can_be_found_later(review_db):
-    from jais_guard.annotations import audit_report, get_state
+    from jais_guard.data.annotations import audit_report, get_state
 
     db, sample_id, _ = review_db
     set_state("cursor:train:review", sample_id, db)
@@ -396,7 +402,7 @@ def test_uncertain_flag_stays_unresolved_and_can_be_found_later(review_db):
 def test_review_completion_does_not_fall_back_to_unsampled_provisional(tmp_path):
     from test_provisional_annotations import artificial_rows
 
-    from jais_guard.annotations import audit_report
+    from jais_guard.data.annotations import audit_report
 
     db = tmp_path / "finish-review.sqlite3"
     import_candidates(artificial_rows(20, method="public"), db, provisional_batch="public")
@@ -414,7 +420,7 @@ def test_review_completion_does_not_fall_back_to_unsampled_provisional(tmp_path)
 
 
 def test_failed_review_transaction_does_not_resolve_or_advance(review_db, monkeypatch):
-    from jais_guard.annotations import audit_report, get_state
+    from jais_guard.data.annotations import audit_report, get_state
 
     db, sample_id, _ = review_db
     set_state("cursor:train:review", sample_id, db)
@@ -428,7 +434,7 @@ def test_failed_review_transaction_does_not_resolve_or_advance(review_db, monkey
     def fail(*args):
         raise OSError("Audit write failed")
 
-    monkeypatch.setattr("jais_guard.annotations._audit_event", fail)
+    monkeypatch.setattr("jais_guard.data.annotations._audit_event", fail)
     button(app, "VALID").click().run()
     assert get_state("cursor:train:review", db) == sample_id
     assert remaining_count(app) == "13"
@@ -444,7 +450,7 @@ def test_failed_review_transaction_does_not_resolve_or_advance(review_db, monkey
 def test_review_count_includes_new_cases_quarantined_by_audit_failure(tmp_path):
     from test_provisional_annotations import artificial_rows
 
-    from jais_guard.annotations import get_state
+    from jais_guard.data.annotations import get_state
 
     db = tmp_path / "quarantine-review.sqlite3"
     import_candidates(artificial_rows(20, method="public"), db, provisional_batch="public")
@@ -462,7 +468,7 @@ def test_review_count_includes_new_cases_quarantined_by_audit_failure(tmp_path):
 
 
 def test_browse_all_has_its_own_filter_and_returns_to_required_selection(review_db):
-    from jais_guard.annotations import get_state
+    from jais_guard.data.annotations import get_state
 
     db, _, completed = review_db
     set_state("active_queue", "provisional", db)  # Old UI preference must not limit Browse All.
@@ -484,7 +490,7 @@ def test_browse_all_has_its_own_filter_and_returns_to_required_selection(review_
 def test_validation_collection_requires_blind_manual_review_without_training_changes(tmp_path):
     from test_provisional_annotations import artificial_rows
 
-    from jais_guard.annotations import audit_report, export_dataset
+    from jais_guard.data.annotations import audit_report, export_dataset
 
     db = tmp_path / "validation-review.sqlite3"
     training = artificial_rows(1, prefix="preserved-training")

@@ -13,11 +13,11 @@ from datetime import UTC, datetime
 from difflib import SequenceMatcher
 from pathlib import Path
 
-from jais_guard.audit_migrations import policy_table
-from jais_guard.audit_policy import VERSION as PROVISIONAL_POLICY_VERSION
-from jais_guard.audit_policy import admission, digest, project_workload
+from jais_guard.data.audit_migrations import policy_table
+from jais_guard.data.audit_policy import VERSION as PROVISIONAL_POLICY_VERSION
+from jais_guard.data.audit_policy import admission, digest, project_workload
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DB = ROOT / "data/annotation/annotations.sqlite3"
 LABELS = ("VALID", "GIBBERISH")
 PARTITIONS = ("train", "validation", "test")

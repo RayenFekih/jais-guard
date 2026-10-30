@@ -4,7 +4,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from jais_guard.audit_policy import VERSION, digest
+from jais_guard.data.audit_policy import VERSION, digest
 
 
 def policy_table(db, name, *, history=False):
@@ -146,7 +146,7 @@ def _backup_locked(path, backup_dir, stamp):
 
 
 def _verify(artifact, collection, path):
-    from jais_guard.annotations import migration_preview
+    from jais_guard.data.annotations import migration_preview
 
     if artifact["fingerprint"] != digest({k: v for k, v in artifact.items() if k != "fingerprint"}):
         raise ValueError("Migration artifact fingerprint mismatch")
@@ -175,7 +175,7 @@ def _activate(db, migration_id, ids):
 
 def apply_audit_migration(artifact, collection, *, path, expected_fingerprint, backup_dir=None):
     """Apply an explicitly approved artifact. No candidate or human annotation is rewritten."""
-    from jais_guard.annotations import _audit_event, _workflow, now
+    from jais_guard.data.annotations import _audit_event, _workflow, now
 
     path = Path(path)
     if expected_fingerprint != artifact["fingerprint"]:
@@ -354,7 +354,7 @@ def apply_audit_migration(artifact, collection, *, path, expected_fingerprint, b
 
 def rollback_audit_migration(migration_id, *, path):
     """Restore v1 pointers before review starts; retain all replacement records as history."""
-    from jais_guard.annotations import now
+    from jais_guard.data.annotations import now
 
     db = _connect(path)
     try:

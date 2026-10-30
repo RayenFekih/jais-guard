@@ -21,7 +21,7 @@ The default suite excludes `integration`. The explicit integration command runs
 available private-artifact and cached-architecture checks and reports unavailable
 inputs as skips. No tests download model weights or reconstruct private evidence.
 The distribution retains its existing `jais-fine-tune` name; the installed Python
-package is `jais_guard`. The `finetune` extra supplies MLflow and PEFT. Matplotlib
+package is `jais_guard`. See [package layout](package-layout.md) for the grouped implementation. The `finetune` extra supplies MLflow and PEFT. Matplotlib
 is a runtime dependency because evaluation and historical serving import plotting
 helpers. Keep the existing vLLM environment separate.
 

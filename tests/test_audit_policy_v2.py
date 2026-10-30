@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from test_provisional_annotations import artificial_rows
 
-from jais_guard import annotations as a
-from jais_guard.audit_policy import AYA_REVISION, admission, digest, project_workload
+from jais_guard.data import annotations as a
+from jais_guard.data.audit_policy import AYA_REVISION, admission, digest, project_workload
 
 
 def aya(text, **updates):

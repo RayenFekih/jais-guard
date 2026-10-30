@@ -4,7 +4,7 @@ import time
 
 import numpy as np
 
-from jais_guard.serving import cuda_required
+from jais_guard.serving.hf import cuda_required
 
 from .artifacts import checked_export, tensor_hash
 

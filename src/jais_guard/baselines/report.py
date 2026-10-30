@@ -7,7 +7,7 @@ import zipfile
 from collections import Counter
 from pathlib import Path
 
-from .metrics import summarize
+from jais_guard.baselines.metrics import summarize
 
 
 def evaluate(rows: list[dict]) -> dict:

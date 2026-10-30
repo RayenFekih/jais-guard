@@ -16,8 +16,8 @@ RUN = "test400-20261029-independent-collection-v1"
 
 def load_helpers():
     sys.path.insert(0, str(ROOT / "src"))
-    from jais_guard.annotations import comparison_text, now, validate_candidate
-    from jais_guard.test_workflow import sha, verify_lock
+    from jais_guard.data.annotations import comparison_text, now, validate_candidate
+    from jais_guard.data.test_workflow import sha, verify_lock
 
     return comparison_text, now, validate_candidate, sha, verify_lock
 
