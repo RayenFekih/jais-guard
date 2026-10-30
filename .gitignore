@@ -102,3 +102,7 @@ data/*
 # docs/benchmarks/allowlist.json enumerates the public benchmark copies explicitly.
 # Cleanup integrity receipts name private original artifacts; keep them local.
 /artifacts/repository-cleanup/
+
+# Staged model weights and private publication validation receipts stay local.
+/artifacts/huggingface-models/
+/artifacts/model-publication-review/
