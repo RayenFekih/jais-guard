@@ -161,3 +161,8 @@ Full experiments require separate approval; begin with the WSL smoke commands th
 The next [evaluation phase](docs/evaluation-phase.md) adds the versioned untuned
 validation prompt baseline and the isolated, human-reviewed `test-400-v1` preparation
 and freeze workflow. It does not evaluate unfinished test candidates.
+
+For the complete cached-quality comparison, batch-1 GPU benchmarks and local
+FastAPI/httpx demo across untuned Jais, frozen v1/v2 and LoRA v1/v2, see
+[the latency and serving workflow](docs/latency-serving.md). It preserves Jev's
+existing remote API measurements and all historical experiments.
