@@ -1,0 +1,14 @@
+{
+  "release_version": "public-v1",
+  "repo_id": "RayenFekih/arabic-gibberish-detection",
+  "license": ["cc-by-4.0", "apache-2.0"],
+  "license_scope": "CC BY 4.0 for authorized project contributions and MASSIVE; Apache 2.0 retained on Aya/TyDi components. Component-specific terms, not alternative licenses for every row.",
+  "owner_authorization": {
+    "status": "authorized_for_preparation",
+    "evidence": "User confirmation in this conversation: JaisGuard is a personal learning project developed independently of the employer; project-created contributions may be prepared for CC BY 4.0 release, subject to existing source licenses and final review.",
+    "final_release_approved": false
+  },
+  "excluded_original_train_positions": [277, 486],
+  "exclusion_reason": "Privacy uncertainty; exclusion authorized by project owner. No assertion that the omitted narratives are fictional or cleared.",
+  "final_review_required": ["content", "license"]
+}
