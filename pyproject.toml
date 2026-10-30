@@ -1,7 +1,7 @@
 [project]
 name = "jais-fine-tune"
 version = "0.1.0"
-description = "Add your description here"
+description = "Arabic meaningful-text classification with Jais: training, evaluation and serving"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
@@ -24,11 +24,11 @@ dependencies = [
     "transformers==5.20.2",
     "huggingface-hub>=2.3.0",
     "httpx>=0.28.1",
+    "matplotlib>=3.11.2",
 ]
 
 [project.optional-dependencies]
 finetune = ["mlflow>=3.17.2,<4", "peft>=0.18,<1"]
-vllm-legacy = ["vllm==0.2.5"]
 annotation = [
     "streamlit==1.66.0",
 ]
@@ -36,14 +36,24 @@ annotation = [
 [dependency-groups]
 dev = [
     "ipykernel>=7.4.0",
-    "matplotlib>=3.11.2",
     "pytest>=9.1.1",
     "ruff>=0.16.6",
     "seaborn>=0.13.2",
 ]
 
-[tool.uv]
-conflicts = [[{ extra = "finetune" }, { extra = "vllm-legacy" }]]
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-m 'not integration'"
+markers = ["integration: requires private artifacts or a cached upstream architecture"]
+pythonpath = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["jais_guard*"]
+
+[project.scripts]
+jaisguard = "jais_guard.cli:main"

@@ -74,8 +74,13 @@ and imports the full declared run together rather than freezing every authoring 
 ```python
 plan = preview_import(rows, "new-training-run", seed=42, path=db_path)
 print(plan["required_reviews"], plan["audit_samples"], plan["manual_only"])
-import_candidates(rows, path=db_path, provisional_batch="new-training-run", seed=42,
-                  expected_projection=plan["fingerprint"])
+import_candidates(
+    rows,
+    path=db_path,
+    provisional_batch="new-training-run",
+    seed=42,
+    expected_projection=plan["fingerprint"],
+)
 ```
 
 `audit_policy.py` contains pure admission/sampling/projection functions; SQLite

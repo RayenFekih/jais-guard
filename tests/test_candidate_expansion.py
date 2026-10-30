@@ -66,6 +66,7 @@ def test_accidental_generation_batch_merging_is_rejected_before_import(tmp_path)
         assert db.execute("SELECT COUNT(*) FROM audit_groups").fetchone()[0] == 0
 
 
+@pytest.mark.integration
 def test_local_700_collection_counts_provenance_and_reconstruction():
     folder = ROOT / "data/milestone700_v1"
     if not (folder / "candidates.jsonl").exists():

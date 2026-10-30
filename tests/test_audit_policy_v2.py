@@ -224,6 +224,7 @@ def test_migration_proposal_is_read_only_and_refuses_started_reviews(tmp_path):
     assert not a.migration_preview("existing-fixture", path=path)["safe_to_propose"]
 
 
+@pytest.mark.integration
 def test_local_400_proposal_preserves_live_database_and_frozen_samples():
     root = Path(__file__).resolve().parents[1]
     folder = root / "data/milestone700_v1"

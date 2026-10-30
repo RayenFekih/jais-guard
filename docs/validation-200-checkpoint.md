@@ -1,5 +1,8 @@
 # Validation collection checkpoint — 28 October 2026
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 Exactly 200 candidates were imported into partition `validation`, with **100 intended
 VALID and 100 intended GIBBERISH**. Every candidate is pending blind manual review;
 there are no provisional labels, automatic admissions or validation audit samples.

@@ -1,3 +1,5 @@
+"""Historical generation demo, not the trained vLLM classifier backend."""
+
 import logging
 import time
 

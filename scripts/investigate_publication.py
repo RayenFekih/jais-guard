@@ -12,9 +12,8 @@ from pathlib import Path
 import pyarrow.parquet as pq
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
-from src.jais_guard import publication as pub  # noqa: E402
+from jais_guard import publication as pub  # noqa: E402
 
 OUT = pub.LOCAL / "investigation"
 EXTERNAL = {"AmazonScience/massive", "CohereLabs/aya_dataset", "google-research-datasets/tydiqa"}
@@ -193,7 +192,7 @@ def investigate():
                         matched = matched and original == r["input_text"]
                     else:
                         # Pure corruption helper has no filesystem writes.
-                        from src.jais_guard.test_collection import corrupt
+                        from jais_guard.test_collection import corrupt
 
                         matched = (
                             matched and corrupt(original, g["seed"], category)[0] == r["input_text"]

@@ -1,5 +1,9 @@
 # Approved JaisGuard FP16 serving experiment
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 This supersedes the BF16-blocking acceptance rule for the new experiment only.
 Results live in **`results/vllm_serving/jaisguard-v4`**. The prior v2/v3 attempts,
 BF16 findings, checkpoints, dataset, thresholds and historical benchmarks remain

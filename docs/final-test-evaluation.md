@@ -1,5 +1,9 @@
 # Final independent test evaluation
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 The dedicated runner evaluates the six preselected hidden-state classifiers on the
 frozen `test-400-v1` export: 400 human-reviewed examples, 188 VALID / 212 GIBBERISH.
 This is a **human-reviewed, constructed Arabic-input benchmark**, not observed

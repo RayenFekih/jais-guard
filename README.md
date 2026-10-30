@@ -63,25 +63,22 @@ source .venv/bin/activate
 
 To deactivate on any platform, run `deactivate`.
 
-You don't strictly need to activate the environment to run things — `uv run <command>` (e.g. `uv run python main.py`) runs a command inside the project's environment without activating it.
+You don't strictly need to activate the environment to run things — `uv run <command>` (e.g. `uv run jaisguard --help`) runs a command inside the project's environment without activating it.
 
 ## Running the service
 
-`main.py` is currently an empty placeholder; no service is implemented yet.
+The HF FastAPI service is implemented in `jais_guard.serving`. Install with
+`uv sync --frozen --extra finetune` and select an available trained checkpoint:
 
 ```bash
-python main.py
+uv run --no-sync jaisguard serve --checkpoint /absolute/path/run/best
 ```
 
-or, without activating the environment first:
-
-```bash
-uv run python main.py
-```
-
-## Configuration
-
-Application settings live in [src/config.py](src/config.py) (a Pydantic `Config` model). Local secrets/environment variables can be added to a `.env` file (copy `.env.example` to `.env`) and loaded via `python-dotenv`; `.env` itself is gitignored.
+See [current public workflows](docs/public-workflows.md) for dataset preparation,
+fresh training, saved-threshold inference and container prerequisites. Historical
+manifests require their original source revision and private local artifacts.
+Settings for current experiments live in `configs/`; `src/config.py` and
+`src/logger.py` belong only to the historical generation demo.
 
 ## Linting
 
@@ -92,41 +89,16 @@ uv run ruff check .
 uv run ruff format .
 ```
 
-## Project Structure
+## Project structure and deployment
 
-```
-main.py           # application entrypoint
-src/
-  config.py       # application settings (Pydantic model)
-  logger.py       # logging configuration
-data/             # static/reference data
-tests/            # test scripts
-logs/             # runtime logs (gitignored)
-docs/             # project documentation
-```
+The installed package lives in `src/jais_guard/`; `scripts/` retains historical
+experiment entry points, and `apps/annotate.py` provides blind annotation.
+See [the cleanup audit](docs/repository-cleanup-plan.md) and
+[artifact catalog](docs/artifact-catalog.md) for current versus historical evidence.
 
-## Deployment
-
-The [Dockerfile](Dockerfile) builds from `python:3.11-slim` and installs dependencies via `uv sync --frozen --no-dev` (from `pyproject.toml`/`uv.lock`). Its service command requires an implemented `main:app` and the `gunicorn` dependency before it can run.
-
-```bash
-docker build -t project-template .
-```
-
-## Push to GitHub
-
-Create an empty GitHub repository without a README, license, or `.gitignore`, then run these commands from the project root in a terminal with write access to `.git`:
-
-```bash
-git init -b main
-git add .
-git diff --cached --stat
-git commit -m "Initial commit"
-git remote add origin https://github.com/OWNER/REPOSITORY.git
-git push -u origin main
-```
-
-Replace `OWNER/REPOSITORY` with your GitHub owner and repository name. Review the staged files before committing. Virtual environments, environment secrets, local agent/cloud configuration, logs, and generated model weights are excluded by `.gitignore`; `uv.lock` and `.env.example` are included.
+The Dockerfile starts the HF FastAPI service with one Uvicorn worker on port 8000.
+It requires a mounted checkpoint and pinned model cache; see
+[container instructions](docs/public-workflows.md#container).
 
 ## JaisGuard baseline inference
 
@@ -138,8 +110,7 @@ Initial `VALID` / `GIBBERISH` inference, using Transformers and PyTorch in `.ven
 
 See [baseline setup and research conditions](docs/baseline.md) for the repository
 inspection, official reasoning controls, CPU checks, configuration, output format,
-and validation limits. This is Phase 1 diagnostic functionality; no training is
-implemented.
+and validation limits. This is the historical baseline workflow; training is documented below.
 
 ## Local dataset annotation
 
@@ -169,8 +140,8 @@ existing remote API measurements and all historical experiments.
 
 For the separate **real vLLM 0.32.0 classifier server**, exact trained-head/LoRA
 exports, mandatory prediction parity and matched HTTP concurrency benchmarks, see
-[the vLLM serving workflow](docs/vllm-serving.md). It uses the existing
+[the vLLM serving workflow](docs/vllm-serving.md). It uses the separate
 `.venv-vllm` environment; GPU parity must pass before performance is reported.
 
 The current user-approved FP16 equivalence gate, preserved BF16 diagnostics and
-remaining GPU/HTTP commands are in [the FP16 benchmark guide](docs/vllm-fp16-benchmark.md).
+historical GPU/HTTP commands are in [the FP16 benchmark guide](docs/vllm-fp16-benchmark.md).

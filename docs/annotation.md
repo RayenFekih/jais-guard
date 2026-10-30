@@ -38,8 +38,13 @@ ID is rejected. The default import remains manual. An equivalent Python call is:
 ```python
 plan = preview_import(rows, "train-next-v2", seed=42, path=db_path)
 print(plan["required_reviews"], plan["audit_samples"], plan["manual_only"])
-import_candidates(rows, path=db_path, provisional_batch="train-next-v2", seed=42,
-                  expected_projection=plan["fingerprint"])
+import_candidates(
+    rows,
+    path=db_path,
+    provisional_batch="train-next-v2",
+    seed=42,
+    expected_projection=plan["fingerprint"],
+)
 ```
 
 The following admission/sampling details describe **historical v1 audits** from the
@@ -102,6 +107,7 @@ For full administrative coverage by source, method, subtype and dialect, inspect
 
 ```python
 from jais_guard.annotations import audit_report
+
 reports = audit_report(db_path)
 ```
 

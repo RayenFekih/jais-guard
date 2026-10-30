@@ -1,5 +1,9 @@
 # JaisGuard classification experiments
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 Implementation is ready for local smoke checks. **No full frozen-head, LoRA, or
 200-example prompt-baseline experiment has been launched.** GPU checks belong in
 your WSL terminal: Codex's CUDA visibility does not describe your local GPU.

@@ -1,5 +1,8 @@
 # 700-candidate training checkpoint
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 **Historical import report:** the approved [v2 replacement](audit-policy-v2.md) is
 now active with 255 required reviews. Counts below retain the original v1 import
 snapshot (325 reviews); the original audit records are preserved as history.

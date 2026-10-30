@@ -1,5 +1,9 @@
 # Validation prompt baseline and independent test preparation
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 ## Audit and scope
 
 The repository already had pinned Transformers baseline loading, official Jais

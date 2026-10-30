@@ -96,3 +96,9 @@ data/*
 # Local publication candidates and review evidence; upload only via guarded publisher.
 /artifacts/huggingface/
 /artifacts/huggingface-review/
+
+# Public adapter caches are generated locally; only reviewed evidence is tracked.
+.hf-cache/
+# docs/benchmarks/allowlist.json enumerates the public benchmark copies explicitly.
+# Cleanup integrity receipts name private original artifacts; keep them local.
+/artifacts/repository-cleanup/

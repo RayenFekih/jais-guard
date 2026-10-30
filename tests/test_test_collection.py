@@ -22,7 +22,20 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_construction_preserves_provisional_labels_and_families():
-    parents = workflow.read_jsonl(ROOT / "data/test400_collection_v2/private/parents.jsonl")
+    # Synthetic parents exercise construction without distributing private sidecars.
+    dialects = (
+        ["MSA"] * 80
+        + sum(([d] * 30 for d in ("Tunisian", "Egyptian", "Levantine", "Gulf")), [])
+        + ["MSA"] * 140
+    )
+    parents = [
+        {
+            "text": "كيف أنقل صوري من الهاتف إلى الحاسوب من غير فقدان الملفات "
+            + "".join("ابتثجحخدذر"[int(c)] for c in str(i)),
+            "dialect": dialect,
+        }
+        for i, dialect in enumerate(dialects)
+    ]
     rows, private = construct(parents)
     assert (rows, private) == construct(parents)
     assert Counter(r["subtype"] for r in rows) == CATEGORIES
@@ -96,3 +109,12 @@ def test_adoption_preserves_parent_and_refuses_overwrite(tmp_path, monkeypatch):
     assert json.loads((new / "selection_lock.json").read_text())["checkpoints"] == ["locked"]
     with pytest.raises(ValueError, match="never overwrite"):
         adopt(new, previous, {})
+
+
+@pytest.mark.integration
+def test_original_construction_sidecars():
+    path = ROOT / "data/test400_collection_v2/private/parents.jsonl"
+    if not path.exists():
+        pytest.skip("Original test parents unavailable; historical reconstruction is limited")
+    rows, sidecar = construct(workflow.read_jsonl(path))
+    assert len(rows) == 400 and len(sidecar) == 400

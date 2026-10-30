@@ -181,7 +181,13 @@ class Predictor:
             }
 
 
-def create_app(directory=None, model_key=None, predictor_factory=Predictor):
+def create_app(
+    directory=None,
+    model_key=None,
+    predictor_factory=Predictor,
+    checkpoint=None,
+    operating_point="validation_locked",
+):
     from fastapi import FastAPI, HTTPException
     from pydantic import BaseModel, Field
 
@@ -192,8 +198,26 @@ def create_app(directory=None, model_key=None, predictor_factory=Predictor):
 
     @asynccontextmanager
     async def lifespan(app):
-        manifest = checked_manifest(directory)
-        key = model_key or os.environ.get("JAISGUARD_MODEL", manifest["default_model"])
+        selected_checkpoint = checkpoint or os.environ.get("JAISGUARD_CHECKPOINT")
+        if selected_checkpoint:
+            from .public_workflow import checkpoint_manifest
+
+            manifest = checkpoint_manifest(
+                selected_checkpoint, os.environ.get("JAISGUARD_OPERATING_POINT", operating_point)
+            )
+        else:
+            try:
+                manifest = checked_manifest(directory)
+            except FileNotFoundError as exc:
+                raise ValueError(
+                    "Serving artifacts unavailable: set JAISGUARD_CHECKPOINT to a trained best/ "
+                    "directory, or JAISGUARD_DIRECTORY to a verified historical manifest"
+                ) from exc
+        key = (
+            manifest["default_model"]
+            if selected_checkpoint
+            else model_key or os.environ.get("JAISGUARD_MODEL", manifest["default_model"])
+        )
         app.state.predictor = predictor_factory(manifest, key)
         app.state.identity = manifest["identity"]
         yield

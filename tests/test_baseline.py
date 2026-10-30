@@ -32,6 +32,7 @@ def test_invalid_counts_as_failure():
     }
 
 
+@pytest.mark.integration
 def test_official_cached_template():
     from transformers import AutoTokenizer
 

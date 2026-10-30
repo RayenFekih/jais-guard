@@ -1,4 +1,4 @@
-target-version = "py314"
+target-version = "py311"
 line-length = 100
 
 [lint]
@@ -11,4 +11,4 @@ select = [
 ]
 
 [lint.isort]
-known-first-party = ["src"]
+known-first-party = ["jais_guard"]

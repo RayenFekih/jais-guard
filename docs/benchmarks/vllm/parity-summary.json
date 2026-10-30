@@ -1,0 +1,80 @@
+[
+  {
+    "model_key": "v2-frozen-43",
+    "passed": true,
+    "acceptance_reference": "hf-fp16",
+    "bf16_diagnostic_only": true,
+    "trained_head_verified": true,
+    "threshold": 0.9563547372817993,
+    "policy": {
+      "max_abs_probability_difference": 0.02,
+      "mean_abs_probability_difference": 0.005,
+      "require_all_default_and_locked_classes_match": true
+    },
+    "comparisons": {
+      "hf-original_vs_hf-fp16": {
+        "passed": false,
+        "samples": 658,
+        "max_abs_probability_difference": 0.05112457275390625,
+        "mean_abs_probability_difference": 0.004222815635920539,
+        "locked_prediction_mismatches": 1,
+        "default_prediction_mismatches": 3
+      },
+      "hf-fp16_vs_vllm": {
+        "passed": true,
+        "samples": 658,
+        "max_abs_probability_difference": 0.00748598575592041,
+        "mean_abs_probability_difference": 0.0004821549827004682,
+        "locked_prediction_mismatches": 0,
+        "default_prediction_mismatches": 0
+      },
+      "hf-original_vs_vllm": {
+        "passed": false,
+        "samples": 658,
+        "max_abs_probability_difference": 0.04363858699798584,
+        "mean_abs_probability_difference": 0.004162213626563724,
+        "locked_prediction_mismatches": 1,
+        "default_prediction_mismatches": 3
+      }
+    }
+  },
+  {
+    "model_key": "v2-lora-44",
+    "passed": true,
+    "acceptance_reference": "hf-fp16",
+    "bf16_diagnostic_only": true,
+    "trained_head_verified": true,
+    "threshold": 0.942931056022644,
+    "policy": {
+      "max_abs_probability_difference": 0.02,
+      "mean_abs_probability_difference": 0.005,
+      "require_all_default_and_locked_classes_match": true
+    },
+    "comparisons": {
+      "hf-original_vs_hf-fp16": {
+        "passed": false,
+        "samples": 658,
+        "max_abs_probability_difference": 0.129011869430542,
+        "mean_abs_probability_difference": 0.003520339201527253,
+        "locked_prediction_mismatches": 1,
+        "default_prediction_mismatches": 1
+      },
+      "hf-fp16_vs_vllm": {
+        "passed": true,
+        "samples": 658,
+        "max_abs_probability_difference": 0.012874335050582886,
+        "mean_abs_probability_difference": 0.00037334483295069546,
+        "locked_prediction_mismatches": 0,
+        "default_prediction_mismatches": 0
+      },
+      "hf-original_vs_vllm": {
+        "passed": false,
+        "samples": 658,
+        "max_abs_probability_difference": 0.13155120611190796,
+        "mean_abs_probability_difference": 0.003539186521298893,
+        "locked_prediction_mismatches": 1,
+        "default_prediction_mismatches": 1
+      }
+    }
+  }
+]

@@ -1,5 +1,9 @@
 # Real vLLM serving for the trained JaisGuard classifiers
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 This is a separate implementation using the **existing `.venv-vllm`, vLLM
 0.32.0**, without installing or upgrading anything. The original `.venv`, model
 checkpoints, human labels, quality results, and Hugging Face/FastAPI code remain
@@ -79,18 +83,18 @@ substitution or replacement with a yes/no language-model head.
 The plan pins these settings, based on the previously successful configuration:
 
 ```python
-model_impl="transformers"
-runner="pooling"
-convert="classify"
-trust_remote_code=True
-dtype="float16"
-enforce_eager=True
-max_model_len=1024
-gpu_memory_utilization=0.75
-max_num_seqs=16
-max_num_batched_tokens=1024
-enable_prefix_caching=False
-enable_chunked_prefill=False
+model_impl = "transformers"
+runner = "pooling"
+convert = "classify"
+trust_remote_code = True
+dtype = "float16"
+enforce_eager = True
+max_model_len = 1024
+gpu_memory_utilization = 0.75
+max_num_seqs = 16
+max_num_batched_tokens = 1024
+enable_prefix_caching = False
+enable_chunked_prefill = False
 ```
 
 Pooling is explicitly `LAST`, with softmax activation and FP32 head computation.

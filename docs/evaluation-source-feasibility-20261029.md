@@ -1,5 +1,8 @@
 # JaisGuard evaluation-source acquisition feasibility
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 **29 October 2026 — documentation research only; no new candidates collected.**
 
 ## 1. Decision and evidence standard

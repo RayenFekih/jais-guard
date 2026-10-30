@@ -1,0 +1,2646 @@
+{
+  "revision": "ea1986d",
+  "method": "AST import resolution plus literal tracked-path references; computed paths require workflow table review",
+  "files": {
+    ".streamlit/config.toml": {
+      "tracked_path_references": []
+    },
+    "PROJECT_CONTEXT.md": {
+      "tracked_path_references": [
+        "data/gibberish.jsonl",
+        "docs/annotation.md",
+        "docs/audit-policy-v2.md",
+        "docs/realism-replacement-checkpoint.md",
+        "docs/training-700-checkpoint.md",
+        "docs/validation-200-checkpoint.md"
+      ]
+    },
+    "README.md": {
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "docs/annotation.md",
+        "docs/baseline.md",
+        "docs/evaluation-phase.md",
+        "docs/finetuning.md",
+        "docs/latency-serving.md",
+        "docs/vllm-fp16-benchmark.md",
+        "docs/vllm-serving.md",
+        "main.py",
+        "pyproject.toml",
+        "ruff.toml",
+        "scripts/smoke_baseline.py",
+        "src/config.py"
+      ]
+    },
+    "apps/annotate.py": {
+      "imports": [
+        "hashlib",
+        "html",
+        "jais_guard.annotations",
+        "jais_guard.annotations.DEFAULT_DB",
+        "jais_guard.annotations.ROOT",
+        "jais_guard.annotations.audit_report",
+        "jais_guard.annotations.export_dataset",
+        "jais_guard.annotations.get_state",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.preview_import",
+        "jais_guard.annotations.progress",
+        "jais_guard.annotations.provenance_after_review",
+        "jais_guard.annotations.queue",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.annotations.set_state",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "streamlit",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "data/pilot_v1/candidates.jsonl",
+        "scripts/prepare_test.py"
+      ]
+    },
+    "configs/baseline.json": {
+      "tracked_path_references": []
+    },
+    "configs/finetuning-iteration2.json": {
+      "tracked_path_references": []
+    },
+    "configs/finetuning.json": {
+      "tracked_path_references": []
+    },
+    "configs/jev_benchmark.json": {
+      "tracked_path_references": []
+    },
+    "configs/prompt_baseline.json": {
+      "tracked_path_references": []
+    },
+    "configs/publication-public-v1.json": {
+      "tracked_path_references": []
+    },
+    "configs/publication.json": {
+      "tracked_path_references": []
+    },
+    "configs/publication.proposed.json": {
+      "tracked_path_references": [
+        "docs/huggingface-publication-review.md"
+      ]
+    },
+    "configs/test400_plan.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/README.md": {
+      "tracked_path_references": [
+        "data/replacements_v1/README.md",
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "data/milestone300_v1/audit.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/checkpoint.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/easy-invented-1.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/easy-invented-2.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/hard-1.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/hard-2.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/hard-3.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-1.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-2.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-3.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-4.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-5.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/medium-6.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/valid-1.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/generation/valid-2.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/modified_only_audit.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/pilot_audit.json": {
+      "tracked_path_references": []
+    },
+    "data/milestone300_v1/source_selection.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/audit.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/invented-a.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/invented-b.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-everyday.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-home.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-learning.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-shopping.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-tech.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/semantic-work.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/valid-dialects-a.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/valid-dialects-b.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/generation/valid-msa.json": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/sources/aya_README.md": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/sources/manifest.json": {
+      "tracked_path_references": [
+        "data/pilot_v1/sources/aya_README.md",
+        "data/pilot_v1/sources/massive_README.md",
+        "data/pilot_v1/sources/tydi_README.md"
+      ]
+    },
+    "data/pilot_v1/sources/massive_README.md": {
+      "tracked_path_references": []
+    },
+    "data/pilot_v1/sources/tydi_README.md": {
+      "tracked_path_references": []
+    },
+    "data/replacements_v1/README.md": {
+      "tracked_path_references": [
+        "data/replacements_v1/audit.json",
+        "data/replacements_v1/source_selection.json"
+      ]
+    },
+    "data/replacements_v1/audit.json": {
+      "tracked_path_references": []
+    },
+    "data/replacements_v1/source_selection.json": {
+      "tracked_path_references": [
+        "data/pilot_v1/sources/manifest.json"
+      ]
+    },
+    "docs/annotation.md": {
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "data/milestone300_v1/README.md",
+        "data/pilot_v1/sources/manifest.json",
+        "data/replacements_v1/README.md",
+        "docs/audit-policy-v2.md",
+        "docs/realism-replacement-checkpoint.md",
+        "docs/training-700-checkpoint.md",
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "docs/audit-policy-v2.md": {
+      "tracked_path_references": [
+        "scripts/prepare_candidates.py",
+        "src/jais_guard/audit_migrations.py"
+      ]
+    },
+    "docs/baseline.md": {
+      "tracked_path_references": [
+        "configs/baseline.json",
+        "docs/dataset.md",
+        "scripts/smoke_baseline.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/metrics.py",
+        "src/jais_guard/prompts.py",
+        "tests/test_baseline.py"
+      ]
+    },
+    "docs/dataset.md": {
+      "tracked_path_references": [
+        "data/gibberish.jsonl",
+        "docs/annotation.md",
+        "scripts/smoke_baseline.py",
+        "src/jais_guard/prompts.py"
+      ]
+    },
+    "docs/evaluation-phase.md": {
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "configs/prompt_baseline.json",
+        "docs/test400-collection-20261029.md",
+        "scripts/finetune.py",
+        "scripts/prepare_test.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/prompts.py",
+        "src/jais_guard/test_workflow.py",
+        "tests/test_evaluation_phase.py"
+      ]
+    },
+    "docs/evaluation-source-feasibility-20261029.md": {
+      "tracked_path_references": []
+    },
+    "docs/final-test-evaluation.md": {
+      "tracked_path_references": [
+        "scripts/evaluate_test.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/test_baseline.py",
+        "tests/test_final_baseline.py",
+        "tests/test_final_test.py"
+      ]
+    },
+    "docs/finetuning.md": {
+      "tracked_path_references": [
+        "configs/finetuning.json",
+        "docs/evaluation-phase.md",
+        "scripts/finetune.py",
+        "tests/test_finetuning.py"
+      ]
+    },
+    "docs/huggingface-public-release-v1.md": {
+      "tracked_path_references": [
+        "README.md",
+        "configs/publication-public-v1.json",
+        "docs/huggingface-publication-review.md",
+        "tests/test_public_release.py",
+        "tests/test_publication.py"
+      ]
+    },
+    "docs/huggingface-publication-review.md": {
+      "tracked_path_references": [
+        "README.md",
+        "configs/publication.json",
+        "configs/publication.proposed.json",
+        "scripts/investigate_publication.py"
+      ]
+    },
+    "docs/huggingface-publication.md": {
+      "tracked_path_references": [
+        "README.md",
+        "configs/publication.json",
+        "docs/huggingface-public-release-v1.md",
+        "docs/huggingface-publication-review.md",
+        "tests/test_publication.py"
+      ]
+    },
+    "docs/jev-benchmark.md": {
+      "tracked_path_references": [
+        "configs/jev_benchmark.json",
+        "scripts/benchmark_jev.py",
+        "src/jais_guard/jev.py",
+        "src/jais_guard/jev_reporting.py",
+        "tests/test_jev.py"
+      ]
+    },
+    "docs/latency-serving.md": {
+      "tracked_path_references": [
+        "scripts/benchmark_latency.py",
+        "scripts/run_http_latency.py",
+        "scripts/serve_jaisguard.py",
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "tests/test_latency_serving.py"
+      ]
+    },
+    "docs/realism-replacement-checkpoint.md": {
+      "tracked_path_references": []
+    },
+    "docs/test400-candidate-review-v2.md": {
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "scripts/build_test400.py",
+        "scripts/prepare_test.py",
+        "scripts/test_jais.py"
+      ]
+    },
+    "docs/test400-collection-20261029.md": {
+      "tracked_path_references": [
+        "scripts/collect_test_draft.py",
+        "scripts/prepare_test.py"
+      ]
+    },
+    "docs/test400-qualitative-audit-20261029.md": {
+      "tracked_path_references": []
+    },
+    "docs/training-700-checkpoint.md": {
+      "tracked_path_references": [
+        "README.md",
+        "docs/audit-policy-v2.md",
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "docs/validation-200-checkpoint.md": {
+      "tracked_path_references": []
+    },
+    "docs/version-comparison.md": {
+      "tracked_path_references": [
+        "configs/finetuning-iteration2.json",
+        "scripts/compare_versions.py",
+        "src/jais_guard/finetuning/version_comparison.py",
+        "tests/test_version_comparison.py"
+      ]
+    },
+    "docs/vllm-fp16-benchmark.md": {
+      "tracked_path_references": [
+        "scripts/prepare_vllm_fp16_experiment.py",
+        "scripts/vllm_classifier.py",
+        "tests/test_latency_serving.py",
+        "tests/test_vllm_serving.py"
+      ]
+    },
+    "docs/vllm-serving.md": {
+      "tracked_path_references": [
+        "scripts/repair_vllm_serialization.py",
+        "scripts/serve_vllm_classifier.py",
+        "scripts/vllm_classifier.py",
+        "tests/test_latency_serving.py",
+        "tests/test_vllm_serving.py"
+      ]
+    },
+    "main.py": {
+      "imports": [],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "pyproject.toml": {
+      "tracked_path_references": [
+        "README.md"
+      ]
+    },
+    "results/vllm_serving/jaisguard-v4/report/comparison.md": {
+      "tracked_path_references": []
+    },
+    "results/vllm_serving/jaisguard-v4/report/metrics.json": {
+      "tracked_path_references": []
+    },
+    "ruff.toml": {
+      "tracked_path_references": []
+    },
+    "scripts/benchmark_jev.py": {
+      "imports": [
+        "argparse",
+        "asyncio",
+        "jais_guard",
+        "jais_guard.annotations",
+        "jais_guard.annotations.arabic_script",
+        "jais_guard.jev",
+        "jais_guard.jev_reporting",
+        "jais_guard.jev_reporting.cached_comparison",
+        "jais_guard.jev_reporting.save_report",
+        "json",
+        "logging",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/jev.py",
+        "src/jais_guard/jev_reporting.py"
+      ],
+      "tracked_path_references": [
+        "configs/jev_benchmark.json"
+      ]
+    },
+    "scripts/benchmark_latency.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.benchmark_gpu",
+        "jais_guard.latency_benchmark.benchmark_http",
+        "jais_guard.latency_benchmark.prepare",
+        "jais_guard.latency_benchmark.report",
+        "jais_guard.serving",
+        "jais_guard.serving.DEFAULT_DIRECTORY",
+        "jais_guard.serving.checked_manifest",
+        "jais_guard.serving.frozen_inputs",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/build_test400.py": {
+      "imports": [
+        "argparse",
+        "collections",
+        "collections.Counter",
+        "jais_guard.annotations",
+        "jais_guard.annotations.benchmark_references",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.test_collection",
+        "jais_guard.test_collection.CATEGORIES",
+        "jais_guard.test_collection.RUN",
+        "jais_guard.test_collection.adopt",
+        "jais_guard.test_collection.construct",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.check_candidates",
+        "jais_guard.test_workflow.import_collection",
+        "jais_guard.test_workflow.read_jsonl",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.verify_lock",
+        "jais_guard.test_workflow.write_new",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/test_collection.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "configs/test400_plan.json",
+        "src/jais_guard/test_collection.py"
+      ]
+    },
+    "scripts/collect_test_draft.py": {
+      "imports": [
+        "argparse",
+        "csv",
+        "hashlib",
+        "jais_guard.annotations",
+        "jais_guard.annotations.comparison_text",
+        "jais_guard.annotations.now",
+        "jais_guard.annotations.validate_candidate",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.verify_lock",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "random",
+        "sys",
+        "unicodedata"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "scripts/collect_test_draft.py"
+      ]
+    },
+    "scripts/compare_versions.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.final_test.fixed_report",
+        "jais_guard.finetuning.final_test.timed_classifier",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.configure",
+        "jais_guard.finetuning.tracking.environment",
+        "jais_guard.finetuning.tracking.log_metrics",
+        "jais_guard.finetuning.version_comparison",
+        "jais_guard.finetuning.version_comparison.SCOPE",
+        "jais_guard.finetuning.version_comparison.checked_protocol",
+        "jais_guard.finetuning.version_comparison.comparison_report",
+        "jais_guard.finetuning.version_comparison.load_reused",
+        "jais_guard.finetuning.version_comparison.prepare",
+        "json",
+        "mlflow",
+        "os",
+        "pandas",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/finetuning/version_comparison.py"
+      ],
+      "tracked_path_references": [
+        "configs/finetuning-iteration2.json"
+      ]
+    },
+    "scripts/evaluate_test.py": {
+      "imports": [
+        "argparse",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.final_test.DESCRIPTION",
+        "jais_guard.finetuning.final_test.fixed_report",
+        "jais_guard.finetuning.final_test.locked_registry",
+        "jais_guard.finetuning.final_test.summarize",
+        "jais_guard.finetuning.final_test.timed_classifier",
+        "jais_guard.finetuning.final_test.token_preflight",
+        "jais_guard.finetuning.test_baseline",
+        "jais_guard.finetuning.test_baseline.run",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.configure",
+        "jais_guard.finetuning.tracking.environment",
+        "jais_guard.finetuning.tracking.log_metrics",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "mlflow",
+        "os",
+        "pandas",
+        "pathlib",
+        "pathlib.Path",
+        "re",
+        "sys",
+        "torch",
+        "uuid"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/test_baseline.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/finetune.py": {
+      "imports": [
+        "argparse",
+        "collections",
+        "collections.Counter",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "gc",
+        "hashlib",
+        "inspect",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.data.load_datasets",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.save_report",
+        "jais_guard.finetuning.evaluation.write_csv",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.load_classifier",
+        "jais_guard.finetuning.model.predict_rows",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.finetuning.smoke",
+        "jais_guard.finetuning.smoke.gpu_smoke",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.configure",
+        "jais_guard.finetuning.tracking.log_genai",
+        "jais_guard.finetuning.tracking.log_metrics",
+        "jais_guard.finetuning.tracking.log_setup",
+        "jais_guard.finetuning.training",
+        "jais_guard.finetuning.training.train_one",
+        "jais_guard.inference",
+        "jais_guard.inference.BaselineClassifier",
+        "jais_guard.inference.BaselineConfig",
+        "jais_guard.prompts",
+        "jais_guard.prompts.RECOVERABLE_INSTRUCTION",
+        "jais_guard.prompts.RECOVERABLE_PROMPT_VERSION",
+        "jais_guard.prompts.build_prompt",
+        "json",
+        "numpy",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoTokenizer",
+        "uuid"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/smoke.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/finetuning/training.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/prompts.py"
+      ],
+      "tracked_path_references": [
+        "configs/finetuning.json",
+        "configs/prompt_baseline.json"
+      ]
+    },
+    "scripts/investigate_publication.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "hashlib",
+        "itertools",
+        "itertools.combinations",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pyarrow.parquet",
+        "re",
+        "src.jais_guard",
+        "src.jais_guard.publication",
+        "src.jais_guard.test_collection",
+        "src.jais_guard.test_collection.corrupt",
+        "sys",
+        "tarfile"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": [
+        "data/pilot_v1/sources/manifest.json",
+        "scripts/build_test400.py",
+        "scripts/prepare_candidates.py",
+        "src/jais_guard/test_collection.py"
+      ]
+    },
+    "scripts/prepare_candidates.py": {
+      "imports": [
+        "argparse",
+        "collections",
+        "collections.Counter",
+        "hashlib",
+        "jais_guard.annotations",
+        "jais_guard.annotations.DEFAULT_DB",
+        "jais_guard.annotations.PROVISIONAL_POLICY_VERSION",
+        "jais_guard.annotations.ROOT",
+        "jais_guard.annotations.benchmark_references",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.migration_preview",
+        "jais_guard.annotations.now",
+        "jais_guard.annotations.preview_import",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.audit_policy",
+        "jais_guard.audit_policy.boundary",
+        "jais_guard.audit_policy.digest",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pyarrow.parquet",
+        "random",
+        "sqlite3",
+        "sys",
+        "tarfile",
+        "urllib.parse",
+        "urllib.request"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/audit_policy.py"
+      ],
+      "tracked_path_references": [
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "scripts/prepare_test.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.annotations",
+        "jais_guard.annotations.DEFAULT_DB",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.check_candidates",
+        "jais_guard.test_workflow.freeze",
+        "jais_guard.test_workflow.import_collection",
+        "jais_guard.test_workflow.initialize",
+        "jais_guard.test_workflow.read_frozen_test",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "configs/test400_plan.json"
+      ]
+    },
+    "scripts/prepare_vllm_fp16_experiment.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.vllm_support.experiment_upgrade",
+        "jais_guard.vllm_support.experiment_upgrade.upgrade",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/vllm_support/experiment_upgrade.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/repair_vllm_serialization.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.vllm_support.serialization_repair",
+        "jais_guard.vllm_support.serialization_repair.repair",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/vllm_support/serialization_repair.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/run_http_latency.py": {
+      "imports": [
+        "argparse",
+        "httpx",
+        "jais_guard.serving",
+        "jais_guard.serving.DEFAULT_DIRECTORY",
+        "jais_guard.serving.checked_manifest",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "socket",
+        "subprocess",
+        "sys",
+        "time"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/serving.py"
+      ],
+      "tracked_path_references": [
+        "scripts/benchmark_latency.py",
+        "scripts/serve_jaisguard.py"
+      ]
+    },
+    "scripts/serve_jaisguard.py": {
+      "imports": [
+        "jais_guard.serving",
+        "jais_guard.serving.create_app",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "uvicorn"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/serving.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/serve_vllm_classifier.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.DEFAULT_ROOT",
+        "jais_guard.vllm_support.server",
+        "jais_guard.vllm_support.server.create_app",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "uvicorn"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/server.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/smoke_baseline.py": {
+      "imports": [
+        "argparse",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "importlib.metadata",
+        "jais_guard.data",
+        "jais_guard.data.load_dataset",
+        "jais_guard.inference",
+        "jais_guard.inference.BaselineClassifier",
+        "jais_guard.inference.BaselineConfig",
+        "jais_guard.metrics",
+        "jais_guard.metrics.summarize",
+        "jais_guard.report",
+        "jais_guard.report.write_report",
+        "json",
+        "logging",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "time",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/data.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/metrics.py",
+        "src/jais_guard/report.py"
+      ],
+      "tracked_path_references": [
+        "configs/baseline.json",
+        "data/eval/smoke.jsonl"
+      ]
+    },
+    "scripts/test_jais.py": {
+      "imports": [
+        "config",
+        "config.config",
+        "logger",
+        "logger.LOGGING_CONFIG",
+        "logging",
+        "logging.config",
+        "pathlib",
+        "pathlib.Path",
+        "sys",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoModelForCausalLM",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/config.py",
+        "src/logger.py"
+      ],
+      "tracked_path_references": []
+    },
+    "scripts/test_jais_vllm.py": {
+      "imports": [
+        "logging",
+        "time",
+        "transformers",
+        "transformers.AutoTokenizer",
+        "vllm",
+        "vllm.LLM",
+        "vllm.SamplingParams"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "scripts/vllm_classifier.py": {
+      "imports": [
+        "argparse",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.DEFAULT_ROOT",
+        "jais_guard.vllm_support.artifacts.check_export_structure",
+        "jais_guard.vllm_support.artifacts.checked_plan",
+        "jais_guard.vllm_support.artifacts.export_classifier",
+        "jais_guard.vllm_support.artifacts.inspect_installation",
+        "jais_guard.vllm_support.artifacts.prepare",
+        "jais_guard.vllm_support.benchmark",
+        "jais_guard.vllm_support.benchmark.report",
+        "jais_guard.vllm_support.benchmark.run_suite",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.benchmark_offline",
+        "jais_guard.vllm_support.parity.collect",
+        "jais_guard.vllm_support.parity.verify",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/benchmark.py",
+        "src/jais_guard/vllm_support/parity.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/config.py": {
+      "imports": [
+        "pydantic",
+        "pydantic.BaseModel",
+        "pydantic.ConfigDict"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/__init__.py": {
+      "imports": [],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/annotations.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "contextlib",
+        "contextlib.contextmanager",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "difflib",
+        "difflib.SequenceMatcher",
+        "hashlib",
+        "jais_guard.audit_migrations",
+        "jais_guard.audit_migrations.policy_table",
+        "jais_guard.audit_policy",
+        "jais_guard.audit_policy.VERSION",
+        "jais_guard.audit_policy.admission",
+        "jais_guard.audit_policy.digest",
+        "jais_guard.audit_policy.project_workload",
+        "json",
+        "math",
+        "pathlib",
+        "pathlib.Path",
+        "random",
+        "re",
+        "sqlite3",
+        "unicodedata"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/audit_migrations.py",
+        "src/jais_guard/audit_policy.py"
+      ],
+      "tracked_path_references": [
+        "data/gibberish.jsonl"
+      ]
+    },
+    "src/jais_guard/audit_migrations.py": {
+      "imports": [
+        "jais_guard.annotations",
+        "jais_guard.annotations._audit_event",
+        "jais_guard.annotations._workflow",
+        "jais_guard.annotations.migration_preview",
+        "jais_guard.annotations.now",
+        "jais_guard.audit_policy",
+        "jais_guard.audit_policy.VERSION",
+        "jais_guard.audit_policy.digest",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "sqlite3"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/audit_policy.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/audit_policy.py": {
+      "imports": [
+        "hashlib",
+        "json",
+        "math",
+        "random",
+        "re",
+        "unicodedata"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/data.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "json",
+        "pathlib",
+        "pathlib.Path"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": [
+        "data/gibberish.jsonl"
+      ]
+    },
+    "src/jais_guard/finetuning/__init__.py": {
+      "imports": [],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/data.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "hashlib",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "unicodedata"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/evaluation.py": {
+      "imports": [
+        "collections",
+        "collections.defaultdict",
+        "csv",
+        "json",
+        "math",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "sklearn.metrics",
+        "sklearn.metrics.accuracy_score",
+        "sklearn.metrics.confusion_matrix",
+        "sklearn.metrics.precision_recall_fscore_support"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/final_test.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "collections.defaultdict",
+        "gc",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.write_csv",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.predict_rows",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.read_frozen_test",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "math",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/model.py": {
+      "imports": [
+        "contextlib",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.collate",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "json",
+        "numpy",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "peft",
+        "peft.LoraConfig",
+        "peft.get_peft_model",
+        "peft.set_peft_model_state_dict",
+        "random",
+        "safetensors.torch",
+        "safetensors.torch.load_file",
+        "safetensors.torch.save_file",
+        "torch",
+        "torch.nn",
+        "transformers",
+        "transformers.AutoModel",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/smoke.py": {
+      "imports": [
+        "gc",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.LABELS",
+        "jais_guard.finetuning.data.collate",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.autocast",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.load_classifier",
+        "jais_guard.finetuning.model.optimizer_for",
+        "jais_guard.finetuning.model.precision",
+        "jais_guard.finetuning.model.save_checkpoint",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.finetuning.model.verify_trainable",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.environment",
+        "math",
+        "pathlib",
+        "pathlib.Path",
+        "tempfile",
+        "time",
+        "torch",
+        "torch.nn",
+        "torch.nn.functional",
+        "uuid"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/tracking.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/test_baseline.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "gc",
+        "hashlib",
+        "inspect",
+        "jais_guard.annotations",
+        "jais_guard.annotations.ROOT",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.write_csv",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.final_test.DESCRIPTION",
+        "jais_guard.finetuning.final_test.locked_registry",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.configure",
+        "jais_guard.finetuning.tracking.environment",
+        "jais_guard.finetuning.tracking.log_metrics",
+        "jais_guard.inference",
+        "jais_guard.inference.BaselineClassifier",
+        "jais_guard.inference.BaselineConfig",
+        "jais_guard.prompts",
+        "jais_guard.prompts.RECOVERABLE_INSTRUCTION",
+        "jais_guard.prompts.RECOVERABLE_PROMPT_VERSION",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "mlflow",
+        "numpy",
+        "os",
+        "pandas",
+        "pathlib",
+        "pathlib.Path",
+        "re",
+        "sqlite3",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoTokenizer",
+        "urllib.parse",
+        "urllib.parse.urlparse",
+        "uuid"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/prompts.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/tracking.py": {
+      "imports": [
+        "importlib.metadata",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.predict_rows",
+        "mlflow",
+        "mlflow.genai.scorers",
+        "mlflow.genai.scorers.scorer",
+        "mlflow.models",
+        "mlflow.models.infer_signature",
+        "mlflow.pyfunc",
+        "numpy",
+        "os",
+        "pandas",
+        "pathlib",
+        "pathlib.Path",
+        "shutil",
+        "subprocess",
+        "tempfile",
+        "torch",
+        "unicodedata",
+        "urllib.parse",
+        "urllib.parse.urlparse"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/training.py": {
+      "imports": [
+        "hashlib",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.LABELS",
+        "jais_guard.finetuning.data.collate",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.save_report",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.autocast",
+        "jais_guard.finetuning.model.optimizer_for",
+        "jais_guard.finetuning.model.precision",
+        "jais_guard.finetuning.model.predict_rows",
+        "jais_guard.finetuning.model.restore_weights",
+        "jais_guard.finetuning.model.save_checkpoint",
+        "jais_guard.finetuning.model.verify_trainable",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.log_classifier",
+        "jais_guard.finetuning.tracking.log_metrics",
+        "json",
+        "math",
+        "pathlib",
+        "pathlib.Path",
+        "time",
+        "torch",
+        "torch.nn",
+        "torch.nn.functional",
+        "transformers",
+        "transformers.get_linear_schedule_with_warmup"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/tracking.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/finetuning/version_comparison.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "collections.defaultdict",
+        "jais_guard.annotations",
+        "jais_guard.annotations.ROOT",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.data.load_datasets",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.write_csv",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.final_test.MEASURES",
+        "jais_guard.finetuning.final_test.locked_registry",
+        "jais_guard.finetuning.test_baseline",
+        "jais_guard.finetuning.test_baseline.INVALID_POLICY",
+        "jais_guard.prompts",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.prompts.parse_diagnostic",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.now",
+        "jais_guard.test_workflow.read_jsonl",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.write_new",
+        "json",
+        "math",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "shutil",
+        "sqlite3",
+        "transformers",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/test_baseline.py",
+        "src/jais_guard/prompts.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "scripts/compare_versions.py",
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/model.py"
+      ]
+    },
+    "src/jais_guard/inference.py": {
+      "imports": [
+        "dataclasses",
+        "dataclasses.dataclass",
+        "jais_guard.prompts",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.prompts.parse_diagnostic",
+        "torch",
+        "transformers",
+        "transformers.AutoModelForCausalLM",
+        "transformers.AutoTokenizer",
+        "unicodedata"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/prompts.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/jev.py": {
+      "imports": [
+        "asyncio",
+        "collections",
+        "collections.Counter",
+        "contextlib",
+        "contextlib.contextmanager",
+        "datetime",
+        "datetime.UTC",
+        "datetime.datetime",
+        "email.utils",
+        "email.utils.parsedate_to_datetime",
+        "fcntl",
+        "hashlib",
+        "httpx",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.read_frozen_test",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.write_new",
+        "json",
+        "math",
+        "pathlib",
+        "pathlib.Path",
+        "re",
+        "sqlite3",
+        "time"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/jev_reporting.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "collections.defaultdict",
+        "csv",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.version_comparison",
+        "jais_guard.finetuning.version_comparison.cached_metrics",
+        "jais_guard.finetuning.version_comparison.checked_protocol",
+        "jais_guard.finetuning.version_comparison.metric_match",
+        "jais_guard.jev",
+        "jais_guard.jev.frozen_rows",
+        "jais_guard.jev.now",
+        "jais_guard.jev.read_ledger",
+        "jais_guard.jev.validate_response",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.write_new",
+        "json",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "uuid",
+        "uuid.uuid4"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/version_comparison.py",
+        "src/jais_guard/jev.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/latency_benchmark.py": {
+      "imports": [
+        "csv",
+        "hashlib",
+        "httpx",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.final_test.locked_registry",
+        "jais_guard.finetuning.version_comparison",
+        "jais_guard.finetuning.version_comparison.cached_metrics",
+        "jais_guard.finetuning.version_comparison.metric_match",
+        "jais_guard.finetuning.version_comparison.verify_files",
+        "jais_guard.serving",
+        "jais_guard.serving.Predictor",
+        "jais_guard.serving.checked_manifest",
+        "jais_guard.serving.cuda_required",
+        "jais_guard.serving.frozen_inputs",
+        "jais_guard.serving.read_json",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "math",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "platform",
+        "time",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/version_comparison.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "src/jais_guard/data.py",
+        "src/jais_guard/serving.py"
+      ]
+    },
+    "src/jais_guard/metrics.py": {
+      "imports": [],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/prompts.py": {
+      "imports": [
+        "re"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/public_release.py": {
+      "imports": [
+        "argparse",
+        "collections",
+        "collections.Counter",
+        "datasets",
+        "datasets.Dataset",
+        "datasets.load_dataset",
+        "hashlib",
+        "itertools",
+        "itertools.combinations",
+        "jais_guard",
+        "jais_guard.publication",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "re",
+        "tempfile"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/publication.py"
+      ],
+      "tracked_path_references": [
+        "README.md",
+        "configs/publication-public-v1.json"
+      ]
+    },
+    "src/jais_guard/publication.py": {
+      "imports": [
+        "argparse",
+        "collections",
+        "collections.Counter",
+        "collections.defaultdict",
+        "datasets",
+        "datasets.ClassLabel",
+        "datasets.Dataset",
+        "datasets.Features",
+        "datasets.Value",
+        "datasets.load_dataset",
+        "difflib",
+        "difflib.SequenceMatcher",
+        "hashlib",
+        "huggingface_hub",
+        "huggingface_hub.HfApi",
+        "huggingface_hub.errors",
+        "huggingface_hub.errors.RepositoryNotFoundError",
+        "huggingface_hub.hf_hub_download",
+        "itertools",
+        "itertools.combinations",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "re",
+        "shutil",
+        "tempfile",
+        "unicodedata",
+        "yaml"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": [
+        "README.md",
+        "configs/publication.json"
+      ]
+    },
+    "src/jais_guard/report.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "csv",
+        "jais_guard.metrics",
+        "jais_guard.metrics.summarize",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "statistics",
+        "zipfile"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/metrics.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/serving.py": {
+      "imports": [
+        "contextlib",
+        "contextlib.asynccontextmanager",
+        "fastapi",
+        "fastapi.FastAPI",
+        "fastapi.HTTPException",
+        "hashlib",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.predict_rows",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.finetuning.test_baseline",
+        "jais_guard.finetuning.test_baseline.classify_timed",
+        "jais_guard.finetuning.version_comparison",
+        "jais_guard.finetuning.version_comparison.verify_files",
+        "jais_guard.inference",
+        "jais_guard.inference.BaselineClassifier",
+        "jais_guard.inference.BaselineConfig",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.read_frozen_test",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "pydantic",
+        "pydantic.BaseModel",
+        "pydantic.Field",
+        "threading",
+        "time",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/test_baseline.py",
+        "src/jais_guard/finetuning/version_comparison.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/test_collection.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "hashlib",
+        "jais_guard.annotations",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.now",
+        "jais_guard.annotations.set_state",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.test_workflow.verify_lock",
+        "jais_guard.test_workflow.write_new",
+        "pathlib",
+        "pathlib.Path",
+        "random"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/test_workflow.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "collections.defaultdict",
+        "hashlib",
+        "jais_guard.annotations",
+        "jais_guard.annotations.ROOT",
+        "jais_guard.annotations.benchmark_references",
+        "jais_guard.annotations.comparison_text",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.export_dataset",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.now",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.annotations.read_export",
+        "jais_guard.annotations.set_state",
+        "jais_guard.annotations.validate_candidate",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "shutil",
+        "sqlite3"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "configs/prompt_baseline.json",
+        "src/jais_guard/prompts.py"
+      ]
+    },
+    "src/jais_guard/vllm_support/__init__.py": {
+      "imports": [],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/vllm_support/artifacts.py": {
+      "imports": [
+        "hashlib",
+        "huggingface_hub",
+        "huggingface_hub.snapshot_download",
+        "importlib.metadata",
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.write_new",
+        "jais_guard.serving",
+        "jais_guard.serving.DEFAULT_DIRECTORY",
+        "jais_guard.serving.checked_manifest",
+        "jais_guard.serving.frozen_inputs",
+        "jais_guard.serving.read_json",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.inputs",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "safetensors",
+        "safetensors.safe_open",
+        "safetensors.torch",
+        "safetensors.torch.load_file",
+        "safetensors.torch.save_file",
+        "shutil",
+        "torch",
+        "transformers",
+        "transformers.AutoConfig",
+        "transformers.AutoModelForSequenceClassification"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/parity.py"
+      ],
+      "tracked_path_references": [
+        "scripts/serve_vllm_classifier.py",
+        "scripts/vllm_classifier.py",
+        "src/jais_guard/vllm_support/modeling_jaisguard.py"
+      ]
+    },
+    "src/jais_guard/vllm_support/benchmark.py": {
+      "imports": [
+        "asyncio",
+        "csv",
+        "httpx",
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.summary",
+        "jais_guard.latency_benchmark.write_new",
+        "jais_guard.serving",
+        "jais_guard.serving.read_json",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_plan",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.acceptance_reference",
+        "jais_guard.vllm_support.parity.checked_gate",
+        "jais_guard.vllm_support.parity.compare_probabilities",
+        "jais_guard.vllm_support.parity.inputs",
+        "jais_guard.vllm_support.parity.require_parity",
+        "json",
+        "matplotlib",
+        "matplotlib.pyplot",
+        "os",
+        "pathlib",
+        "pathlib.Path",
+        "socket",
+        "subprocess",
+        "time"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/parity.py"
+      ],
+      "tracked_path_references": [
+        "scripts/serve_vllm_classifier.py"
+      ]
+    },
+    "src/jais_guard/vllm_support/experiment_upgrade.py": {
+      "imports": [
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.write_new",
+        "jais_guard.serving",
+        "jais_guard.serving.read_json",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_export",
+        "jais_guard.vllm_support.artifacts.seal",
+        "jais_guard.vllm_support.artifacts.sha",
+        "jais_guard.vllm_support.artifacts.verify_hashes",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.inputs",
+        "jais_guard.vllm_support.parity.verify",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "shutil"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/parity.py"
+      ],
+      "tracked_path_references": [
+        "scripts/prepare_vllm_fp16_experiment.py",
+        "src/jais_guard/vllm_support/benchmark.py",
+        "src/jais_guard/vllm_support/parity.py",
+        "src/jais_guard/vllm_support/server.py"
+      ]
+    },
+    "src/jais_guard/vllm_support/fp16.py": {
+      "imports": [
+        "jais_guard.serving",
+        "jais_guard.serving.Predictor",
+        "time",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/serving.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/vllm_support/modeling_jaisguard.py": {
+      "imports": [
+        "jais_guard.vllm_support.modeling_k2_horizon",
+        "jais_guard.vllm_support.modeling_k2_horizon.K2HorizonModel",
+        "jais_guard.vllm_support.modeling_k2_horizon.K2HorizonPreTrainedModel",
+        "torch",
+        "torch.nn",
+        "torch.nn.functional",
+        "transformers.modeling_outputs",
+        "transformers.modeling_outputs.SequenceClassifierOutput"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/vllm_support/parity.py": {
+      "imports": [
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.collate",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.summary",
+        "jais_guard.latency_benchmark.write_new",
+        "jais_guard.serving",
+        "jais_guard.serving.Predictor",
+        "jais_guard.serving.cuda_required",
+        "jais_guard.serving.frozen_inputs",
+        "jais_guard.serving.read_json",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_export",
+        "jais_guard.vllm_support.artifacts.checked_plan",
+        "jais_guard.vllm_support.artifacts.seal",
+        "jais_guard.vllm_support.artifacts.verify_hashes",
+        "jais_guard.vllm_support.fp16",
+        "jais_guard.vllm_support.fp16.FP16Predictor",
+        "jais_guard.vllm_support.runtime",
+        "jais_guard.vllm_support.runtime.OfflineClassifier",
+        "jais_guard.vllm_support.runtime.audit_worker",
+        "jais_guard.vllm_support.runtime.probabilities",
+        "json",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/test_workflow.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/fp16.py",
+        "src/jais_guard/vllm_support/runtime.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/vllm_support/runtime.py": {
+      "imports": [
+        "jais_guard.serving",
+        "jais_guard.serving.cuda_required",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_export",
+        "jais_guard.vllm_support.artifacts.tensor_hash",
+        "numpy",
+        "time",
+        "torch",
+        "uuid",
+        "uuid.uuid4",
+        "vllm",
+        "vllm.LLM",
+        "vllm.PoolingParams",
+        "vllm.config",
+        "vllm.config.PoolerConfig",
+        "vllm.engine.arg_utils",
+        "vllm.engine.arg_utils.AsyncEngineArgs",
+        "vllm.outputs",
+        "vllm.outputs.ClassificationOutput",
+        "vllm.v1.engine.async_llm",
+        "vllm.v1.engine.async_llm.AsyncLLM"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/artifacts.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/jais_guard/vllm_support/serialization_repair.py": {
+      "imports": [
+        "hashlib",
+        "jais_guard.latency_benchmark",
+        "jais_guard.latency_benchmark.write_new",
+        "jais_guard.serving",
+        "jais_guard.serving.read_json",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_export",
+        "jais_guard.vllm_support.artifacts.seal",
+        "jais_guard.vllm_support.artifacts.sha",
+        "jais_guard.vllm_support.artifacts.verify_hashes",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.inputs",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "shutil"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/parity.py"
+      ],
+      "tracked_path_references": [
+        "scripts/repair_vllm_serialization.py",
+        "src/jais_guard/vllm_support/runtime.py"
+      ]
+    },
+    "src/jais_guard/vllm_support/server.py": {
+      "imports": [
+        "contextlib",
+        "contextlib.asynccontextmanager",
+        "fastapi",
+        "fastapi.FastAPI",
+        "fastapi.HTTPException",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.serving",
+        "jais_guard.serving.create_app",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.artifacts.checked_export",
+        "jais_guard.vllm_support.fp16",
+        "jais_guard.vllm_support.fp16.FP16Predictor",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.parity.acceptance_reference",
+        "jais_guard.vllm_support.parity.require_parity",
+        "jais_guard.vllm_support.runtime",
+        "jais_guard.vllm_support.runtime.AsyncClassifier",
+        "jais_guard.vllm_support.runtime.decision",
+        "pydantic",
+        "pydantic.BaseModel",
+        "pydantic.Field",
+        "time",
+        "torch",
+        "transformers",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/fp16.py",
+        "src/jais_guard/vllm_support/parity.py",
+        "src/jais_guard/vllm_support/runtime.py"
+      ],
+      "tracked_path_references": []
+    },
+    "src/logger.py": {
+      "imports": [
+        "os"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": []
+    },
+    "tests/test_annotation_app.py": {
+      "imports": [
+        "jais_guard.annotations",
+        "jais_guard.annotations.audit_report",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.export_dataset",
+        "jais_guard.annotations.get_state",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.queue",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.annotations.set_state",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "test_provisional_annotations",
+        "test_provisional_annotations.artificial_rows"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "apps/annotate.py",
+        "data/pilot_v1/candidates.jsonl"
+      ]
+    },
+    "tests/test_annotations.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "copy",
+        "jais_guard.annotations",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.exclude_transformed_originals",
+        "jais_guard.annotations.export_dataset",
+        "jais_guard.annotations.get_state",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.progress",
+        "jais_guard.annotations.provenance_after_review",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.annotations.queue",
+        "jais_guard.annotations.read_export",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.annotations.set_state",
+        "jais_guard.annotations.validate_candidate",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "data/pilot_v1/candidates.jsonl"
+      ]
+    },
+    "tests/test_audit_migrations.py": {
+      "imports": [
+        "jais_guard",
+        "jais_guard.annotations",
+        "jais_guard.audit_migrations",
+        "jais_guard.audit_policy",
+        "jais_guard.audit_policy.AYA_REVISION",
+        "jais_guard.audit_policy.digest",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys",
+        "test_provisional_annotations",
+        "test_provisional_annotations.artificial_rows"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/audit_migrations.py",
+        "src/jais_guard/audit_policy.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_audit_policy_v2.py": {
+      "imports": [
+        "copy",
+        "importlib.util",
+        "jais_guard",
+        "jais_guard.annotations",
+        "jais_guard.audit_policy",
+        "jais_guard.audit_policy.AYA_REVISION",
+        "jais_guard.audit_policy.admission",
+        "jais_guard.audit_policy.digest",
+        "jais_guard.audit_policy.project_workload",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys",
+        "test_provisional_annotations",
+        "test_provisional_annotations.artificial_rows"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/audit_policy.py"
+      ],
+      "tracked_path_references": [
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "tests/test_baseline.py": {
+      "imports": [
+        "jais_guard.metrics",
+        "jais_guard.metrics.summarize",
+        "jais_guard.prompts",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.prompts.parse_label",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "transformers",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/metrics.py",
+        "src/jais_guard/prompts.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_candidate_expansion.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "importlib.util",
+        "jais_guard.annotations",
+        "jais_guard.annotations.audit_report",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.save_annotation",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "test_provisional_annotations",
+        "test_provisional_annotations.artificial_rows"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "tests/test_data.py": {
+      "imports": [
+        "jais_guard.data",
+        "jais_guard.data.DATA_PATH",
+        "jais_guard.data.load_dataset",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/data.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_evaluation_phase.py": {
+      "imports": [
+        "copy",
+        "importlib.util",
+        "jais_guard",
+        "jais_guard.annotations",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.annotations.queue",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.inference",
+        "jais_guard.prompts",
+        "jais_guard.prompts.RECOVERABLE_INSTRUCTION",
+        "jais_guard.prompts.RECOVERABLE_PROMPT_VERSION",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.prompts.parse_diagnostic",
+        "jais_guard.test_workflow",
+        "json",
+        "mlflow",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "random",
+        "sys",
+        "torch",
+        "types",
+        "types.SimpleNamespace"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/inference.py",
+        "src/jais_guard/prompts.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "configs/test400_plan.json",
+        "scripts/collect_test_draft.py",
+        "scripts/finetune.py"
+      ]
+    },
+    "tests/test_final_baseline.py": {
+      "imports": [
+        "hashlib",
+        "inspect",
+        "jais_guard.finetuning",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.test_baseline",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.prompts",
+        "jais_guard.prompts.RECOVERABLE_INSTRUCTION",
+        "jais_guard.prompts.RECOVERABLE_PROMPT_VERSION",
+        "jais_guard.prompts.build_prompt",
+        "jais_guard.prompts.parse_diagnostic",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "mlflow",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys",
+        "test_final_test",
+        "test_final_test.command",
+        "test_final_test.protocol",
+        "torch",
+        "types",
+        "types.SimpleNamespace"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/__init__.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/test_baseline.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/prompts.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "configs/prompt_baseline.json"
+      ]
+    },
+    "tests/test_final_test.py": {
+      "imports": [
+        "copy",
+        "importlib.util",
+        "jais_guard.finetuning",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "mlflow",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "torch",
+        "types",
+        "types.SimpleNamespace",
+        "weakref"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/__init__.py",
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "scripts/evaluate_test.py"
+      ]
+    },
+    "tests/test_finetuning.py": {
+      "imports": [
+        "copy",
+        "jais_guard.finetuning.data",
+        "jais_guard.finetuning.data.collate",
+        "jais_guard.finetuning.data.encode_rows",
+        "jais_guard.finetuning.data.load_datasets",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.save_report",
+        "jais_guard.finetuning.evaluation.threshold_report",
+        "jais_guard.finetuning.model",
+        "jais_guard.finetuning.model.last_nonpadding",
+        "jais_guard.finetuning.model.load_checkpoint",
+        "jais_guard.finetuning.model.load_classifier",
+        "jais_guard.finetuning.model.optimizer_for",
+        "jais_guard.finetuning.model.predict_rows",
+        "jais_guard.finetuning.model.save_checkpoint",
+        "jais_guard.finetuning.model.seed_everything",
+        "jais_guard.finetuning.model.verify_trainable",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.tracking.configure",
+        "jais_guard.finetuning.tracking.log_setup",
+        "jais_guard.finetuning.training",
+        "jais_guard.finetuning.training.train_one",
+        "json",
+        "numpy",
+        "os",
+        "pandas",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "tempfile",
+        "torch",
+        "transformers",
+        "transformers.AutoConfig",
+        "transformers.AutoModel",
+        "transformers.AutoTokenizer"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/data.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/finetuning/training.py"
+      ],
+      "tracked_path_references": [
+        "configs/finetuning.json"
+      ]
+    },
+    "tests/test_jev.py": {
+      "imports": [
+        "asyncio",
+        "httpx",
+        "importlib.util",
+        "jais_guard",
+        "jais_guard.jev",
+        "jais_guard.jev_reporting",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/jev.py",
+        "src/jais_guard/jev_reporting.py"
+      ],
+      "tracked_path_references": [
+        "configs/jev_benchmark.json",
+        "scripts/benchmark_jev.py"
+      ]
+    },
+    "tests/test_latency_serving.py": {
+      "imports": [
+        "asyncio",
+        "fastapi.routing",
+        "hashlib",
+        "httpx",
+        "jais_guard",
+        "jais_guard.finetuning",
+        "jais_guard.finetuning.model",
+        "jais_guard.latency_benchmark",
+        "jais_guard.serving",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys",
+        "threading",
+        "torch"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/finetuning/__init__.py",
+        "src/jais_guard/finetuning/model.py",
+        "src/jais_guard/latency_benchmark.py",
+        "src/jais_guard/serving.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_milestone300.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "importlib.util",
+        "jais_guard.annotations",
+        "jais_guard.annotations.benchmark_references",
+        "jais_guard.annotations.connection",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.quality_issues",
+        "jais_guard.annotations.queue",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.annotations.validate_candidate",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": [
+        "data/pilot_v1/candidates.jsonl",
+        "data/replacements_v1/candidates.jsonl",
+        "scripts/prepare_candidates.py"
+      ]
+    },
+    "tests/test_provisional_annotations.py": {
+      "imports": [
+        "copy",
+        "hashlib",
+        "jais_guard",
+        "jais_guard.annotations",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "random",
+        "sqlite3",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_public_release.py": {
+      "imports": [
+        "datasets",
+        "datasets.Dataset",
+        "datasets.load_dataset",
+        "json",
+        "pytest",
+        "shutil",
+        "src.jais_guard",
+        "src.jais_guard.public_release",
+        "src.jais_guard.publication",
+        "types",
+        "types.SimpleNamespace",
+        "unittest.mock",
+        "unittest.mock.Mock",
+        "yaml"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": [
+        "README.md"
+      ]
+    },
+    "tests/test_publication.py": {
+      "imports": [
+        "httpx",
+        "json",
+        "pyarrow.parquet",
+        "pytest",
+        "shutil",
+        "src.jais_guard",
+        "src.jais_guard.publication",
+        "types",
+        "types.SimpleNamespace",
+        "unittest.mock",
+        "unittest.mock.Mock",
+        "yaml"
+      ],
+      "local_import_targets": [],
+      "tracked_path_references": [
+        "README.md"
+      ]
+    },
+    "tests/test_report.py": {
+      "imports": [
+        "jais_guard.report",
+        "jais_guard.report.evaluate",
+        "jais_guard.report.write_report",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sklearn.metrics",
+        "sklearn.metrics.f1_score",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/report.py"
+      ],
+      "tracked_path_references": []
+    },
+    "tests/test_test_collection.py": {
+      "imports": [
+        "collections",
+        "collections.Counter",
+        "jais_guard",
+        "jais_guard.annotations",
+        "jais_guard.annotations.import_candidates",
+        "jais_guard.annotations.provenance_after_review",
+        "jais_guard.annotations.save_annotation",
+        "jais_guard.annotations.set_state",
+        "jais_guard.test_collection",
+        "jais_guard.test_collection.CATEGORIES",
+        "jais_guard.test_collection.adopt",
+        "jais_guard.test_collection.construct",
+        "jais_guard.test_collection.corrupt",
+        "jais_guard.test_workflow",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sys"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/__init__.py",
+        "src/jais_guard/annotations.py",
+        "src/jais_guard/test_collection.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "data/pilot_v1/candidates.jsonl"
+      ]
+    },
+    "tests/test_version_comparison.py": {
+      "imports": [
+        "copy",
+        "importlib.util",
+        "jais_guard.finetuning",
+        "jais_guard.finetuning.evaluation",
+        "jais_guard.finetuning.evaluation.metrics",
+        "jais_guard.finetuning.evaluation.write_json",
+        "jais_guard.finetuning.final_test",
+        "jais_guard.finetuning.tracking",
+        "jais_guard.finetuning.version_comparison",
+        "jais_guard.test_workflow",
+        "jais_guard.test_workflow.sha",
+        "json",
+        "mlflow",
+        "numpy",
+        "pathlib",
+        "pathlib.Path",
+        "pytest",
+        "sqlite3",
+        "sys",
+        "torch",
+        "types",
+        "types.SimpleNamespace"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/finetuning/__init__.py",
+        "src/jais_guard/finetuning/evaluation.py",
+        "src/jais_guard/finetuning/final_test.py",
+        "src/jais_guard/finetuning/tracking.py",
+        "src/jais_guard/finetuning/version_comparison.py",
+        "src/jais_guard/test_workflow.py"
+      ],
+      "tracked_path_references": [
+        "scripts/compare_versions.py"
+      ]
+    },
+    "tests/test_vllm_serving.py": {
+      "imports": [
+        "asyncio",
+        "contextlib",
+        "contextlib.nullcontext",
+        "hashlib",
+        "httpx",
+        "huggingface_hub",
+        "importlib",
+        "jais_guard.serving",
+        "jais_guard.serving.Predictor",
+        "jais_guard.vllm_support",
+        "jais_guard.vllm_support.artifacts",
+        "jais_guard.vllm_support.benchmark",
+        "jais_guard.vllm_support.fp16",
+        "jais_guard.vllm_support.fp16.FP16Predictor",
+        "jais_guard.vllm_support.parity",
+        "jais_guard.vllm_support.runtime",
+        "jais_guard.vllm_support.serialization_repair",
+        "jais_guard.vllm_support.server",
+        "json",
+        "pathlib",
+        "pathlib.Path",
+        "peft",
+        "peft.LoraConfig",
+        "peft.get_peft_model",
+        "pytest",
+        "safetensors.torch",
+        "safetensors.torch.load_file",
+        "safetensors.torch.save_file",
+        "sys",
+        "torch",
+        "torch.nn",
+        "torch.torch_version",
+        "torch.torch_version.TorchVersion",
+        "transformers",
+        "transformers.AutoTokenizer",
+        "transformers.PretrainedConfig",
+        "types",
+        "types.SimpleNamespace"
+      ],
+      "local_import_targets": [
+        "src/jais_guard/serving.py",
+        "src/jais_guard/vllm_support/__init__.py",
+        "src/jais_guard/vllm_support/artifacts.py",
+        "src/jais_guard/vllm_support/benchmark.py",
+        "src/jais_guard/vllm_support/fp16.py",
+        "src/jais_guard/vllm_support/parity.py",
+        "src/jais_guard/vllm_support/runtime.py",
+        "src/jais_guard/vllm_support/serialization_repair.py",
+        "src/jais_guard/vllm_support/server.py"
+      ],
+      "tracked_path_references": []
+    }
+  }
+}

@@ -1,5 +1,8 @@
 # test-400-v1 candidate collection, request-corruption-v2
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 400 **provisional** candidates have been imported into a new, isolated review DB.
 No labels have been approved, no export frozen, and no Jais model used to generate,
 select, judge or evaluate these inputs. The final benchmark does not exist until

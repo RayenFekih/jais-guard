@@ -1,0 +1,21 @@
+{
+  "base_revision": "ea1986d",
+  "files": {
+    "configs/baseline.json": "9414f283ab1977835fa8f78dcaae6db8ea889f1a2c7980e311e451e69399a8f0",
+    "configs/finetuning-iteration2.json": "fbc0d3c9fd0b44f1dec852e9bb481064eb8d0b7e265944e0da3d110cc283acfa",
+    "configs/finetuning.json": "c9a5d224e8b6ae673d14b845107a64ed9b11b61e6f13a5797b1b57be18e980bd",
+    "configs/jev_benchmark.json": "aaf82c84af759140315a32adf4c54db957b76bf1f017c29ec61dc01ed0753c72",
+    "configs/prompt_baseline.json": "4ee4655b24cb1f48510cf000054b5705fae996256484b4c20c90a0fd5c2a5943",
+    "configs/publication-public-v1.json": "1b95c3267d1eac81c7feff22019a4a3b9fad07756ba4793323057db5666a84a5",
+    "configs/publication.json": "a27ee6c5129689aff63ec049826d657a7457f71f0eb5b1e372fa89e129a9e33a",
+    "configs/publication.proposed.json": "c8b65ee955a89c00e7788c5a121e81e340966831a7bd561adfa29a9ab767ec29",
+    "configs/test400_plan.json": "f52381a34b97e8a7dc869e8d6d20d2b781e73e914a3bf43f3c4d58501b967add",
+    "results/vllm_serving/jaisguard-v4/report/comparison.csv": "9fb54204c01d145dbf2af281b5b0fb08da545b74c3ce9ea61c62383b4e3b93f6",
+    "results/vllm_serving/jaisguard-v4/report/comparison.md": "2f2067a3e89269813e3fcbe9d7f690c7941ee26199e2da54a48dacfd4e8ab9af",
+    "results/vllm_serving/jaisguard-v4/report/latency-throughput.png": "24c6747c4ae8f6e65fa3c0058a7ab3e2db4c4e9499121fd8f79bc35e43966d57",
+    "results/vllm_serving/jaisguard-v4/report/latency-throughput.svg": "4191cd3526f166e6bf64910b36208aa1581e3528d4054efdeff19f37b4fc5fad",
+    "results/vllm_serving/jaisguard-v4/report/metrics.json": "8d647218c22aa36c9ff5413b438c15f24f20cf8e5ec885ce3026a45f59d4c0e6",
+    "results/vllm_serving/jaisguard-v4/report/startup-memory.png": "8610edb385105fd6b20353d1128cd10e21d153aab6c3710891a7454b87255bf9",
+    "results/vllm_serving/jaisguard-v4/report/startup-memory.svg": "32b49fb281939c87f04c474ace6415892e0a577f19ed9b0cdb96ae71e0d583a1"
+  }
+}

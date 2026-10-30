@@ -46,15 +46,30 @@ def normalized_text(text):
     return " ".join(unicodedata.normalize("NFKC", text).split())
 
 
+def expected_counts(config, partition):
+    defaults = {
+        "train": {"VALID": 359, "GIBBERISH": 341},
+        "validation": {"VALID": 99, "GIBBERISH": 101},
+    }
+    counts = config.get(f"{partition}_counts", defaults[partition])
+    if (
+        not isinstance(counts, dict)
+        or set(counts) != set(LABELS)
+        or any(type(value) is not int or value <= 0 for value in counts.values())
+    ):
+        raise ValueError(f"Invalid {partition} class counts")
+    return counts
+
+
 def load_datasets(config):
     train, tm = read_export(
-        config["train_path"], config["train_sha256"], "train", {"VALID": 359, "GIBBERISH": 341}
+        config["train_path"], config["train_sha256"], "train", expected_counts(config, "train")
     )
     val, vm = read_export(
         config["validation_path"],
         config["validation_sha256"],
         "validation",
-        {"VALID": 99, "GIBBERISH": 101},
+        expected_counts(config, "validation"),
     )
     for key in ("id", "family_id"):
         if {r[key] for r in train} & {r[key] for r in val}:

@@ -1,0 +1,178 @@
+{
+  "base_revision": "ea1986db76bc180783c0afefc8cffa319da9473b",
+  "review": "aggregate metrics, figures and timing-only observations; no original datasets or private notes",
+  "files": {
+    "vllm/comparison.md": {
+      "sha256": "2f2067a3e89269813e3fcbe9d7f690c7941ee26199e2da54a48dacfd4e8ab9af",
+      "source": "results/vllm_serving/jaisguard-v4/report/comparison.md",
+      "source_sha256": "2f2067a3e89269813e3fcbe9d7f690c7941ee26199e2da54a48dacfd4e8ab9af",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/comparison.csv": {
+      "sha256": "9fb54204c01d145dbf2af281b5b0fb08da545b74c3ce9ea61c62383b4e3b93f6",
+      "source": "results/vllm_serving/jaisguard-v4/report/comparison.csv",
+      "source_sha256": "9fb54204c01d145dbf2af281b5b0fb08da545b74c3ce9ea61c62383b4e3b93f6",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/metrics.json": {
+      "sha256": "8d647218c22aa36c9ff5413b438c15f24f20cf8e5ec885ce3026a45f59d4c0e6",
+      "source": "results/vllm_serving/jaisguard-v4/report/metrics.json",
+      "source_sha256": "8d647218c22aa36c9ff5413b438c15f24f20cf8e5ec885ce3026a45f59d4c0e6",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/latency-throughput.png": {
+      "sha256": "24c6747c4ae8f6e65fa3c0058a7ab3e2db4c4e9499121fd8f79bc35e43966d57",
+      "source": "results/vllm_serving/jaisguard-v4/report/latency-throughput.png",
+      "source_sha256": "24c6747c4ae8f6e65fa3c0058a7ab3e2db4c4e9499121fd8f79bc35e43966d57",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/latency-throughput.svg": {
+      "sha256": "4191cd3526f166e6bf64910b36208aa1581e3528d4054efdeff19f37b4fc5fad",
+      "source": "results/vllm_serving/jaisguard-v4/report/latency-throughput.svg",
+      "source_sha256": "4191cd3526f166e6bf64910b36208aa1581e3528d4054efdeff19f37b4fc5fad",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/startup-memory.png": {
+      "sha256": "8610edb385105fd6b20353d1128cd10e21d153aab6c3710891a7454b87255bf9",
+      "source": "results/vllm_serving/jaisguard-v4/report/startup-memory.png",
+      "source_sha256": "8610edb385105fd6b20353d1128cd10e21d153aab6c3710891a7454b87255bf9",
+      "transformation": "byte-identical copy"
+    },
+    "vllm/startup-memory.svg": {
+      "sha256": "32b49fb281939c87f04c474ace6415892e0a577f19ed9b0cdb96ae71e0d583a1",
+      "source": "results/vllm_serving/jaisguard-v4/report/startup-memory.svg",
+      "source_sha256": "32b49fb281939c87f04c474ace6415892e0a577f19ed9b0cdb96ae71e0d583a1",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/comparison.md": {
+      "sha256": "9dd8b2e83bc66d09088b8f6323f6f9efcf5712ebe95f63a249d2816d0c1125de",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/comparison.md",
+      "source_sha256": "ca22499db17210872b57742195cd8cffc21392932e234558418bf3243a5823df",
+      "transformation": "absolute checkout prefix replaced; numbers unchanged"
+    },
+    "quality-latency/comparison.csv": {
+      "sha256": "dc09247284a0dbb4a907d2b672638a35dcff9630b8ee368506a94cd6c6892e48",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/comparison.csv",
+      "source_sha256": "dc09247284a0dbb4a907d2b672638a35dcff9630b8ee368506a94cd6c6892e48",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/latency.csv": {
+      "sha256": "6032a5080ca757da4b5dc8dadeb16ccfad67956fcd18754fe29d1b888740526c",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/latency.csv",
+      "source_sha256": "6032a5080ca757da4b5dc8dadeb16ccfad67956fcd18754fe29d1b888740526c",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/quality.png": {
+      "sha256": "6f9d6aaea23068a9bc1e4110004c2186299870b0cf433b897e2c1dac32857cfc",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/quality.png",
+      "source_sha256": "6f9d6aaea23068a9bc1e4110004c2186299870b0cf433b897e2c1dac32857cfc",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/quality.svg": {
+      "sha256": "0301d126183d7ba3e1d7bcb8c404ee2f4e8e420262b24d3a554dbcc4a5b1b113",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/quality.svg",
+      "source_sha256": "0301d126183d7ba3e1d7bcb8c404ee2f4e8e420262b24d3a554dbcc4a5b1b113",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/latency.png": {
+      "sha256": "61b328c8530f0b8c7f8d2336a7261fffc93d44d7e2d4d0387b5ca6011d7c1689",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/latency.png",
+      "source_sha256": "61b328c8530f0b8c7f8d2336a7261fffc93d44d7e2d4d0387b5ca6011d7c1689",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/latency.svg": {
+      "sha256": "4c47fb84ab8e20d3bb2b8a6939dcf1dde3c2fade2d0c67c142a7e5ccb37df536",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/latency.svg",
+      "source_sha256": "4c47fb84ab8e20d3bb2b8a6939dcf1dde3c2fade2d0c67c142a7e5ccb37df536",
+      "transformation": "byte-identical copy"
+    },
+    "quality-latency/aggregates.json": {
+      "sha256": "ecd01b5a142354b48a72cdf5b5fb925662e4ac6699dbba2521cc59ee198a230d",
+      "source": "results/latency_comparison/jaisguard-all-v2/report-final/metrics.json",
+      "source_sha256": "140c600f2b064afe0b5cec52f145b1e09cc0823643a7d9122b5d5324f43d7a53",
+      "transformation": "only comparison and selected aggregate sections"
+    },
+    "vllm/parity-summary.json": {
+      "sha256": "8ac9e9edd86ae3b5393b9a83d0c893d9bd90895893334431966280d197fb8083",
+      "source": "results/vllm_serving/jaisguard-v4/parity/v2-frozen-43/gate.json",
+      "source_sha256": "61160398d3e9de1e46c3993d6cc157201e395161b6ec490fc748b7db2d24652e",
+      "transformation": "aggregate projection of both gates; excludes IDs and private paths",
+      "additional_source": {
+        "path": "results/vllm_serving/jaisguard-v4/parity/v2-lora-44/gate.json",
+        "sha256": "d760b701a293beba5a43d335dcf7ebfba1e7009debbf15dccd0e7e33af3a9e65"
+      }
+    },
+    "vllm/http-timings.json": {
+      "sha256": "b2d1472a636f06186e1cff2836242bad521b6c2c5608823d98d33afca5d89777",
+      "source": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/hf/c1/samples.json",
+      "source_sha256": "431a38bbe690f058951dba98890b8796245037edf0bf872e4e2d08a9f3637b44",
+      "transformation": "http_ms only from all 16 workloads; drops text, tokens, IDs and probabilities",
+      "sources": [
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/hf/c1/samples.json",
+          "sha256": "431a38bbe690f058951dba98890b8796245037edf0bf872e4e2d08a9f3637b44"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/hf/c16/samples.json",
+          "sha256": "904d38db1eff5359fa22b627271c341236d9f914a7c25cf676b03b52b075e63b"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/hf/c4/samples.json",
+          "sha256": "4baf13b736acf3b501f18021b6e0a5e14c4c903577dd2c897bab375e1c09f87c"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/hf/c8/samples.json",
+          "sha256": "202e4c8a886d6ae263c69a84b127e2241b63b3489ca0f363b7236b52cf6082fd"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/vllm/c1/samples.json",
+          "sha256": "4d7d04877fc2ae426e7c76626a09fff3240fbe6077a1573bfa94c18861595d40"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/vllm/c16/samples.json",
+          "sha256": "64dfa44a5b10141d54d7b7d9ec78ed1c9c26cf116250ac7423578189e3a98a2b"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/vllm/c4/samples.json",
+          "sha256": "5619c95644cd38fd09731fd53d1aaef10aa5c49b4c7ca52e84bca6f92e136776"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-frozen-43/vllm/c8/samples.json",
+          "sha256": "e741d0d2e5dbfe17922bca1a24d95f9dd06083dcbf08d95e0f30c649c7f6c776"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/hf/c1/samples.json",
+          "sha256": "69ee4010410966f453f05d921b5eba8dec0fd64ab3afea66b80d507dbf9a9484"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/hf/c16/samples.json",
+          "sha256": "d11e4bb87249fccda00777478e0b8e2ce4daa79b44ae2d0ecd3465869eca3f62"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/hf/c4/samples.json",
+          "sha256": "09497e0b89825c530e2b150208a10353184948ef9d6808c516c5b6694c564dd7"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/hf/c8/samples.json",
+          "sha256": "d5b7d50fdd110617bfac15ad31b8d6868696df897fdaaf71b75af2f9d724770a"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/vllm/c1/samples.json",
+          "sha256": "64ed496d9ec366196cf44606460df3ebb6f53ca3d54c9341b89b4769983384cf"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/vllm/c16/samples.json",
+          "sha256": "cb6b5ef797bdde2b54722d564b9009ff060c589bc81086bd507235df972478e2"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/vllm/c4/samples.json",
+          "sha256": "726065eb6d43fd72e0e0c57c06a8d3ad8837deb156d9f6e4d7ebf2afd9049ad0"
+        },
+        {
+          "path": "results/vllm_serving/jaisguard-v4/http/v2-lora-44/vllm/c8/samples.json",
+          "sha256": "3d0cc8f4da0d6d02d860eb3039bf29bb06bdbb628ba59a9f517c1f54fa9dd74a"
+        }
+      ]
+    }
+  }
+}

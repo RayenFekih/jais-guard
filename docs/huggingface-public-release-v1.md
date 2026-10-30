@@ -1,4 +1,4 @@
-# JaisGuard public-v1 publication candidate
+# JaisGuard public-v1 publication provenance
 
 The owner authorized a separate derivative, excluding original experiment training
 positions 277 and 486 for privacy uncertainty. The owner states this is a personal
@@ -110,7 +110,7 @@ Local evidence (not uploaded) lives in `artifacts/huggingface-review/public-rele
 `approved-review.json` and the preparation preservation receipt. The source-position
 map documents exactly how the public train row numbers shift after omissions.
 
-## Final review and upload
+## Historical final review and upload
 
 Inspect the staged README, all three LICENSES/ files and `validation.json`.
 The README uses approval-neutral language; pending/final approval status stays in the
@@ -132,7 +132,9 @@ After final sign-off, repeat the dry-run above. Only when it returns zero:
   --publish
 ```
 
-**This command has not been executed.** The publisher requires a private dataset
+**Historical instructions:** the preserved local publication receipt records verified
+upload commit `c3e739a396dcf4ae982633f19dc24555dab837d4`. The instructions below
+describe the original guarded workflow; do not repeat publication during cleanup. The publisher requires a private dataset
 repository (creates one privately if absent), refuses differing preexisting remote
 files, guards against concurrent remote changes and uploads only the eight staged
 files. It never changes visibility to public. Pending final approvals prevent even
