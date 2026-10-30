@@ -1,0 +1,52 @@
+{
+  "model": "IFM/Jais-3-0.9B",
+  "revision": "e51941b37091287fee4934e3f8a799e0d3fef37f",
+  "train_path": "/home/rayen/projects/fine-tuning/data/exports/train-train-1500-v3-combined-v1/train.jsonl",
+  "validation_path": "/home/rayen/projects/fine-tuning/data/exports/validation-validation-250-v2/validation.jsonl",
+  "train_sha256": "51c9e4778f4b587b2ca6c824188e5ecb236b05275f1e7a72ac1cd65c498e0f33",
+  "validation_sha256": "0db272b4fc8c5f02cd039f8f05b1204e5f56aa21acd26987bcede869b9ed2bda",
+  "max_length": 64,
+  "seeds": [
+    42,
+    43,
+    44
+  ],
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "gradient_clip": 1.0,
+  "exploratory_frr": 0.02,
+  "tracking_uri": "http://127.0.0.1:5000",
+  "experiment": "JaisGuard/general-arabic-v2",
+  "output_dir": "results/fine_tuning_iteration2",
+  "frozen": {
+    "epochs": 30,
+    "patience": 5,
+    "batch_size": 32,
+    "head_lr": 0.001
+  },
+  "lora": {
+    "epochs": 8,
+    "patience": 2,
+    "microbatch": 2,
+    "accumulation": 8,
+    "adapter_lr": 0.0001,
+    "head_lr": 0.001,
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ]
+  },
+  "iteration": 2,
+  "train_counts": {
+    "GIBBERISH": 790,
+    "VALID": 710
+  },
+  "validation_counts": {
+    "GIBBERISH": 130,
+    "VALID": 120
+  },
+  "validation_review_complete": true
+}
