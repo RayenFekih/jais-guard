@@ -166,3 +166,11 @@ For the complete cached-quality comparison, batch-1 GPU benchmarks and local
 FastAPI/httpx demo across untuned Jais, frozen v1/v2 and LoRA v1/v2, see
 [the latency and serving workflow](docs/latency-serving.md). It preserves Jev's
 existing remote API measurements and all historical experiments.
+
+For the separate **real vLLM 0.32.0 classifier server**, exact trained-head/LoRA
+exports, mandatory prediction parity and matched HTTP concurrency benchmarks, see
+[the vLLM serving workflow](docs/vllm-serving.md). It uses the existing
+`.venv-vllm` environment; GPU parity must pass before performance is reported.
+
+The current user-approved FP16 equivalence gate, preserved BF16 diagnostics and
+remaining GPU/HTTP commands are in [the FP16 benchmark guide](docs/vllm-fp16-benchmark.md).
