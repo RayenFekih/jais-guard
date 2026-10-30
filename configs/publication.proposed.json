@@ -1,0 +1,17 @@
+{
+  "license": null,
+  "licensing_statement": null,
+  "licensing_statement_draft": "artifacts/huggingface-review/investigation/licensing-statement.draft.md",
+  "owner_approval": null,
+  "privacy_disposition": {
+    "train[277]": null,
+    "train[486]": null
+  },
+  "proposed_license": [
+    "cc-by-4.0",
+    "apache-2.0"
+  ],
+  "proposed_scope": "CC BY 4.0 for project-controlled contributions/compilation and MASSIVE; retain Apache 2.0 on Aya/TyDi components. Not alternative licensing of every row.",
+  "review_report": "docs/huggingface-publication-review.md",
+  "test_parent_sidecars_restored_or_limitation_accepted": null
+}
