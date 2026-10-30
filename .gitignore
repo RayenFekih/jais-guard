@@ -92,3 +92,7 @@ data/processed/
 
 # Independent test candidate workspace stays local until review and dataset freeze.
 /data/test400_v1/
+data/*
+# Local publication candidates and review evidence; upload only via guarded publisher.
+/artifacts/huggingface/
+/artifacts/huggingface-review/
