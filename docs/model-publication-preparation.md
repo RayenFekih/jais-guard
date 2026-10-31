@@ -1,5 +1,9 @@
 # JaisGuard model publication preparation
 
+> Subsequent explicit authorization and completed public publication are recorded in
+> [the publication report](model-publication-release.md). The pending/private-upload
+> statements below document the earlier review state; model package bytes are unchanged.
+
 Prepared locally on `cleanup/public-workflows`. Nothing was uploaded, no model was
 retrained, no paid API was called, and no historical artifacts were modified.
 

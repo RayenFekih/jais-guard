@@ -1,5 +1,9 @@
 # Final JaisGuard model release review
 
+> Subsequent explicit authorization and completed public publication are recorded in
+> [the publication report](model-publication-release.md). The pending/private-upload
+> statements below document the earlier review state; model package bytes are unchanged.
+
 Review date: 2026-10-31, Africa/Tunis. Branch: `cleanup/public-workflows`.
 No upload, repository creation, visibility change, checkpoint change or historical
 result change was performed. The two staged packages were reviewed without
