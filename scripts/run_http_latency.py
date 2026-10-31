@@ -15,7 +15,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def main():
-    from jais_guard.serving import DEFAULT_DIRECTORY, checked_manifest
+    from jais_guard.serving.hf import DEFAULT_DIRECTORY, checked_manifest
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--directory", type=Path, default=DEFAULT_DIRECTORY)

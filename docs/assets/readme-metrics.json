@@ -1,0 +1,32 @@
+{
+  "quality": [
+    {
+      "name": "Untuned Jais 3 0.9B",
+      "condition": "Zero-shot \u00b7 original chat prompt",
+      "macro_f1": 0.7704545454545455,
+      "accuracy": 0.75,
+      "source": "docs/benchmarks/quality-latency/aggregates.json#untuned/untuned_prompt/zero_shot"
+    },
+    {
+      "name": "Frozen Backbone + Head",
+      "condition": "v2 seed 43 \u00b7 locked threshold 0.95635",
+      "macro_f1": 0.812297077922078,
+      "accuracy": 0.815,
+      "source": "results/version_comparison/jaisguard-v1-v2-v1/benchmark/frozen-43/metrics.json"
+    },
+    {
+      "name": "LoRA + Head",
+      "condition": "v2 seed 44 \u00b7 locked threshold 0.94293",
+      "macro_f1": 0.9224413462681152,
+      "accuracy": 0.9225,
+      "source": "results/version_comparison/jaisguard-v1-v2-v1/benchmark/lora-44/metrics.json"
+    },
+    {
+      "name": "Jev baseline",
+      "condition": "Hosted Jev 1.14.0 \u00b7 zero-shot",
+      "macro_f1": 0.580179466327474,
+      "accuracy": 0.6225,
+      "source": "docs/benchmarks/quality-latency/aggregates.json#jev/hosted/zero_shot"
+    }
+  ]
+}

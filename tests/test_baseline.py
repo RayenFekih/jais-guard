@@ -5,8 +5,8 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.metrics import summarize
-from jais_guard.prompts import build_prompt, parse_label
+from jais_guard.baselines.metrics import summarize
+from jais_guard.baselines.prompts import build_prompt, parse_label
 
 
 @pytest.mark.parametrize(
@@ -32,6 +32,7 @@ def test_invalid_counts_as_failure():
     }
 
 
+@pytest.mark.integration
 def test_official_cached_template():
     from transformers import AutoTokenizer
 

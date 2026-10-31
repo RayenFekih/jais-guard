@@ -12,7 +12,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard import annotations as a
+from jais_guard.data import annotations as a
 
 
 def artificial_rows(count=60, *, method="codex", prefix="fixture", dialects=("MSA",)):

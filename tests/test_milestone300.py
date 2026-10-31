@@ -8,7 +8,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.annotations import (
+from jais_guard.data.annotations import (
     benchmark_references,
     connection,
     import_candidates,
@@ -74,6 +74,7 @@ def test_import_preserves_prior_reviews_and_history(tmp_path):
     assert len(queue("train", path=path)) == 273
 
 
+@pytest.mark.integration
 def test_cached_reconstruction_is_deterministic():
     if not (ROOT / "data/raw/pilot_v1/aya_train.parquet").exists():
         pytest.skip("Pinned raw source cache is not available; never download during tests")

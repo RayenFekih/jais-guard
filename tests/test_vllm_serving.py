@@ -605,7 +605,7 @@ def test_user_authorized_fp16_gate_keeps_bf16_diagnostics(monkeypatch, tmp_path,
 def test_fp16_adapter_preserves_fp32_head_and_reuses_forward(monkeypatch):
     from contextlib import nullcontext
 
-    from jais_guard.serving import Predictor
+    from jais_guard.serving.hf import Predictor
     from jais_guard.vllm_support.fp16 import FP16Predictor
 
     class Model(nn.Module):

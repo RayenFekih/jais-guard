@@ -31,7 +31,7 @@ this policy and their annotation rationale; record concerns without automatic
 relabeling. Review hints are prompts for human inspection, not alternative rules
 that override this definition.
 
-`src/jais_guard/prompts.py` stores this definition verbatim as `DEFINITION`.
+`src/jais_guard/baselines/prompts.py` stores this definition verbatim as `DEFINITION`.
 Both selectable templates (`system_only` and `explicit_user`) share it through
 the system instruction. The explicit-user template additionally requests
 classification around the supplied text. Both request only `VALID` or
@@ -162,7 +162,7 @@ Jais's current generic label-generation prompt.
 From the repository root:
 
 ```bash
-.venv/bin/python -m src.jais_guard.data
+.venv/bin/python -m src.jais_guard.data.legacy
 ```
 
 This prints split/category counts and development review candidates with their

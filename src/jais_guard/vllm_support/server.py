@@ -3,7 +3,7 @@
 import time
 from contextlib import asynccontextmanager
 
-from jais_guard.serving import create_app as create_hf_app
+from jais_guard.serving.hf import create_app as create_hf_app
 
 from .artifacts import checked_export
 from .parity import acceptance_reference, require_parity

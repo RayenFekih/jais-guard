@@ -1,5 +1,8 @@
 # Realism replacement checkpoint — 28 October 2026
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 The user approved retirement of exactly 81 unreviewed semantic-construction
 candidates from the 400-record expansion: 61 `incoherent_real_words` and 20
 `semantic_incoherence`. Their records remain stored; their labels were not changed.

@@ -1,176 +1,162 @@
-# Jais Fine-Tuning
+# JaisGuard
 
-A Python workspace for Jais inference and fine-tuning experiments, managed with [`uv`](https://docs.astral.sh/uv/).
+**Arabic Gibberish Detection with Jais 3 0.9B**
 
-## Prerequisites
+[![Code: MIT](https://img.shields.io/badge/code-MIT-52657c)](LICENSE)
+[![Models: Hugging Face](https://img.shields.io/badge/models-Hugging%20Face-087f78)](https://huggingface.co/RayenFekih/JaisGuard-LoRA-0.9B)
 
-- Python **3.11** (pinned in `.python-version` / `pyproject.toml`).
-- [`uv`](https://docs.astral.sh/uv/) for dependency management.
+**[LoRA model](https://huggingface.co/RayenFekih/JaisGuard-LoRA-0.9B)** ·
+**[Frozen model](https://huggingface.co/RayenFekih/JaisGuard-Frozen-0.9B)** ·
+**[Dataset](https://huggingface.co/datasets/RayenFekih/arabic-gibberish-detection)**
 
-## Installing uv
+JaisGuard adapts a decoder-only Arabic language model into a binary **VALID / GIBBERISH**
+classifier. It compares untuned Jais, frozen-backbone training, LoRA training and Jev,
+measures classification and false-rejection trade-offs, and benchmarks GPU serving
+with Hugging Face and vLLM.
 
-**Windows (PowerShell):**
+- **Architecture adaptation:** replace vocabulary prediction with a pooled, FP32 classification head.
+- **Measured quality:** published LoRA checkpoint reaches **92.25% accuracy / 92.24% macro F1**.
+- **GPU inference:** historical vLLM export reaches **236.54 requests/s** at concurrency 16.
 
-```powershell
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
+These are local research results on a previously examined, constructed benchmark;
+quality and serving precision are reported separately below.
 
-**macOS / Linux:**
+## From language generation to classification
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+![Jais 3 generative path, JaisGuard classification adaptation, and frozen versus LoRA training](docs/assets/architecture-simple.svg)
 
-Restart your terminal afterwards so `uv` is on your `PATH`, or verify with:
+JaisGuard **adapts the output architecture for classification**: it retains the
+Jais 3 backbone and replaces the generative LM head with a new binary head.
+The final non-padding hidden state feeds an FP32 `Linear(1536, 2)` layer and softmax;
+a saved threshold on `P(GIBBERISH)` determines the label.
 
-```bash
-uv --version
-```
+**Frozen + Head** trains only the 3,074-parameter head. **LoRA + Head** also trains
+rank-8 adapters in `q_proj` / `v_proj` across all 28 layers. Both accept plain text
+up to 64 tokens, without a chat wrapper or silent truncation.
+See the [detailed transformer architecture](docs/architecture.md) and
+[training methodology](docs/finetuning.md).
 
-## Setting up the project
+## Classification quality
 
-From the project root (same command on Windows, macOS, and Linux):
+![Macro F1 comparison of untuned Jais, frozen head, LoRA head, and Jev](docs/assets/classification-quality.svg)
 
-```bash
-uv sync
-```
+All four methods use the **same 400 historical inputs**: 188 VALID and 212 GIBBERISH.
+The trained rows are the published v2 checkpoints, selected by minimum validation
+loss within each architecture, with validation-locked thresholds. They are
+**individual checkpoints**, not averages or models selected by test performance.
 
-This creates a `.venv` virtual environment and installs dependencies from `pyproject.toml`/`uv.lock` (including the `dev` group, e.g. `ruff`). For a production-only install (no dev dependencies):
+| Approach | Accuracy | Macro F1 | VALID false rejection |
+| --- | ---: | ---: | ---: |
+| Untuned Jais 3 0.9B · zero-shot | 75.00% | 77.05% | 0.53% |
+| Frozen Backbone + Head | 81.50% | 81.23% | 0.53% |
+| **LoRA + Head** | **92.25%** | **92.24%** | **4.79%** |
+| Jev 1.14.0 · hosted zero-shot | 62.25% | 58.02% | 0.00% |
 
-```bash
-uv sync --no-dev
-```
+Frozen and LoRA are **individual validation-selected v2 checkpoints**, evaluated
+at their locked thresholds (0.9563547373 / 0.9429310560); quality uses BF16,
+batch size 2. Untuned Jais uses its original generative prompt; Jev is hosted zero-shot.
+Untuned Jais's 30 INVALID outputs count as wrong; false rejection counts explicit
+GIBBERISH predictions only.
 
-## Activating the virtual environment
+All methods use the same **400 constructed historical inputs** (188 VALID / 212
+GIBBERISH). The test informed iteration two: this is **seen-benchmark regression
+analysis**, not independent blind evaluation. See [full quality and protocol details](docs/benchmarks/quality-latency/comparison.md)
+and [checkpoint metrics and experimental averages](docs/model-publication-preparation.md#metrics-individual-checkpoints-versus-experiments).
 
-**Windows (PowerShell):**
+## Inference latency and GPU memory
 
-```powershell
-.venv\Scripts\Activate.ps1
-```
+![Mean inference latency: remote Jev API versus local Jais models](docs/assets/inference-latency.svg)
 
-**Windows (cmd.exe):**
+**Mean latency per input**, over 400 inputs. Local inference uses an **RTX 4050
+Laptop GPU (6 GB)**, batch 1, including tokenization and transfers, with three warmups
+and no HTTP. Jev includes remote API/network overhead and no warmup; this is **not
+a controlled same-hardware speed comparison**. Loading is excluded.
+**Frozen is the fastest local approach** in the saved standalone benchmark.
 
-```cmd
-.venv\Scripts\activate.bat
-```
+| Local model | Peak allocated GPU memory |
+| --- | ---: |
+| Untuned Jais | 2,214.23 MiB |
+| Frozen + Head | 1,997.45 MiB |
+| LoRA + Head | 2,002.26 MiB |
 
-**macOS / Linux (bash/zsh):**
+Memory includes resident weights and measures the CUDA allocator peak, not total
+board VRAM. Jev memory is unavailable. [Full standalone benchmark](docs/benchmarks/quality-latency/comparison.md).
 
-```bash
-source .venv/bin/activate
-```
+**vLLM optimization.** Matched FP16 LoRA serving on the same GPU, with 400 warm
+local HTTP requests per backend at concurrency 16, one input per request:
 
-To deactivate on any platform, run `deactivate`.
+| Backend | Requests/s | Mean HTTP latency | Peak allocated GPU memory |
+| --- | ---: | ---: | ---: |
+| HF / FastAPI | 26.13 | 600.78 ms | 2,478.36 MiB |
+| vLLM 0.32.0 | 236.54 | 67.34 ms | 4,515.01 MiB |
 
-You don't strictly need to activate the environment to run things — `uv run <command>` (e.g. `uv run python main.py`) runs a command inside the project's environment without activating it.
+vLLM batches concurrent requests while HF serializes GPU work: **9.05× throughput**,
+with higher VRAM use. See the [throughput figure and serving protocol](docs/vllm-serving.md#throughput-overview).
 
-## Running the service
+Under matched FP16 conditions, selected HF and vLLM classifiers produced **zero class
+mismatches across 658 checked examples per model at both tested operating points**;
+probabilities were close, not identical.
 
-`main.py` is currently an empty placeholder; no service is implemented yet.
+Native vLLM uses **separate historical full-backbone exports**, including merged
+LoRA weights. The published compact Hugging Face packages use a custom loader and
+**do not directly support native vLLM**. [Full serving measurements and precision limits](docs/benchmarks/vllm/comparison.md).
 
-```bash
-python main.py
-```
+## Run the published LoRA model
 
-or, without activating the environment first:
-
-```bash
-uv run python main.py
-```
-
-## Configuration
-
-Application settings live in [src/config.py](src/config.py) (a Pydantic `Config` model). Local secrets/environment variables can be added to a `.env` file (copy `.env.example` to `.env`) and loaded via `python-dotenv`; `.env` itself is gitignored.
-
-## Linting
-
-This project uses [`ruff`](https://docs.astral.sh/ruff/) for linting and formatting, configured in `ruff.toml`.
-
-```bash
-uv run ruff check .
-uv run ruff format .
-```
-
-## Project Structure
-
-```
-main.py           # application entrypoint
-src/
-  config.py       # application settings (Pydantic model)
-  logger.py       # logging configuration
-data/             # static/reference data
-tests/            # test scripts
-logs/             # runtime logs (gitignored)
-docs/             # project documentation
-```
-
-## Deployment
-
-The [Dockerfile](Dockerfile) builds from `python:3.11-slim` and installs dependencies via `uv sync --frozen --no-dev` (from `pyproject.toml`/`uv.lock`). Its service command requires an implemented `main:app` and the `gunicorn` dependency before it can run.
+Use **Python 3.11**, `uv`, and a CUDA GPU; the release was tested on the RTX 4050.
+From this checkout, install the locked environment, then anonymously download the
+verified model revision and run its bundled example:
 
 ```bash
-docker build -t project-template .
+uv sync --frozen --extra finetune
+uv run --no-sync python - <<'PY'
+from huggingface_hub import snapshot_download
+snapshot_download(
+    "RayenFekih/JaisGuard-LoRA-0.9B",
+    revision="74977da942572cf15e0cbf6c815a343b1bd61af1",
+    token=False, local_dir="downloads/JaisGuard-LoRA-0.9B",
+)
+PY
+uv run --no-sync python downloads/JaisGuard-LoRA-0.9B/example.py \
+  --local-files-only --text 'كيف يمكنني تعلم اللغة العربية؟'
 ```
 
-## Push to GitHub
+This tested path requires the pinned **Jais base model already cached**, including
+trusted upstream code, at revision `e51941b37091287fee4934e3f8a799e0d3fef37f`.
+The original `IFM/Jais-3-0.9B` identifier redirects to `inception42/Jais-3-0.9B`.
+For online base download, omit `--local-files-only`; that provisioning path was not
+part of fresh-download GPU verification. The example returns probabilities and a
+validation-locked label through the bundled `JaisGuardClassifier` custom API.
 
-Create an empty GitHub repository without a README, license, or `.gitignore`, then run these commands from the project root in a terminal with write access to `.git`:
+See [verified release and revisions](docs/model-publication-release.md), the
+[Frozen model](https://huggingface.co/RayenFekih/JaisGuard-Frozen-0.9B), and
+[training / serving workflows](docs/public-workflows.md). The compact packages require
+their custom loader; standard Transformers sequence-classification auto-loading,
+pipelines and Hugging Face Inference Providers are not supported.
 
-```bash
-git init -b main
-git add .
-git diff --cached --stat
-git commit -m "Initial commit"
-git remote add origin https://github.com/OWNER/REPOSITORY.git
-git push -u origin main
-```
+## Dataset and reproducibility
 
-Replace `OWNER/REPOSITORY` with your GitHub owner and repository name. Review the staged files before committing. Virtual environments, environment secrets, local agent/cloud configuration, logs, and generated model weights are excluded by `.gitignore`; `uv.lock` and `.env.example` are included.
+The [dataset repository](https://huggingface.co/datasets/RayenFekih/arabic-gibberish-detection)
+contains the prepared derivative: **1,498 train · 250 validation · 400 test = 2,148**.
+Anonymous access returned HTTP 401 during README verification on 2026-10-31;
+authorized access is currently required.
 
-## JaisGuard baseline inference
+Published historical checkpoints trained on **1,500** examples. The derivative excludes
+two training narratives for privacy uncertainty; validation and test are unchanged.
+It therefore does **not** reproduce historical training exactly. Training includes
+133 audited-provisional labels; benchmark construction, prior test inspection and
+remaining privacy/memorization uncertainty limit interpretation. Numerical parity
+is not privacy clearance. See [dataset provenance](docs/huggingface-public-release-v1.md),
+[model limitations](docs/model-publication-preparation.md) and [reproducibility](docs/reproducibility.md).
 
-Initial `VALID` / `GIBBERISH` inference, using Transformers and PyTorch in `.venv`:
+## Further reading
 
-```bash
-.venv/bin/python scripts/smoke_baseline.py
-```
-
-See [baseline setup and research conditions](docs/baseline.md) for the repository
-inspection, official reasoning controls, CPU checks, configuration, output format,
-and validation limits. This is Phase 1 diagnostic functionality; no training is
-implemented.
-
-## Local dataset annotation
-
-The 100-candidate, data-only pilot is ready for blind review:
-
-```bash
-.venv/bin/python -m streamlit run apps/annotate.py
-```
-
-Open http://localhost:8501. See [annotation workflow and source provenance](docs/annotation.md).
-Labels, notes, flags and progress persist locally in SQLite. No model is loaded.
-
-## Hidden-representation fine-tuning
-
-The frozen-head and LoRA pipelines, CPU tests, local MLflow tracking, and disposable
-GPU smoke checks are documented in [fine-tuning workflow](docs/finetuning.md).
-Full experiments require separate approval; begin with the WSL smoke commands there.
-
-The next [evaluation phase](docs/evaluation-phase.md) adds the versioned untuned
-validation prompt baseline and the isolated, human-reviewed `test-400-v1` preparation
-and freeze workflow. It does not evaluate unfinished test candidates.
-
-For the complete cached-quality comparison, batch-1 GPU benchmarks and local
-FastAPI/httpx demo across untuned Jais, frozen v1/v2 and LoRA v1/v2, see
-[the latency and serving workflow](docs/latency-serving.md). It preserves Jev's
-existing remote API measurements and all historical experiments.
-
-For the separate **real vLLM 0.32.0 classifier server**, exact trained-head/LoRA
-exports, mandatory prediction parity and matched HTTP concurrency benchmarks, see
-[the vLLM serving workflow](docs/vllm-serving.md). It uses the existing
-`.venv-vllm` environment; GPU parity must pass before performance is reported.
-
-The current user-approved FP16 equivalence gate, preserved BF16 diagnostics and
-remaining GPU/HTTP commands are in [the FP16 benchmark guide](docs/vllm-fp16-benchmark.md).
+| Topic | Documentation |
+| --- | --- |
+| Dataset construction and provenance | [Construction](docs/dataset.md) · [public derivative](docs/huggingface-public-release-v1.md) |
+| Fine-tuning methodology | [Frozen and LoRA training](docs/finetuning.md) |
+| Model comparisons and evaluation | [Version comparison](docs/version-comparison.md) · [quality evidence](docs/benchmarks/quality-latency/comparison.md) |
+| HF and vLLM serving | [Public workflows](docs/public-workflows.md) · [vLLM](docs/vllm-serving.md) |
+| Throughput, latency and memory | [Matched benchmarks](docs/benchmarks/vllm/comparison.md) · [FP16 protocol](docs/vllm-fp16-benchmark.md) |
+| Reproducibility | [Artifact and replay boundaries](docs/reproducibility.md) · [figure sources](docs/assets/README.md) |
+| Licensing | [MIT code](LICENSE) · [model terms](docs/model-publication-preparation.md#integrity-and-licensing-review) · [dataset terms](docs/huggingface-public-release-v1.md) |

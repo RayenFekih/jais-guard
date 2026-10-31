@@ -12,8 +12,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from test_provisional_annotations import artificial_rows
 
-from jais_guard import annotations as a
-from jais_guard.audit_policy import AYA_REVISION, admission, digest, project_workload
+from jais_guard.data import annotations as a
+from jais_guard.data.audit_policy import AYA_REVISION, admission, digest, project_workload
 
 
 def aya(text, **updates):
@@ -224,6 +224,7 @@ def test_migration_proposal_is_read_only_and_refuses_started_reviews(tmp_path):
     assert not a.migration_preview("existing-fixture", path=path)["safe_to_propose"]
 
 
+@pytest.mark.integration
 def test_local_400_proposal_preserves_live_database_and_frozen_samples():
     root = Path(__file__).resolve().parents[1]
     folder = root / "data/milestone700_v1"

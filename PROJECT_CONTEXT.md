@@ -1,5 +1,8 @@
 # JaisGuard project context
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](docs/public-workflows.md).
+
 JaisGuard investigates whether the Arabic-centric `IFM/Jais-3-0.9B` model can
 be adapted into an accurate, efficient Arabic gibberish classifier. Preserve
 meaningful Arabic-script inputs, including Modern Standard Arabic, regional

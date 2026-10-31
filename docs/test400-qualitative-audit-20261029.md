@@ -1,5 +1,8 @@
 # JaisGuard: qualitative audit of the 76-candidate draft
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 **29 October 2026 — desk audit and proposal only. No annotations or protocol changes.**
 
 ## Conclusion

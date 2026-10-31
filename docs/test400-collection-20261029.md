@@ -1,5 +1,8 @@
 # Independent test collection checkpoint — 29 October 2026
 
+> Historical checkpoint: preserved as evidence, not current operating instructions.
+> See [current public workflows](public-workflows.md).
+
 The existing test protocol verified and was preserved. A **76-example provisional
 draft (44 VALID / 32 GIBBERISH)** is at `data/test400_v1/draft.jsonl`. Nothing was
 imported, frozen, trained or evaluated. All human annotation tables remain empty.

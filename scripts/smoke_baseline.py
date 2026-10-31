@@ -16,10 +16,10 @@ sys.path.insert(0, str(ROOT / "src"))
 def main() -> int:
     import torch
 
-    from jais_guard.data import load_dataset
-    from jais_guard.inference import BaselineClassifier, BaselineConfig
-    from jais_guard.metrics import summarize
-    from jais_guard.report import write_report
+    from jais_guard.baselines.inference import BaselineClassifier, BaselineConfig
+    from jais_guard.baselines.metrics import summarize
+    from jais_guard.baselines.report import write_report
+    from jais_guard.data.legacy import load_dataset
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dev", action="store_true", help="Use the existing 40-example dev split")

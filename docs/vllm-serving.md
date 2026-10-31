@@ -1,5 +1,9 @@
 # Real vLLM serving for the trained JaisGuard classifiers
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 This is a separate implementation using the **existing `.venv-vllm`, vLLM
 0.32.0**, without installing or upgrading anything. The original `.venv`, model
 checkpoints, human labels, quality results, and Hugging Face/FastAPI code remain
@@ -79,18 +83,18 @@ substitution or replacement with a yes/no language-model head.
 The plan pins these settings, based on the previously successful configuration:
 
 ```python
-model_impl="transformers"
-runner="pooling"
-convert="classify"
-trust_remote_code=True
-dtype="float16"
-enforce_eager=True
-max_model_len=1024
-gpu_memory_utilization=0.75
-max_num_seqs=16
-max_num_batched_tokens=1024
-enable_prefix_caching=False
-enable_chunked_prefill=False
+model_impl = "transformers"
+runner = "pooling"
+convert = "classify"
+trust_remote_code = True
+dtype = "float16"
+enforce_eager = True
+max_model_len = 1024
+gpu_memory_utilization = 0.75
+max_num_seqs = 16
+max_num_batched_tokens = 1024
+enable_prefix_caching = False
+enable_chunked_prefill = False
 ```
 
 Pooling is explicitly `LAST`, with softmax activation and FP32 head computation.
@@ -354,3 +358,17 @@ not a new quality result or model-selection step.
 
 Recovery validation: **27 CPU tests passed**, including strict primitive worker
 metadata and preservation of exports/completed HF references during migration.
+
+## Throughput overview
+
+![HF versus vLLM serving throughput](assets/serving-throughput.svg)
+
+This supplied publication figure summarizes the historical v2 LoRA seed 44
+full-backbone exports: matched FP16, RTX 4050 Laptop GPU (6 GB), concurrency 16,
+400 warm local HTTP requests per backend. HF serializes GPU work; vLLM batches it.
+Throughput rises from 26.13 to 236.54 requests/s (9.05×), while CUDA peak allocated
+memory rises from 2,478.36 to 4,515.01 MiB. This is allocator memory including weights,
+not total board usage. Compact published model packages require their custom loader.
+
+See [complete measurements](benchmarks/vllm/comparison.md) and
+[figure sources](assets/README.md) for protocol, precision parity and regeneration.

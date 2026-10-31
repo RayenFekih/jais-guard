@@ -1,5 +1,9 @@
 # JaisGuard v1 versus v2 benchmark regression
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 This workflow compares untuned Jais 3, frozen v1, LoRA v1, frozen v2 and LoRA v2 on
 exactly the same frozen 400 records (188 VALID / 212 GIBBERISH). This is a
 **previously examined, constructed benchmark used for version-to-version regression

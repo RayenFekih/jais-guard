@@ -8,8 +8,10 @@ import pytest
 import yaml
 from datasets import Dataset, load_dataset
 
-from src.jais_guard import public_release as release
-from src.jais_guard import publication as original
+from jais_guard.publication import frozen as original
+from jais_guard.publication import public_release as release
+
+pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(scope="module")

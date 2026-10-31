@@ -1,3 +1,5 @@
+"""Historical free-generation demo; use jaisguard predict for classification."""
+
 import logging
 import logging.config
 import sys
@@ -8,10 +10,10 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT_DIR))
+sys.path.insert(0, str(ROOT_DIR / "src"))
 
-from config import config
-from logger import LOGGING_CONFIG
+from config import config  # noqa: E402
+from logger import LOGGING_CONFIG  # noqa: E402
 
 logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)

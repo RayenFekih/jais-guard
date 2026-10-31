@@ -6,8 +6,8 @@ import json
 import shutil
 from pathlib import Path
 
-from jais_guard.latency_benchmark import write_new
-from jais_guard.serving import DEFAULT_DIRECTORY, checked_manifest, frozen_inputs, read_json
+from jais_guard.benchmarks.latency import write_new
+from jais_guard.serving.hf import DEFAULT_DIRECTORY, checked_manifest, frozen_inputs, read_json
 
 DEFAULT_ROOT = Path("results/vllm_serving/jaisguard-v2")
 VLLM_SITE = Path(".venv-vllm/lib/python3.11/site-packages")

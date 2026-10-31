@@ -10,8 +10,8 @@ sys.path.insert(0, str(ROOT / "src"))
 
 
 def main():
-    from jais_guard.annotations import DEFAULT_DB
-    from jais_guard.test_workflow import (
+    from jais_guard.data.annotations import DEFAULT_DB
+    from jais_guard.data.test_workflow import (
         check_candidates,
         freeze,
         import_collection,

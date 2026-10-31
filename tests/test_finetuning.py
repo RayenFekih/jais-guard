@@ -81,6 +81,7 @@ def tiny_config(config, tiny_backbone_path, tmp_path):
     return config
 
 
+@pytest.mark.integration
 def test_real_exports_are_immutable_inputs(config):
     if not Path(config["train_path"]).exists():
         pytest.skip("Local exports unavailable")

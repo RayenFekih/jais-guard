@@ -146,11 +146,15 @@ def main():
 def baseline_run(config, val, directory, mlflow, genai=False, baseline_config=None):
     import torch
 
+    from jais_guard.baselines.inference import BaselineClassifier, BaselineConfig
+    from jais_guard.baselines.prompts import (
+        RECOVERABLE_INSTRUCTION,
+        RECOVERABLE_PROMPT_VERSION,
+        build_prompt,
+    )
     from jais_guard.finetuning.evaluation import save_report, write_json
     from jais_guard.finetuning.model import seed_everything
     from jais_guard.finetuning.tracking import log_genai, log_metrics
-    from jais_guard.inference import BaselineClassifier, BaselineConfig
-    from jais_guard.prompts import RECOVERABLE_INSTRUCTION, RECOVERABLE_PROMPT_VERSION, build_prompt
 
     seed_everything(42)
     import hashlib

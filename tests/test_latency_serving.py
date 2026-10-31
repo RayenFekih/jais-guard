@@ -10,8 +10,8 @@ import httpx
 import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from jais_guard import latency_benchmark as bench
-from jais_guard import serving
+from jais_guard.benchmarks import latency as bench
+from jais_guard.serving import hf as serving
 
 
 def test_validation_selection_ignores_test_quality():
@@ -96,7 +96,7 @@ def test_api_load_once_validation_and_invalid(monkeypatch):
 
 
 def test_manifest_tampering(tmp_path):
-    from jais_guard.test_workflow import sha
+    from jais_guard.data.test_workflow import sha
 
     quality = tmp_path / "quality.json"
     quality.write_text("{}")

@@ -1,5 +1,9 @@
 # Local inference and comprehensive latency comparison
 
+> Historical experiment protocol. Completed local evidence supersedes pending-run
+> language below. Source-locked replay requires the original revision and artifacts;
+> see [reproducibility](reproducibility.md) and [public workflows](public-workflows.md).
+
 This workflow reuses the completed Jev 1.14.0, untuned Jais, frozen v1/v2 and
 LoRA v1/v2 classification results on the frozen 400 human-reviewed Arabic inputs.
 It makes **no Jev API requests** and performs no training, threshold search,

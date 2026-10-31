@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from test_provisional_annotations import artificial_rows
 
-from jais_guard.annotations import audit_report, connection, import_candidates, save_annotation
+from jais_guard.data.annotations import audit_report, connection, import_candidates, save_annotation
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -66,6 +66,7 @@ def test_accidental_generation_batch_merging_is_rejected_before_import(tmp_path)
         assert db.execute("SELECT COUNT(*) FROM audit_groups").fetchone()[0] == 0
 
 
+@pytest.mark.integration
 def test_local_700_collection_counts_provenance_and_reconstruction():
     folder = ROOT / "data/milestone700_v1"
     if not (folder / "candidates.jsonl").exists():

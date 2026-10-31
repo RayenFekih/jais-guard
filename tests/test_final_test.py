@@ -12,9 +12,9 @@ import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from jais_guard.data.test_workflow import sha
 from jais_guard.finetuning import final_test
 from jais_guard.finetuning.evaluation import write_json
-from jais_guard.test_workflow import sha
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location(

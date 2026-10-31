@@ -30,8 +30,5 @@ LOGGING_CONFIG = {
             "backupCount": 3,
         },
     },
-    "root": {
-        "level": "INFO",
-        "handlers": ["console", "error_log_file_handler"]
-    },
+    "root": {"level": "INFO", "handlers": ["console", "error_log_file_handler"]},
 }

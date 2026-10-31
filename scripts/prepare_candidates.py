@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from jais_guard.annotations import (
+from jais_guard.data.annotations import (
     DEFAULT_DB,
     PROVISIONAL_POLICY_VERSION,
     ROOT,
@@ -25,7 +25,7 @@ from jais_guard.annotations import (
     preview_import,
     quality_issues,
 )
-from jais_guard.audit_policy import boundary, digest
+from jais_guard.data.audit_policy import boundary, digest
 
 PILOT = ROOT / "data/pilot_v1"
 RAW = ROOT / "data/raw/pilot_v1"

@@ -74,8 +74,13 @@ and imports the full declared run together rather than freezing every authoring 
 ```python
 plan = preview_import(rows, "new-training-run", seed=42, path=db_path)
 print(plan["required_reviews"], plan["audit_samples"], plan["manual_only"])
-import_candidates(rows, path=db_path, provisional_batch="new-training-run", seed=42,
-                  expected_projection=plan["fingerprint"])
+import_candidates(
+    rows,
+    path=db_path,
+    provisional_batch="new-training-run",
+    seed=42,
+    expected_projection=plan["fingerprint"],
+)
 ```
 
 `audit_policy.py` contains pure admission/sampling/projection functions; SQLite
@@ -134,7 +139,7 @@ Inspect the same calculation without writing to the database or existing artifac
 ### Transaction, verification and rollback
 
 Migration ID: `v2-c1beb1213406a918a176`. The implementation is in
-`src/jais_guard/audit_migrations.py`. It takes `BEGIN IMMEDIATE`, rechecks the approved
+`src/jais_guard/data/audit_migrations.py`. It takes `BEGIN IMMEDIATE`, rechecks the approved
 fingerprints and untouched-review preconditions, creates an integrity-checked SQLite
 backup through a separate reader, then applies schema/records/pointers in one transaction.
 Any failure rolls back the DDL and data. There is no `executescript` inside this transaction.
@@ -164,8 +169,8 @@ Before any of the new 400 is reviewed/exported, this guarded operation can resto
 v1 pointers transactionally while retaining all v2 rows as inactive history:
 
 ```python
-from jais_guard.annotations import DEFAULT_DB
-from jais_guard.audit_migrations import rollback_audit_migration
+from jais_guard.data.annotations import DEFAULT_DB
+from jais_guard.data.audit_migrations import rollback_audit_migration
 
 rollback_audit_migration("v2-c1beb1213406a918a176", path=DEFAULT_DB)
 ```
