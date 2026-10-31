@@ -1,0 +1,57 @@
+{
+  "project": "JaisGuard",
+  "quality": {
+    "metric_units": "percent",
+    "evaluation": "400 historical constructed and previously examined inputs (188 VALID, 212 GIBBERISH); same inputs across approaches, different inference protocols",
+    "rows": [
+      {"model": "Untuned Jais 3 0.9B", "accuracy": 75.00, "macro_f1": 77.04545454545455, "valid_false_rejection": 0.53, "protocol": "zero-shot generative prompt; 30 INVALID generated outputs counted as incorrect"},
+      {"model": "Frozen Backbone + Head", "accuracy": 81.50, "macro_f1": 81.2297077922078, "valid_false_rejection": 0.53, "protocol": "v2 seed 43; BF16 batch 2; validation-locked threshold 0.9563547372817993"},
+      {"model": "LoRA + Head", "accuracy": 92.25, "macro_f1": 92.24413462681152, "valid_false_rejection": 4.79, "protocol": "v2 seed 44; BF16 batch 2; validation-locked threshold 0.942931056022644"},
+      {"model": "Jev 1.14.0", "accuracy": 62.25, "macro_f1": 58.0179466327474, "valid_false_rejection": 0.00, "protocol": "remote hosted zero-shot API"}
+    ]
+  },
+  "latency": {
+    "unit": "ms per input, mean",
+    "evaluation": "400 inputs; local RTX 4050 Laptop GPU 6GB; local batch 1 with tokenization and transfers, 3 warmups, no HTTP; remote Jev API includes network, no warmup; loading excluded",
+    "rows": [
+      {"model": "Jev 1.14.0", "mean_ms": 217.52, "peak_gpu_allocated_mib": null, "mode": "hosted remote API"},
+      {"model": "Untuned Jais 3 0.9B", "mean_ms": 160.84, "peak_gpu_allocated_mib": 2214.23, "mode": "local GPU generative baseline"},
+      {"model": "Frozen Backbone + Head", "mean_ms": 23.50, "peak_gpu_allocated_mib": 1997.45, "mode": "local GPU classifier; v2 seed 43"},
+      {"model": "LoRA + Head", "mean_ms": 34.24, "peak_gpu_allocated_mib": 2002.26, "mode": "local GPU classifier; v2 seed 44"}
+    ]
+  },
+  "serving": {
+    "evaluation": "Historical FP16 LoRA seed 44 full-backbone exports; 400 warm local HTTP requests per backend; concurrency 16; one input per request; RTX 4050 Laptop GPU 6GB; HF serialized vs vLLM batched",
+    "rows": [
+      {"backend": "HF / FastAPI", "requests_per_second": 26.13, "mean_http_latency_ms": 600.78, "peak_gpu_allocated_mib": 2478.36},
+      {"backend": "vLLM 0.32.0", "requests_per_second": 236.54, "mean_http_latency_ms": 67.34, "peak_gpu_allocated_mib": 4515.01}
+    ],
+    "throughput_speedup": 9.05,
+    "limitations": "Native vLLM used historical full-backbone exports, not the compact published HF packages. Peak allocated GPU memory is CUDA allocator peak, not total board usage."
+  },
+  "architecture": {
+    "base": "Jais 3 0.9B causal decoder transformer",
+    "transformer_layers": 28,
+    "hidden_size": 1536,
+    "pooling": "final non-padding token's last-layer hidden state",
+    "classifier": "Linear(1536, 2) with bias; FP32 head",
+    "output": ["VALID", "GIBBERISH"],
+    "maximum_input_tokens": 64,
+    "frozen_strategy": "Freeze all backbone parameters; train head only (3074 parameters)",
+    "lora_strategy": "Freeze original backbone; train rank-8 LoRA adapters on q_proj/v_proj in all 28 layers plus classifier head; alpha 16; dropout 0.05"
+  },
+  "links": {
+    "github": "https://github.com/RayenFekih/jais-guard",
+    "lora_model": "https://huggingface.co/RayenFekih/JaisGuard-LoRA-0.9B",
+    "frozen_model": "https://huggingface.co/RayenFekih/JaisGuard-Frozen-0.9B",
+    "dataset": "https://huggingface.co/datasets/RayenFekih/arabic-gibberish-detection"
+  },
+  "warnings": [
+    "Historical constructed, previously examined benchmark, not an independent blind test",
+    "Comparisons across untuned generation, Jev hosted API, and trained classifiers use different inference protocols",
+    "Do not treat remote Jev latency as same-hardware comparison",
+    "Published HF compact packages use custom inference loaders and are not directly compatible with native vLLM",
+    "Precision/batching differs between quality and serving experiments",
+    "Do not invent other metrics, including Jev VRAM or p95 latency"
+  ]
+}

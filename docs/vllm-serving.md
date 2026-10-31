@@ -358,3 +358,17 @@ not a new quality result or model-selection step.
 
 Recovery validation: **27 CPU tests passed**, including strict primitive worker
 metadata and preservation of exports/completed HF references during migration.
+
+## Throughput overview
+
+![HF versus vLLM serving throughput](assets/serving-throughput.svg)
+
+This supplied publication figure summarizes the historical v2 LoRA seed 44
+full-backbone exports: matched FP16, RTX 4050 Laptop GPU (6 GB), concurrency 16,
+400 warm local HTTP requests per backend. HF serializes GPU work; vLLM batches it.
+Throughput rises from 26.13 to 236.54 requests/s (9.05×), while CUDA peak allocated
+memory rises from 2,478.36 to 4,515.01 MiB. This is allocator memory including weights,
+not total board usage. Compact published model packages require their custom loader.
+
+See [complete measurements](benchmarks/vllm/comparison.md) and
+[figure sources](assets/README.md) for protocol, precision parity and regeneration.
