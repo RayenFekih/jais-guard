@@ -3,6 +3,12 @@
 Prepared locally on `cleanup/public-workflows`. Nothing was uploaded, no model was
 retrained, no paid API was called, and no historical artifacts were modified.
 
+The subsequent [final release review](model-release-review.md) governs the release
+recommendation: technical checks passed, but privacy disposition and explicit
+private-upload authorization remain pending. Numerical parity does not establish
+privacy clearance. Use the final review's exact-manifest-pinned commands rather
+than the less restrictive preparation examples below.
+
 ## Staged repositories and exact source checkpoints
 
 | Staged directory | Historical model | Source checkpoint under `results/fine_tuning_iteration2/` | Epoch | Saved threshold |
